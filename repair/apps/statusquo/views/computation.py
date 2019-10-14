@@ -8,7 +8,7 @@ from django.db.models.functions import Coalesce
 
 from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.models import (Actor, FractionFlow, Process,
-                                      AdministrativeLocation, Material)
+                                      Location, Material)
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
 from repair.apps.asmfa.views import get_fractionflows
 
@@ -17,7 +17,7 @@ def filter_actors_by_area(actors, geom):
     '''
     get actors in a polygon (by administrative location)
     '''
-    locations = AdministrativeLocation.objects.filter(actor__in=actors)
+    locations = Location.objects.filter(actor__in=actors)
     locations = locations.filter(geom__intersects=geom)
     actors_in_area = actors.filter(id__in=locations.values('actor'))
     return actors_in_area

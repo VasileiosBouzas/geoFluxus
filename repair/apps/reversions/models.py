@@ -18,8 +18,9 @@ from repair.apps.asmfa.models import (Actor,
                                       Material,
                                       Product,
                                       ProductFraction,
-                                      AdministrativeLocation,
-                                      OperationalLocation,
+                                      Location,
+                                      #AdministrativeLocation,
+                                      #OperationalLocation,
                                       KeyflowInCasestudy,
                                       Composition
                                     )
@@ -111,14 +112,18 @@ class ProductFractionAdmin(VersionAdmin):
     """Versioning of ProductFraction"""
 
 
-@admin.register(AdministrativeLocation)
-class AdministrativeLocationAdmin(VersionAdmin):
-    """Versioning of AdministrativeLocation"""
+@admin.register(Location)
+class Location(VersionAdmin):
+    """Versioning of Location"""
 
-
-@admin.register(OperationalLocation)
-class OperationalLocationAdmin(VersionAdmin):
-    """Versioning of OperationalLocation"""
+# @admin.register(AdministrativeLocation)
+# class AdministrativeLocationAdmin(VersionAdmin):
+#     """Versioning of AdministrativeLocation"""
+#
+#
+# @admin.register(OperationalLocation)
+# class OperationalLocationAdmin(VersionAdmin):
+#     """Versioning of OperationalLocation"""
 
 #from publications_bootstrap.admin.publicationadmin import PublicationAdmin
 #@admin.site.unregister(Publication)

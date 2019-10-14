@@ -9,8 +9,9 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity,
                                       Actor,
-                                      AdministrativeLocation,
-                                      OperationalLocation,
+                                      Location,
+                                      #AdministrativeLocation,
+                                      #OperationalLocation,
                                       Reason,
                                       KeyflowInCasestudy,
                                       Actor2Actor
@@ -144,25 +145,35 @@ class GeolocationInCasestudy2ListField(IdentityFieldMixin,
                             'actor_pk': 'id', }
 
 
-class AdminLocationGeojsonField(GeoFeatureModelSerializer):
-    actor = serializers.PrimaryKeyRelatedField(queryset=Actor.objects.all())
-
-    class Meta:
-        model = AdministrativeLocation
-        geo_field = 'geom'
-        fields = ['id', 'address', 'postcode', 'country',
-                  'city', 'name', 'actor']
-
-
-class OperationsLocationsGeojsonField(GeoFeatureModelSerializer):
+class LocationsGeojsonField(GeoFeatureModelSerializer):
     actor = serializers.PrimaryKeyRelatedField(queryset=Actor.objects.all())
     id = serializers.IntegerField(label='ID')
 
     class Meta:
-        model = OperationalLocation
+        model = Location
         geo_field = 'geom'
         fields = ['id', 'address', 'postcode', 'country',
                   'city', 'name', 'actor']
+
+# class AdminLocationGeojsonField(GeoFeatureModelSerializer):
+#     actor = serializers.PrimaryKeyRelatedField(queryset=Actor.objects.all())
+#
+#     class Meta:
+#         model = AdministrativeLocation
+#         geo_field = 'geom'
+#         fields = ['id', 'address', 'postcode', 'country',
+#                   'city', 'name', 'actor']
+
+
+# class OperationsLocationsGeojsonField(GeoFeatureModelSerializer):
+#     actor = serializers.PrimaryKeyRelatedField(queryset=Actor.objects.all())
+#     id = serializers.IntegerField(label='ID')
+#
+#     class Meta:
+#         model = OperationalLocation
+#         geo_field = 'geom'
+#         fields = ['id', 'address', 'postcode', 'country',
+#                   'city', 'name', 'actor']
 
 
 class URLWithoutProtocolValidator(URLValidator):

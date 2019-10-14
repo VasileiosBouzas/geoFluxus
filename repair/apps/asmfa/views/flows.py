@@ -13,7 +13,7 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
 from repair.apps.asmfa.models import (
     Reason,
     Flow,
-    AdministrativeLocation,
+    Location,
     Activity2Activity,
     Actor2Actor,
     Group2Group,

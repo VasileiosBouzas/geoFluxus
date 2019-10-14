@@ -41,10 +41,8 @@ from repair.apps.asmfa.views import (
     GroupStockViewSet,
     ActivityStockViewSet,
     ActorStockViewSet,
-    AdministrativeLocationOfActorViewSet,
-    OperationalLocationsOfActorViewSet,
-    AdministrativeLocationViewSet,
-    OperationalLocationViewSet,
+    LocationsOfActorViewSet,
+    LocationViewSet,
     ProductViewSet,
     MaterialViewSet,
     AllProductViewSet,
@@ -157,8 +155,7 @@ kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
 kf_router.register(r'activities', ActivityViewSet)
 kf_router.register(r'actors', ActorViewSet)
-kf_router.register(r'administrativelocations', AdministrativeLocationViewSet)
-kf_router.register(r'operationallocations', OperationalLocationViewSet)
+kf_router.register(r'locations', LocationViewSet)
 kf_router.register(r'flowindicators', FlowIndicatorViewSet)
 kf_router.register(r'flowfilters', FlowFilterViewSet)
 kf_router.register(r'solutioncategories', SolutionCategoryViewSet)
@@ -183,10 +180,7 @@ strat_router.register(r'solutions', SolutionInStrategyViewSet)
 # /casestudies/*/keyflows/*/actors/...
 actors_router = NestedSimpleRouter(kf_router, r'actors',
                                    lookup='actor')
-actors_router.register(r'administrativelocation',
-                   AdministrativeLocationOfActorViewSet)
-actors_router.register(r'operationallocations',
-                   OperationalLocationsOfActorViewSet)
+actors_router.register(r'locations', LocationsOfActorViewSet)
 
 ## webhook ##
 
