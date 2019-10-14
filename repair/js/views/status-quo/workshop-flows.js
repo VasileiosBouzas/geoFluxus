@@ -39,7 +39,6 @@ var FlowsWorkshopView = BaseView.extend(
             apiTag: 'materials',
             apiIds: [this.caseStudy.id, this.keyflowId ]
         });
-
         var promises = [
             this.materials.fetch(),
             this.filters.fetch({ data: { included: "True" } })
