@@ -16,26 +16,14 @@ from repair.apps.asmfa.models import (Actor,
                                       Activity2Activity,
                                       Group2Group,
                                       Material,
-                                      Product,
-                                      ProductFraction,
                                       Location,
-                                      #AdministrativeLocation,
-                                      #OperationalLocation,
                                       KeyflowInCasestudy,
-                                      Composition
-                                    )
-
-from publications_bootstrap.models import Publication
+                                      )
 
 
 @admin.register(CaseStudy)
 class CaseStudyAdmin(GeoModelAdmin, VersionAdmin):
     """Versioning of casestudy"""
-
-
-@admin.register(Composition)
-class CompositionAdmin(VersionAdmin):
-    """Versioning of composition"""
 
 
 @admin.register(KeyflowInCasestudy)
@@ -102,31 +90,6 @@ class MaterialAdmin(VersionAdmin):
     """Versioning of Material"""
 
 
-@admin.register(Product)
-class ProductAdmin(VersionAdmin):
-    """Versioning of Product"""
-
-
-@admin.register(ProductFraction)
-class ProductFractionAdmin(VersionAdmin):
-    """Versioning of ProductFraction"""
-
-
 @admin.register(Location)
 class Location(VersionAdmin):
     """Versioning of Location"""
-
-# @admin.register(AdministrativeLocation)
-# class AdministrativeLocationAdmin(VersionAdmin):
-#     """Versioning of AdministrativeLocation"""
-#
-#
-# @admin.register(OperationalLocation)
-# class OperationalLocationAdmin(VersionAdmin):
-#     """Versioning of OperationalLocation"""
-
-#from publications_bootstrap.admin.publicationadmin import PublicationAdmin
-#@admin.site.unregister(Publication)
-#@admin.register(Publication)
-#class PublicationAdmin(VersionAdmin, PublicationAdmin):
-    #"""Versioning of Publication"""

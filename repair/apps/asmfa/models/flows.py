@@ -18,18 +18,24 @@ from repair.apps.asmfa.models.nodes import (
 from repair.apps.login.models.bases import GDSEModel
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
-
-# General flow properties
-class Flow(GDSEModel):
-    amount = models.BigIntegerField(blank=True, default=0)
+# Flow chain
+class FlowChain(GDSEModel):
+    process = models.ForeignKey(Process, on_delete=models.SET_NULL, null=True)
+    route = models.BooleanField(default=False)
+    collector = models.BooleanField(default=False)
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
-    year = models.IntegerField(default=2016)
+    amount = models.BigIntegerField(blank=True, default=0)
+    material = models.ForeignKey(Material, on_delete=models.CASCADE)
+    trips = models.IntegerField()
+    year = models.IntegerField(default=2019)
     waste = models.BooleanField(default=False)
-    process = models.ForeignKey(Process, on_delete=models.SET_NULL, null=True)
 
-    class Meta(GDSEModel.Meta):
-        abstract = True
+
+# General flow properties
+class Flow(FlowChain):
+    """Each flow belongs to one flow chain"""
+    flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
 
 
 # Location - Location flow
@@ -40,7 +46,6 @@ class Location2Location(Flow):
     destination = models.ForeignKey(Location,
                                     on_delete=PROTECT_CASCADE,
                                     related_name='outputs')
-
     publication = models.ForeignKey(PublicationInCasestudy,
                                     null=True,
                                     on_delete=models.SET_NULL,
@@ -97,6 +102,13 @@ class Stock(GDSEModel):
 
     class Meta(GDSEModel.Meta):
         abstract = True
+
+
+class LocationStock(Stock):
+    origin = models.ForeignKey(Location, on_delete=models.CASCADE,
+                               related_name='stocks')
+    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
+                                    related_name='LocationStockData')
 
 
 class GroupStock(Stock):
