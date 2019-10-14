@@ -19,24 +19,36 @@ from repair.apps.login.models.bases import GDSEModel
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
-# Flow chain
-class FlowChain(GDSEModel):
+
+class Flux(GDSEModel):
+    # Chain specifics
     process = models.ForeignKey(Process, on_delete=models.SET_NULL, null=True)
     route = models.BooleanField(default=False)
     collector = models.BooleanField(default=False)
     trips = models.IntegerField(blank=True, default=0)
 
+    # Flow properties
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
     amount = models.BigIntegerField(blank=True, default=0)
     material = models.ForeignKey(Material, on_delete=models.CASCADE, default='')
     year = models.IntegerField(default=2019)
     waste = models.BooleanField(default=False)
-    
 
-class Flow(FlowChain):
+    class Meta(GDSEModel.Meta):
+        abstract=True
+
+
+# Flow chain
+class FlowChain(Flux):
+    pass
+
+
+# Flow
+class Flow(Flux):
     """One chain => Many flows"""
-    flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE, related_name='+')
+    flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
+
 
 # Location - Location flow
 class Location2Location(Flow):
