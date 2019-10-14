@@ -140,6 +140,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             stockLabel.innerHTML = gettext('Show stocks');
             lightLabel.innerHTML = gettext('Light/dark');
 
+
             [
                 this.materialCheck, this.clusterCheck,
                 this.animationCheck, this.actorCheck,
