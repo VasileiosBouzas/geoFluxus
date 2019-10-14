@@ -4,8 +4,7 @@ from repair.apps.asmfa.models import (Flow,
                                       Actor2Actor,
                                       Activity2Activity,
                                       Group2Group,
-                                      Composition,
-                                      FractionFlow,
+                                      Flow,
                                       ActorStock,
                                       GroupStock,
                                       ActivityStock,
@@ -20,8 +19,7 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IDRelatedField)
 
 from repair.apps.asmfa.serializers.keyflows import (
-    KeyflowInCasestudyField, KeyflowInCasestudyDetailCreateMixin,
-    ProductFractionSerializer, CompositionSerializer)
+    KeyflowInCasestudyField, KeyflowInCasestudyDetailCreateMixin,)
 
 from .nodes import (ActivityGroupField,
                     ActivityField,
@@ -87,7 +85,6 @@ class FlowSerializer(CompositionMixin,
                                       read_only=True)
     publication = IDRelatedField(allow_null=True, required=False)
     process = IDRelatedField(allow_null=True)
-    composition = CompositionSerializer()
 
     class Meta:
         model = Flow
@@ -152,7 +149,7 @@ class Actor2ActorSerializer(FlowSerializer):
                   'year', 'publication', 'waste', 'process')
 
 
-class FractionFlowSerializer(CompositionMixin,
+class FlowSerializer(CompositionMixin,
                              NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
@@ -167,7 +164,7 @@ class FractionFlowSerializer(CompositionMixin,
     #amount = serializers.DecimalField(max_digits, decimal_places, coerce_to_string=None, max_value=None, min_value=None, localize=False, rounding=None)
 
     class Meta(FlowSerializer.Meta):
-        model = FractionFlow
+        model = Flow
         fields = ('id', 'origin', 'destination', 'keyflow', 'material',
                   'amount', 'process', 'nace', 'waste', 'avoidable',
                   'hazardous', 'description', 'year', 'publication')
@@ -177,7 +174,6 @@ class StockSerializer(CompositionMixin,
                       NestedHyperlinkedModelSerializer):
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
-    composition = CompositionSerializer()
     publication = IDRelatedField(allow_null=True, required=False)
 
     parent_lookup_kwargs = {

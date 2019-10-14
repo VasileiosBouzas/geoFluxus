@@ -7,10 +7,9 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.db.models.functions import Coalesce
 
 from repair.apps.utils.utils import descend_materials
-from repair.apps.asmfa.models import (Actor, FractionFlow, Process,
+from repair.apps.asmfa.models import (Actor, Flow, Process,
                                       Location, Material)
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
-from repair.apps.asmfa.views import get_fractionflows
 
 
 def filter_actors_by_area(actors, geom):
@@ -43,14 +42,14 @@ class ComputeIndicator(metaclass=ABCMeta):
         # there might be unset indicators -> return empty queryset
         # (calculation will return zero)
         if not indicator_flow:
-            return FractionFlow.objects.none()
+            return Flow.objects.none()
 
         materials = indicator_flow.materials.all()
         flow_type = indicator_flow.flow_type.name
         hazardous = indicator_flow.hazardous.name
         avoidable = indicator_flow.avoidable.name
 
-        flows = get_fractionflows(self.keyflow_pk, strategy=self.strategy)
+        flows = get_Flows(self.keyflow_pk, strategy=self.strategy)
 
         # filter flows by type (waste/product/both)
         if flow_type != 'BOTH':
@@ -165,7 +164,7 @@ class ComputeIndicator(metaclass=ABCMeta):
                 filter and calculate for each area seperately
             func : str,
                 name of class method to aggregate flows (default is 'sum'),
-                addressed method has to have queryset of FractionFlow as
+                addressed method has to have queryset of Flow as
                 single parameter
             aggregate : str, optional
                 aggregate the calculated amounts to single amount

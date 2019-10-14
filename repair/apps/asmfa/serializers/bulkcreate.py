@@ -12,11 +12,8 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            Actor2ActorSerializer,
                                            ActorStockSerializer,
                                            LocationSerializer,
-                                           #AdministrativeLocationSerializer,
-                                           ProductSerializer,
                                            WasteSerializer,
                                            MaterialSerializer,
-                                           ProductFractionSerializer
                                            )
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActivityGroup,
@@ -24,13 +21,9 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       Actor,
                                       Actor2Actor,
                                       ActorStock,
-                                      Composition,
                                       Location,
-                                      #AdministrativeLocation,
                                       Material,
-                                      Product,
                                       Waste,
-                                      ProductFraction,
                                       Process
                                       )
 from repair.apps.publications.models import PublicationInCasestudy
@@ -111,9 +104,6 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
                                  filter_args={
                                      'activity__activitygroup__keyflow':
                                      '@keyflow'}),
-        'composition': Reference(name='composition',
-                                 referenced_field='name',
-                                 referenced_model=Composition),
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
                             referenced_model=PublicationInCasestudy),
@@ -165,9 +155,6 @@ class ActorStockCreateSerializer(BulkSerializerMixin,
                             filter_args={
                                 'activity__activitygroup__keyflow':
                                 '@keyflow'}),
-        'composition': Reference(name='composition',
-                                 referenced_field='name',
-                                 referenced_model=Composition),
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
                             referenced_model=PublicationInCasestudy),
@@ -229,92 +216,7 @@ class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
         return Material.objects.filter(keyflow=self.keyflow)
 
 
-class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
-
-    field_map = {
-        'name': Reference(name='composition',
-                          referenced_field='name',
-                          referenced_model=Composition,
-                          filter_args={'keyflow': '@keyflow'}),
-        'fraction': 'fraction',
-        'material': Reference(name='material',
-                              referenced_field='name',
-                              referenced_model=Material,
-                              allow_null=True),
-        'avoidable': 'avoidable',
-        'hazardous': 'hazardous',
-        'source': Reference(name='publication',
-                            referenced_field='publication__citekey',
-                            referenced_model=PublicationInCasestudy)
-        }
-
-    def get_queryset(self):
-        return ProductFraction.objects.all()
-
-    # ToDo: implement general validators @BulkSerializerMixin
-    def _validate_fractions(self, dataframe):
-        '''
-        check if fractions per composition sum up to 1
-        '''
-        index = 'composition'
-        df = dataframe.filter([index, 'fraction'])
-        grouped = df.groupby(index).agg('sum')
-        isclose = np.isclose(grouped['fraction'], 1, atol=0.01)
-        invalid = np.invert(isclose)
-        if invalid.sum() > 0:
-            message = _("fractions per composition have to sum up to 1.0 with "
-                        "an absolute tolerance of 0.01 "
-                        "(they don't)")
-            invalid_comp = grouped.index[invalid]
-            for comp in invalid_comp:
-                indices = dataframe[dataframe[index] == comp].index
-                self.error_mask.set_error(indices, 'fraction', message)
-            fn, url = self.error_mask.to_file(
-                file_type=self.input_file_ext.replace('.', ''),
-                encoding=self.encoding
-            )
-            self.error_mask.add_message(message)
-            raise ValidationError(
-                self.error_mask.messages, url
-            )
-
-
-class CompositionCreateMixin:
-    check_index = False
-
-    def bulk_create(self, validated_data):
-        index = 'name'
-        dataframe = validated_data['dataframe']
-        df_comp = self.parse_dataframe(dataframe.copy())
-        df_comp = df_comp[df_comp[index].notnull()]
-        df_comp.drop_duplicates(keep='first', inplace=True)
-        df_comp.reset_index(inplace=True)
-        del df_comp['index']
-        new_comp, updated_comp = self.save_data(df_comp)
-        # drop all existing fractions of the compositions
-        ids = [m.id for m in updated_comp]
-        existing_fractions = ProductFraction.objects.filter(
-            composition__id__in = ids)
-        existing_fractions.delete()
-        # process the fractions
-        df_fract = dataframe.copy()
-        df_fract[index] = dataframe[index].fillna(method='ffill')
-        df_fract['nace'] = dataframe['nace'].fillna(method='ffill')
-        fraction_serializer = FractionCreateSerializer()
-        fraction_serializer.input_file_ext = self.input_file_ext
-        fraction_serializer.encoding = self.encoding
-        fraction_serializer._context = self.context
-        df_fract = fraction_serializer.parse_dataframe(df_fract)
-        # take error mask with original dataframe
-        # (not the floodfilled one of FractionSerializer, better error response)
-        fraction_serializer.error_mask = self.error_mask
-        fraction_serializer._validate_fractions(df_fract)
-        fraction_serializer._create_models(df_fract)
-        result = BulkResult(created=new_comp, updated=updated_comp)
-        return result
-
-
-class WasteCreateSerializer(CompositionCreateMixin, BulkSerializerMixin,
+class WasteCreateSerializer(BulkSerializerMixin,
                             WasteSerializer):
 
     parent_lookup_kwargs = {
@@ -333,21 +235,3 @@ class WasteCreateSerializer(CompositionCreateMixin, BulkSerializerMixin,
 
     def get_queryset(self):
         return Waste.objects.filter(keyflow=self.keyflow)
-
-
-class ProductCreateSerializer(CompositionCreateMixin, BulkSerializerMixin,
-                              ProductSerializer):
-
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
-    }
-
-    field_map = {
-        'name': 'name',
-        'nace': 'nace'
-    }
-    index_columns = ['name']
-
-    def get_queryset(self):
-        return Product.objects.filter(keyflow=self.keyflow)

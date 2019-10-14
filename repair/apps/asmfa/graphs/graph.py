@@ -20,9 +20,8 @@ from itertools import chain
 import itertools
 import time
 
-from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
-                                      ActorStock, Material,
-                                      StrategyFractionFlow)
+from repair.apps.asmfa.models import (Actor2Actor, Flow, Actor,
+                                      ActorStock, Material)
 from repair.apps.changes.models import (SolutionInStrategy,
                                         ImplementationQuantity,
                                         AffectedFlow, Scheme,
@@ -185,9 +184,9 @@ class BaseGraph:
             os.remove(self.filename)
 
     def build(self):
-        actorflows = FractionFlow.objects.filter(
+        actorflows = Flow.objects.filter(
             keyflow=self.keyflow, to_stock=False)
-        stockflows = FractionFlow.objects.filter(
+        stockflows = Flow.objects.filter(
             keyflow=self.keyflow, to_stock=True)
         actors = Actor.objects.filter(
             Q(id__in=actorflows.values('origin_id')) |
@@ -386,7 +385,7 @@ class StrategyGraph(BaseGraph):
         amount = total / flow_count
         deltas = np.full((flow_count), amount)
         for origin, destination in itertools.product(origins, destinations):
-            new_flow = FractionFlow(
+            new_flow = Flow(
                 origin=origin, destination=destination,
                 material=material, process=process,
                 amount=0,
@@ -407,7 +406,7 @@ class StrategyGraph(BaseGraph):
                 new_flow.process.id if new_flow.process is not None else - 1
             new_flows.append(new_flow)
 
-        #FractionFlow.objects.bulk_create(new_flows)
+        #Flow.objects.bulk_create(new_flows)
         return new_flows, deltas
 
     def _shift_flows(self, referenced_flows, possible_new_targets,
@@ -464,10 +463,10 @@ class StrategyGraph(BaseGraph):
             # (the one to be shifted)
             edges = util.find_edge(self.graph, self.graph.ep['id'], flow.id)
             if len(edges) > 1:
-                raise ValueError("FractionFlow.id ", flow.id,
+                raise ValueError("Flow.id ", flow.id,
                                  " is not unique in the graph")
             elif len(edges) == 0:
-                print("Cannot find FractionFlow.id ", flow.id, " in the graph")
+                print("Cannot find Flow.id ", flow.id, " in the graph")
                 continue
             edge = edges[0]
 
@@ -475,7 +474,7 @@ class StrategyGraph(BaseGraph):
                 else [edge.source(), new_vertex]
             new_edge = self.graph.edge(*new_edge_args)
 
-            # create a new fractionflow for the implementation flow in db,
+            # create a new Flow for the implementation flow in db,
             # setting id to None creates new one when saving
             # while keeping attributes of original model;
             # the new flow is added with zero amount and to be changed
@@ -572,10 +571,10 @@ class StrategyGraph(BaseGraph):
             # the edge corresponding to the referenced flow
             edges = util.find_edge(self.graph, self.graph.ep['id'], flow.id)
             if len(edges) > 1:
-                raise ValueError("FractionFlow.id ", flow.id,
+                raise ValueError("Flow.id ", flow.id,
                                  " is not unique in the graph")
             elif len(edges) == 0:
-                print("Cannot find FractionFlow.id ", flow.id, " in the graph")
+                print("Cannot find Flow.id ", flow.id, " in the graph")
                 continue
             edge = edges[0]
 
@@ -583,7 +582,7 @@ class StrategyGraph(BaseGraph):
                 else [edge.target(), new_vertex]
             new_edge = self.graph.edge(*new_edge_args)
 
-            # create a new fractionflow for the implementation flow in db,
+            # create a new Flow for the implementation flow in db,
             # setting id to None creates new one when saving
             # while keeping attributes of original model;
             # the new flow is added with zero amount and to be changed
@@ -630,12 +629,12 @@ class StrategyGraph(BaseGraph):
 
     def clean_db(self):
         '''
-        wipe all related StrategyFractionFlows
-        and related new FractionFlows from database
+        wipe all related StrategyFlows
+        and related new Flows from database
         '''
-        new_flows = FractionFlow.objects.filter(strategy=self.strategy)
+        new_flows = Flow.objects.filter(strategy=self.strategy)
         new_flows.delete()
-        modified = StrategyFractionFlow.objects.filter(strategy=self.strategy)
+        modified = StrategyFlow.objects.filter(strategy=self.strategy)
         modified.delete()
 
     def _get_actors(self, flow_reference, implementation):
@@ -671,7 +670,7 @@ class StrategyGraph(BaseGraph):
         and implementation areas
         '''
         origins, destinations = self._get_actors(flow_reference, implementation)
-        flows = FractionFlow.objects.filter(
+        flows = Flow.objects.filter(
             origin__in=origins,
             destination__in=destinations
         )
@@ -699,11 +698,11 @@ class StrategyGraph(BaseGraph):
         # set the AffectedFlow include property to true
         affectedflows = AffectedFlow.objects.filter(
                         solution_part=solution_part)
-        # get FractionFlows related to AffectedFlow
-        aff_flows = FractionFlow.objects.none()
+        # get Flows related to AffectedFlow
+        aff_flows = Flow.objects.none()
         for af in affectedflows:
             #materials = descend_materials([af.material])
-            flows = FractionFlow.objects.filter(
+            flows = Flow.objects.filter(
                 origin__activity = af.origin_activity,
                 destination__activity = af.destination_activity
             )
@@ -719,12 +718,12 @@ class StrategyGraph(BaseGraph):
     def _annotate(self, flows):
         ''' annotate flows with strategy attributes (trailing "s_") '''
         annotated = flows.annotate(
-            s_amount=Coalesce('f_strategyfractionflow__amount', 'amount'),
-            s_material=Coalesce('f_strategyfractionflow__material', 'material'),
-            s_waste=Coalesce('f_strategyfractionflow__waste', 'waste'),
-            s_hazardous=Coalesce('f_strategyfractionflow__hazardous',
+            s_amount=Coalesce('f_strategyFlow__amount', 'amount'),
+            s_material=Coalesce('f_strategyFlow__material', 'material'),
+            s_waste=Coalesce('f_strategyFlow__waste', 'waste'),
+            s_hazardous=Coalesce('f_strategyFlow__hazardous',
                                  'hazardous'),
-            s_process=Coalesce('f_strategyfractionflow__process',
+            s_process=Coalesce('f_strategyFlow__process',
                                'process')
         )
         return annotated
@@ -923,8 +922,8 @@ class StrategyGraph(BaseGraph):
             self.graph, self.graph.ep['changed'], True)
         for edge in changed_edges:
             new_amount = self.graph.ep.amount[edge]
-            # get the related FractionFlow
-            flow = FractionFlow.objects.get(id=self.graph.ep.id[edge])
+            # get the related Flow
+            flow = Flow.objects.get(id=self.graph.ep.id[edge])
             material = self.graph.ep.material[edge]
             process = self.graph.ep.process[edge]
             if process == -1:
@@ -942,8 +941,8 @@ class StrategyGraph(BaseGraph):
                 flow.save()
             # changed flow gets a related strategy fraction flow holding changes
             else:
-                ex = StrategyFractionFlow.objects.filter(
-                    fractionflow=flow, strategy=self.strategy)
+                ex = StrategyFlow.objects.filter(
+                    Flow=flow, strategy=self.strategy)
                 # if there already was a modification, overwrite it
                 if len(ex) == 1:
                     strat_flow = ex[0]
@@ -954,13 +953,13 @@ class StrategyGraph(BaseGraph):
                     strat_flow.process_id = process
                     strat_flow.save()
                 elif len(ex) > 1:
-                    raise Exception('more than StrategyFractionFlow '
+                    raise Exception('more than StrategyFlow '
                                     'found per flow. This should not happen.')
                 else:
-                    strat_flow = StrategyFractionFlow(
+                    strat_flow = StrategyFlow(
                         strategy=self.strategy,
                         amount=new_amount,
-                        fractionflow=flow,
+                        Flow=flow,
                         material_id=material,
                         waste=waste,
                         hazardous=hazardous,
@@ -968,7 +967,7 @@ class StrategyGraph(BaseGraph):
                     )
                     strat_flows.append(strat_flow)
 
-        StrategyFractionFlow.objects.bulk_create(strat_flows)
+        StrategyFlow.objects.bulk_create(strat_flows)
 
     @staticmethod
     def find_closest_actor(actors_in_solution,
@@ -1112,7 +1111,7 @@ class StrategyGraph(BaseGraph):
 
     def mock_changes(self):
         '''make some random changes for testing'''
-        flows = FractionFlow.objects.filter(
+        flows = Flow.objects.filter(
             keyflow=self.keyflow, destination__isnull=False)
         flow_ids = np.array(flows.values_list('id', flat=True))
         # pick 30% of the flows for change of amount
@@ -1123,10 +1122,10 @@ class StrategyGraph(BaseGraph):
         for flow in picked_flows:
             # vary between -25% and +25%
             new_amount = flow.amount * (1 + (np.random.random() / 2 - 0.25))
-            strat_flow = StrategyFractionFlow(
-                strategy=self.strategy, amount=new_amount, fractionflow=flow)
+            strat_flow = StrategyFlow(
+                strategy=self.strategy, amount=new_amount, Flow=flow)
             strat_flows.append(strat_flow)
-        StrategyFractionFlow.objects.bulk_create(strat_flows)
+        StrategyFlow.objects.bulk_create(strat_flows)
 
         # pick 5% of flows as base for new flows
         choice = np.random.choice(

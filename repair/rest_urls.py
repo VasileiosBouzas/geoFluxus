@@ -31,7 +31,6 @@ from repair.apps.asmfa.views import (
     ActivityGroupViewSet,
     ActivityViewSet,
     ActorViewSet,
-    ReasonViewSet,
     Activity2ActivityViewSet,
     Group2GroupViewSet,
     Actor2ActorViewSet,
@@ -43,9 +42,7 @@ from repair.apps.asmfa.views import (
     ActorStockViewSet,
     LocationsOfActorViewSet,
     LocationViewSet,
-    ProductViewSet,
     MaterialViewSet,
-    AllProductViewSet,
     AllWasteViewSet,
     AllMaterialViewSet,
     WasteViewSet,
@@ -80,11 +77,9 @@ from repair.apps.wmsresources.views import (WMSResourceInCasestudyViewSet, )
 router = DefaultRouter()
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'keyflows', KeyflowViewSet)
-router.register(r'products', AllProductViewSet)
 router.register(r'wastes', AllWasteViewSet)
 router.register(r'materials', AllMaterialViewSet)
 router.register(r'publications', PublicationView)
-router.register(r'reasons', ReasonViewSet)
 router.register(r'sustainabilities', SustainabilityFieldViewSet)
 router.register(r'impactcategories', ImpactcategoryViewSet)
 router.register(r'targetvalues', TargetValueViewSet)
@@ -161,7 +156,6 @@ kf_router.register(r'flowfilters', FlowFilterViewSet)
 kf_router.register(r'solutioncategories', SolutionCategoryViewSet)
 kf_router.register(r'solutions', SolutionViewSet)
 kf_router.register(r'strategies', StrategyViewSet)
-kf_router.register(r'products', ProductViewSet)
 kf_router.register(r'wastes', WasteViewSet)
 kf_router.register(r'conclusions', ConclusionViewSet)
 

@@ -23,14 +23,14 @@ from repair.apps.utils.utils import descend_materials
 
 from repair.apps.asmfa.models import (
     Flow, Location, Actor2Actor, Group2Group,
-    Material, FractionFlow, Actor, ActivityGroup, Activity,
-    Location, Process, StrategyFractionFlow
+    Material, Flow, Actor, ActivityGroup, Activity,
+    Location, Process
 )
 from repair.apps.changes.models import Strategy
 from repair.apps.studyarea.models import Area
 
 from repair.apps.asmfa.serializers import (
-    FractionFlowSerializer
+    FlowSerializer
 )
 
 # structure of serialized components of a flow as the serializer
@@ -76,7 +76,7 @@ def build_area_filter(function_name, values, keyflow_id):
         else 'destination__id__in'
     return rest_func, actors.values_list('id')
 
-def get_fractionflows(keyflow_pk, strategy=None):
+def get_Flows(keyflow_pk, strategy=None):
     '''
     returns fraction flows in given keyflow
 
@@ -87,7 +87,7 @@ def get_fractionflows(keyflow_pk, strategy=None):
     changed in strategy
     '''
 
-    queryset = FractionFlow.objects
+    queryset = Flow.objects
     if not strategy:
         queryset = queryset.filter(
             keyflow__id=keyflow_pk,
@@ -110,8 +110,8 @@ def get_fractionflows(keyflow_pk, strategy=None):
              Q(strategy_id=strategy))
         )
         qsfiltered = qs1.annotate(sf=FilteredRelation(
-            'f_strategyfractionflow',
-            condition=Q(f_strategyfractionflow__strategy=strategy)))
+            'f_strategyFlow',
+            condition=Q(f_strategyFlow__strategy=strategy)))
         queryset = qsfiltered.annotate(
             # strategy fraction flow overrides amounts
             strategy_amount=Coalesce('sf__amount', 'amount'),
@@ -134,10 +134,10 @@ def get_fractionflows(keyflow_pk, strategy=None):
 class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         CasestudyViewSetMixin,
                         ModelPermissionViewSet):
-    serializer_class = FractionFlowSerializer
-    model = FractionFlow
+    serializer_class = FlowSerializer
+    model = Flow
 
-    queryset = FractionFlow.objects.all()
+    queryset = Flow.objects.all()
     #additional_filters = {'origin__included': True,
                           #'destination__included': True}
 
@@ -173,7 +173,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     def get_queryset(self):
         keyflow_pk = self.kwargs.get('keyflow_pk')
         strategy = self.request.query_params.get('strategy', None)
-        return get_fractionflows(keyflow_pk, strategy=strategy)
+        return get_Flows(keyflow_pk, strategy=strategy)
 
     # POST is used to send filter parameters not to create
     def post_get(self, request, **kwargs):

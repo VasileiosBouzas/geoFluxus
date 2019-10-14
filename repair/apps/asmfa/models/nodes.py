@@ -60,7 +60,7 @@ class Activity(Node):
 
 class Actor(Node):
     # unique actor identifier in ORBIS database
+    id = models.CharField(max_length=255, primary_key=True)
     name = models.CharField(max_length=255)
-    id = models.CharField(max_length=255)
     activity = models.ForeignKey(Activity, on_delete=PROTECT_CASCADE)
 

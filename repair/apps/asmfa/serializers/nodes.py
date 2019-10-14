@@ -10,9 +10,6 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity,
                                       Actor,
                                       Location,
-                                      #AdministrativeLocation,
-                                      #OperationalLocation,
-                                      Reason,
                                       KeyflowInCasestudy,
                                       Actor2Actor
                                       )
@@ -246,9 +243,3 @@ class ActorListSerializer(ActorSerializer):
         fields = ('id', 'activity',  'activity_name', 'activitygroup',
                   'activitygroup_name', 'name', 'included', 'city', 'address',
                   'flow_count')
-
-
-class ReasonSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Reason
-        fields = ('id', 'reason')

@@ -16,20 +16,15 @@ from repair.apps.asmfa.graphs.graph import BaseGraph
 from repair.apps.asmfa.models import (
     Keyflow,
     KeyflowInCasestudy,
-    Product,
     Material,
     Waste,
-    ProductFraction,
-    FractionFlow,
-    Composition
+    Flow
 )
 
 from repair.apps.asmfa.serializers import (
     KeyflowSerializer,
     KeyflowInCasestudySerializer,
     KeyflowInCasestudyPostSerializer,
-    ProductSerializer,
-    ProductCreateSerializer,
     MaterialSerializer,
     MaterialListSerializer,
     AllMaterialSerializer,
@@ -95,61 +90,19 @@ class CommaSeparatedValueFilter(Filter):
         return super(CommaSeparatedValueFilter, self).filter(qs, values)
 
 
-class ProductFilter(FilterSet):
-    nace = CommaSeparatedValueFilter(field_name='nace')
-
-    class Meta:
-        model = Product
-        fields = ('nace', 'cpa')
-
-
 class WasteFilter(FilterSet):
     nace = CommaSeparatedValueFilter(field_name='nace')
 
     class Meta:
         model = Waste
-        fields = ('nace', 'hazardous', 'wastetype', 'ewc')
+        fields = ('ewc_code', 'ewc_name', 'hazardous')
 
 
 class MaterialFilter(FilterSet):
 
     class Meta:
         model = Material
-        fields = ('parent', 'keyflow')
-
-
-class AllProductViewSet(RevisionMixin, ModelPermissionViewSet):
-    pagination_class = UnlimitedResultsSetPagination
-    add_perm = 'asmfa.add_product'
-    change_perm = 'asmfa.change_product'
-    delete_perm = 'asmfa.delete_product'
-    queryset = Product.objects.order_by('id')
-    serializer_class = ProductSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filter_class = ProductFilter
-
-
-class ProductViewSet(CasestudyViewSetMixin, AllProductViewSet):
-    pagination_class = UnlimitedResultsSetPagination
-    serializer_class = ProductSerializer
-    serializers = {
-        'list': ProductSerializer,
-        'create': ProductCreateSerializer
-    }
-    # include products with keyflow-pk == null as well
-    def get_queryset(self):
-        keyflow_id = self.kwargs['keyflow_pk']
-
-        products = Product.objects.\
-            select_related("keyflow__casestudy").defer(
-                "keyflow__note", "keyflow__casestudy__geom",
-                "keyflow__casestudy__focusarea")
-        if 'nace[]' in self.request.query_params.keys():
-            nace = self.request.GET.getlist('nace[]')
-            products = products.filter(nace__in=nace)
-        return products\
-               .filter(Q(keyflow__isnull=True) | Q(keyflow=keyflow_id))\
-               .order_by('id')
+        fields = ('name', 'keyflow')
 
 
 class AllWasteViewSet(RevisionMixin, ModelPermissionViewSet):
@@ -218,7 +171,7 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
             Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
 
         # calc flow_count
-        flows = FractionFlow.objects.filter(
+        flows = Flow.objects.filter(
             Q(origin__activity__activitygroup__keyflow__id=keyflow_id) |
             Q(destination__activity__activitygroup__keyflow__id=keyflow_id)
         )

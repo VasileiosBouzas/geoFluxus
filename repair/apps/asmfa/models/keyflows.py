@@ -44,8 +44,8 @@ class Material(GDSEModel):
 
 # Process
 class Process(GDSEModel):
-    name = models.TextField()
-    code = models.TextField()
+    name = models.TextField(max_length=255, default='')
+    code = models.TextField(max_length=255, default='')
 
 
 # Waste

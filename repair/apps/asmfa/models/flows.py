@@ -18,34 +18,34 @@ from repair.apps.asmfa.models.nodes import (
 from repair.apps.login.models.bases import GDSEModel
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
+
 # Flow chain
 class FlowChain(GDSEModel):
     process = models.ForeignKey(Process, on_delete=models.SET_NULL, null=True)
     route = models.BooleanField(default=False)
     collector = models.BooleanField(default=False)
+    trips = models.IntegerField(blank=True, default=0)
+
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
     amount = models.BigIntegerField(blank=True, default=0)
-    material = models.ForeignKey(Material, on_delete=models.CASCADE)
-    trips = models.IntegerField()
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, default='')
     year = models.IntegerField(default=2019)
     waste = models.BooleanField(default=False)
+    
 
-
-# General flow properties
 class Flow(FlowChain):
-    """Each flow belongs to one flow chain"""
-    flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
-
+    """One chain => Many flows"""
+    flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE, related_name='+')
 
 # Location - Location flow
 class Location2Location(Flow):
-    origin = models.ForeignKey(Location,
-                               on_delete=PROTECT_CASCADE,
-                               related_name='inputs')
     destination = models.ForeignKey(Location,
                                     on_delete=PROTECT_CASCADE,
-                                    related_name='outputs')
+                                    related_name='inputs')
+    origin = models.ForeignKey(Location,
+                               on_delete=PROTECT_CASCADE,
+                               related_name='outputs')
     publication = models.ForeignKey(PublicationInCasestudy,
                                     null=True,
                                     on_delete=models.SET_NULL,

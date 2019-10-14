@@ -11,15 +11,12 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
 
 
 from repair.apps.asmfa.models import (
-    Reason,
     Flow,
     Location,
     Activity2Activity,
     Actor2Actor,
     Group2Group,
     Material,
-    Composition,
-    ProductFraction,
     Actor,
     Activity,
     ActivityGroup,
@@ -34,7 +31,6 @@ from repair.apps.studyarea.models import (
 )
 
 from repair.apps.asmfa.serializers import (
-    ReasonSerializer,
     FlowSerializer,
     Actor2ActorSerializer,
     Activity2ActivitySerializer,
@@ -46,12 +42,6 @@ from repair.apps.asmfa.serializers import (
     ActorStockCreateSerializer,
     ProcessSerializer
 )
-
-
-class ReasonViewSet(RevisionMixin, ModelViewSet):
-    pagination_class = None
-    serializer_class = ReasonSerializer
-    queryset = Reason.objects.all()
 
 
 class FlowViewSet(RevisionMixin,
