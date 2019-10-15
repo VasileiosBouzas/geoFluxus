@@ -1,13 +1,7 @@
 
 from django.core.exceptions import ObjectDoesNotExist
-from repair.apps.asmfa.models import (Flow,
-                                      Actor2Actor,
-                                      Activity2Activity,
-                                      Group2Group,
+from repair.apps.asmfa.models import (
                                       Flow,
-                                      ActorStock,
-                                      GroupStock,
-                                      ActivityStock,
                                       Stock,
                                       Process
                                       )
@@ -95,60 +89,6 @@ class FlowSerializer(CompositionMixin,
                   'year', 'publication', 'waste', 'process')
 
 
-class Group2GroupSerializer(FlowSerializer):
-    origin = IDRelatedField()
-    origin_url = ActivityGroupField(view_name='activitygroup-detail',
-                                    source='origin',
-                                    read_only=True)
-    destination = IDRelatedField()
-    destination_url = ActivityGroupField(view_name='activitygroup-detail',
-                                         source='destination',
-                                         read_only=True)
-
-    class Meta(FlowSerializer.Meta):
-        model = Group2Group
-        fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url',
-                  'composition', 'description',
-                  'year', 'publication', 'waste', 'process')
-
-
-class Activity2ActivitySerializer(FlowSerializer):
-    origin = IDRelatedField()
-    origin_url = ActivityField(view_name='activity-detail',
-                               source='origin',
-                               read_only=True)
-    destination = IDRelatedField()
-    destination_url = ActivityField(view_name='activity-detail',
-                                    source='destination',
-                                    read_only=True)
-
-    class Meta(FlowSerializer.Meta):
-        model = Activity2Activity
-        fields = ('id', 'amount', 'keyflow', 'origin', 'origin_url',
-                  'destination', 'destination_url',
-                  'composition', 'description',
-                  'year', 'publication', 'waste', 'process')
-
-
-class Actor2ActorSerializer(FlowSerializer):
-    origin = IDRelatedField()
-    #origin_url = ActorField(view_name='actor-detail',
-                            #source='origin',
-                            #read_only=True)
-    destination = IDRelatedField()
-    #destination_url = ActorField(view_name='actor-detail',
-                                 #source='destination',
-                                 #read_only=True)
-
-    class Meta(FlowSerializer.Meta):
-        model = Actor2Actor
-        fields = ('id', 'amount', 'composition',
-                  'origin',  'destination',
-                  'description',
-                  'year', 'publication', 'waste', 'process')
-
-
 class FlowSerializer(CompositionMixin,
                              NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
@@ -187,27 +127,6 @@ class StockSerializer(CompositionMixin,
                   'keyflow', 'year', 'composition',
                   'publication', 'waste'
                   )
-
-
-class GroupStockSerializer(StockSerializer):
-    origin = IDRelatedField()
-
-    class Meta(StockSerializer.Meta):
-        model = GroupStock
-
-
-class ActivityStockSerializer(StockSerializer):
-    origin = IDRelatedField()
-
-    class Meta(StockSerializer.Meta):
-        model = ActivityStock
-
-
-class ActorStockSerializer(StockSerializer):
-    origin = IDRelatedField()
-
-    class Meta(StockSerializer.Meta):
-        model = ActorStock
 
 
 class ProcessSerializer(serializers.ModelSerializer):

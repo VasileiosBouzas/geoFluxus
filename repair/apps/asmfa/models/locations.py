@@ -64,6 +64,4 @@ class Location(Establishment):
                               related_name='locations',
                               on_delete=models.CASCADE)
 
-    role_choices = (("Producer", "Producer"),
-                    ("Consumer", "Consumer"))
-    role =  models.TextField(choices=role_choices, blank=True, null=True)
+    role =  models.TextField(blank=True, null=True)

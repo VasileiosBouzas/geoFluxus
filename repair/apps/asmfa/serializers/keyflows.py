@@ -8,7 +8,6 @@ from repair.apps.asmfa.models import (Keyflow,
                                       KeyflowInCasestudy,
                                       Material,
                                       Waste,
-                                      Actor2Actor
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,

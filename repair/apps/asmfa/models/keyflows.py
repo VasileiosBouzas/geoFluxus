@@ -13,16 +13,11 @@ from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 # General keyflow properties
 class Keyflow(GDSEModel):
     # the former "Material" class - not to confuse with the other one
-    keyflow_choices = (("Org", "Organic"),
-                       ("CDW", "Construction & Demolition"),
-                       ("Food", "Food"),
-                       ("MSW", "Municipal Solid Waste"),
-                       ("PCPW", "Post-Consumer Plastic"),
-                       ("HHW", "Household Hazardous Waste"))
-    code = models.TextField(choices=keyflow_choices)
-    name = models.TextField()
+    code = models.TextField(default='')
+    name = models.TextField(default='')
     casestudies = models.ManyToManyField(CaseStudy,
                                          through='KeyflowInCasestudy')
+
 
 # Keyflow in case study
 class KeyflowInCasestudy(GDSEModel):

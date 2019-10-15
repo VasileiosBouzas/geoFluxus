@@ -17,24 +17,9 @@ class Node(GDSEModel):
 
 class ActivityGroup(Node):
     # activity groups are predefined and same for all flows and case studies
-    activity_group_choices = (("P1", "Production"),
-                              ("P2", "Production of packaging"),
-                              ("P3", "Packaging"),
-                              ("D", "Distribution"),
-                              ("S", "Selling"),
-                              ("C", "Consuming"),
-                              ("SC", "Selling and Consuming"),
-                              ("R", "Return Logistics"),
-                              ("COL", "Collection"),
-                              ("W", "Waste Management"),
-                              # 'import' and 'export' are "special" types
-                              # of activity groups/activities/actors
-                              ("imp", "Import"),
-                              ("exp", "Export"))
-    code = models.CharField(max_length=255, choices=activity_group_choices)
+    code = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    keyflow = models.ForeignKey(KeyflowInCasestudy,
-                                on_delete=PROTECT_CASCADE)
+    keyflow = models.ForeignKey(KeyflowInCasestudy,on_delete=PROTECT_CASCADE)
 
     @property
     def nace_codes(self):
@@ -51,16 +36,15 @@ class ActivityGroup(Node):
 
 class Activity(Node):
     # NACE code, unique for each activity
-    nace = models.CharField(max_length=255)
+    nace = models.CharField(max_length=7)
     # not sure about the max length, leaving everywhere 255 for now
     name = models.CharField(max_length=255)
-    activitygroup = models.ForeignKey(ActivityGroup,
-                                      on_delete=PROTECT_CASCADE)
+    activitygroup = models.ForeignKey(ActivityGroup,on_delete=PROTECT_CASCADE)
 
 
 class Actor(Node):
     # unique actor identifier in ORBIS database
-    id = models.CharField(max_length=255, primary_key=True)
+    identifier = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     activity = models.ForeignKey(Activity, on_delete=PROTECT_CASCADE)
 

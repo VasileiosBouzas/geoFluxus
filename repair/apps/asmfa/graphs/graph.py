@@ -20,8 +20,8 @@ from itertools import chain
 import itertools
 import time
 
-from repair.apps.asmfa.models import (Actor2Actor, Flow, Actor,
-                                      ActorStock, Material)
+from repair.apps.asmfa.models import (Flow, Actor,
+                                       Material)
 from repair.apps.changes.models import (SolutionInStrategy,
                                         ImplementationQuantity,
                                         AffectedFlow, Scheme,

@@ -20,7 +20,7 @@ from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 
-class Flux(GDSEModel):
+class FlowChain(GDSEModel):
     # Chain specifics
     process = models.ForeignKey(Process, on_delete=models.SET_NULL, null=True)
     route = models.BooleanField(default=False)
@@ -34,75 +34,19 @@ class Flux(GDSEModel):
     material = models.ForeignKey(Material, on_delete=models.CASCADE, default='')
     year = models.IntegerField(default=2019)
     waste = models.BooleanField(default=False)
-
-    class Meta(GDSEModel.Meta):
-        abstract=True
-
-
-# Flow chain
-class FlowChain(Flux):
-    pass
+    publication = models.ForeignKey(PublicationInCasestudy,null=True,on_delete=models.SET_NULL)
 
 
 # Flow
-class Flow(Flux):
+class Flow(GDSEModel):
     """One chain => Many flows"""
     flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
-
-
-# Location - Location flow
-class Location2Location(Flow):
     destination = models.ForeignKey(Location,
                                     on_delete=PROTECT_CASCADE,
-                                    related_name='inputs')
+                                    related_name='destination')
     origin = models.ForeignKey(Location,
                                on_delete=PROTECT_CASCADE,
-                               related_name='outputs')
-    publication = models.ForeignKey(PublicationInCasestudy,
-                                    null=True,
-                                    on_delete=models.SET_NULL,
-                                    related_name='Location2LocationData')
-
-
-# Group - Group flow
-class Group2Group(Flow):
-    destination = models.ForeignKey(ActivityGroup,
-                                    on_delete=PROTECT_CASCADE,
-                                    related_name='inputs')
-    origin = models.ForeignKey(ActivityGroup,
-                               on_delete=PROTECT_CASCADE,
-                               related_name='outputs')
-    publication = models.ForeignKey(PublicationInCasestudy,
-                                    null=True,
-                                    on_delete=models.SET_NULL,
-                                    related_name='Group2GroupData')
-
-
-# Activity - activity flow
-class Activity2Activity(Flow):
-    destination = models.ForeignKey(Activity,
-                                    on_delete=PROTECT_CASCADE,
-                                    related_name='inputs')
-    origin = models.ForeignKey(Activity,
-                               on_delete=PROTECT_CASCADE,
-                               related_name='outputs')
-    publication = models.ForeignKey(PublicationInCasestudy,
-                                    null=True,
-                                    on_delete=models.SET_NULL,
-                                    related_name='Activity2ActivityData')
-
-# Actor - actor flow
-class Actor2Actor(Flow):
-    destination = models.ForeignKey(Actor,
-                                    on_delete=PROTECT_CASCADE,
-                                    related_name='inputs')
-    origin = models.ForeignKey(Actor,
-                               on_delete=PROTECT_CASCADE,
-                               related_name='outputs')
-    publication = models.ForeignKey(PublicationInCasestudy,
-                                    null=True,
-                                    on_delete=models.SET_NULL,
-                                    related_name='Actor2ActorData')
+                               related_name='origin')
 
 
 class Stock(GDSEModel):
@@ -111,34 +55,5 @@ class Stock(GDSEModel):
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
     year = models.IntegerField(default=2019)
-
-    class Meta(GDSEModel.Meta):
-        abstract = True
-
-
-class LocationStock(Stock):
-    origin = models.ForeignKey(Location, on_delete=models.CASCADE,
-                               related_name='stocks')
-    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
-                                    related_name='LocationStockData')
-
-
-class GroupStock(Stock):
-    origin = models.ForeignKey(ActivityGroup, on_delete=models.CASCADE,
-                               related_name='stocks')
-    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
-                                    related_name='GroupStockData')
-
-
-class ActivityStock(Stock):
-    origin = models.ForeignKey(Activity, on_delete=models.CASCADE,
-                               related_name='stocks')
-    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
-                                    related_name='ActivityStockData')
-
-
-class ActorStock(Stock):
-    origin = models.ForeignKey(Actor, on_delete=models.CASCADE,
-                               related_name='stocks')
-    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL,
-                                    related_name='ActorStockData')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, default='')
+    publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL)

@@ -9,8 +9,6 @@ from repair.apps.utils.serializers import (BulkSerializerMixin,
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
                                            ActorSerializer,
-                                           Actor2ActorSerializer,
-                                           ActorStockSerializer,
                                            LocationSerializer,
                                            WasteSerializer,
                                            MaterialSerializer,
@@ -19,8 +17,6 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       ActivityGroup,
                                       Activity,
                                       Actor,
-                                      Actor2Actor,
-                                      ActorStock,
                                       Location,
                                       Material,
                                       Waste,
@@ -88,91 +84,9 @@ class ActorCreateSerializer(BulkSerializerMixin,
             activity__activitygroup__keyflow=self.keyflow)
 
 
-class Actor2ActorCreateSerializer(BulkSerializerMixin,
-                                  Actor2ActorSerializer):
-
-    field_map = {
-        'origin': Reference(name='origin',
-                            referenced_field='BvDid',
-                            referenced_model=Actor,
-                            filter_args={
-                                'activity__activitygroup__keyflow':
-                                '@keyflow'}),
-        'destination': Reference(name='destination',
-                                 referenced_field='BvDid',
-                                 referenced_model=Actor,
-                                 filter_args={
-                                     'activity__activitygroup__keyflow':
-                                     '@keyflow'}),
-        'source': Reference(name='publication',
-                            referenced_field='publication__citekey',
-                            referenced_model=PublicationInCasestudy),
-        'process': Reference(name='process', referenced_field='name',
-                             referenced_model=Process,
-                             allow_null=True),
-        'waste': 'waste',
-        'amount': 'amount',
-        'year': 'year'
-    }
-    index_columns = ['origin', 'destination', 'composition']
-
-    def get_queryset(self):
-        return Actor2Actor.objects.filter(keyflow=self.keyflow)
-
-    def validate(self, attrs):
-        if 'dataframe' in attrs:
-            df = attrs['dataframe']
-            self_ref = df['origin'] == df['destination']
-
-            if self_ref.sum() > 0:
-                message = _("Flows from an actor to itself are not allowed.")
-                error_mask = ErrorMask(df)
-                error_mask.set_error(df.index[self_ref], 'destination', message)
-                fn, url = error_mask.to_file(
-                    file_type=self.input_file_ext.replace('.', ''),
-                    encoding=self.encoding
-                )
-                raise ValidationError(
-                    error_mask.messages, url
-                )
-        return super().validate(attrs)
-
-    def _create_models(self, df):
-        created = super()._create_models(df)
-        # trigger conversion to fraction flow
-        for model in created:
-            model.save()
-        return created
 
 
-class ActorStockCreateSerializer(BulkSerializerMixin,
-                                 ActorStockSerializer):
 
-    field_map = {
-        'origin': Reference(name='origin',
-                            referenced_field='BvDid',
-                            referenced_model=Actor,
-                            filter_args={
-                                'activity__activitygroup__keyflow':
-                                '@keyflow'}),
-        'source': Reference(name='publication',
-                            referenced_field='publication__citekey',
-                            referenced_model=PublicationInCasestudy),
-        'amount': 'amount',
-        'year': 'year',
-        'waste': 'waste'
-    }
-    index_columns = ['origin', 'composition']
-
-    def get_queryset(self):
-        return ActorStock.objects.filter(keyflow=self.keyflow)
-
-    def _create_models(self, df):
-        created = super()._create_models(df)
-        # trigger conversion to fraction flow
-        for model in created:
-            model.save()
-        return created
 
 
 class AdminLocationCreateSerializer(

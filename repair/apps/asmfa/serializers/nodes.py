@@ -11,7 +11,6 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Actor,
                                       Location,
                                       KeyflowInCasestudy,
-                                      Actor2Actor
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,

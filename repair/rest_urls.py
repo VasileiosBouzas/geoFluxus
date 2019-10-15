@@ -31,15 +31,9 @@ from repair.apps.asmfa.views import (
     ActivityGroupViewSet,
     ActivityViewSet,
     ActorViewSet,
-    Activity2ActivityViewSet,
-    Group2GroupViewSet,
-    Actor2ActorViewSet,
     FilterFlowViewSet,
     KeyflowViewSet,
     KeyflowInCasestudyViewSet,
-    GroupStockViewSet,
-    ActivityStockViewSet,
-    ActorStockViewSet,
     LocationsOfActorViewSet,
     LocationViewSet,
     MaterialViewSet,
@@ -139,12 +133,6 @@ shcat_router.register(r'stakeholders', StakeholderViewSet)
 # /casestudies/*/keyflows/...
 kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
 
-kf_router.register(r'groupstock', GroupStockViewSet)
-kf_router.register(r'activitystock', ActivityStockViewSet)
-kf_router.register(r'actorstock', ActorStockViewSet)
-kf_router.register(r'group2group', Group2GroupViewSet)
-kf_router.register(r'activity2activity', Activity2ActivityViewSet)
-kf_router.register(r'actor2actor', Actor2ActorViewSet)
 kf_router.register(r'flows', FilterFlowViewSet)
 kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
