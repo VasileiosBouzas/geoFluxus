@@ -1,11 +1,5 @@
-from django.utils.translation import ugettext as _
-import numpy as np
-
 from repair.apps.utils.serializers import (BulkSerializerMixin,
-                                           BulkResult,
-                                           Reference,
-                                           ValidationError,
-                                           ErrorMask)
+                                           Reference,)
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
                                            ActorSerializer,
@@ -13,16 +7,13 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            WasteSerializer,
                                            MaterialSerializer,
                                            )
-from repair.apps.asmfa.models import (KeyflowInCasestudy,
-                                      ActivityGroup,
+from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity,
                                       Actor,
                                       Location,
                                       Material,
                                       Waste,
-                                      Process
                                       )
-from repair.apps.publications.models import PublicationInCasestudy
 
 
 class ActivityGroupCreateSerializer(BulkSerializerMixin,
@@ -59,16 +50,10 @@ class ActorCreateSerializer(BulkSerializerMixin,
                             ActorSerializer):
 
     field_map = {
-        'BvDid': 'BvDid',
+        'identifier': 'identifier',
         'name': 'name',
-        'code': 'consCode',
-        'year': 'year',
         'description english': 'description_eng',
         'description original': 'description',
-        'BvDii': 'BvDii',
-        'website': 'website',
-        'employees': 'employees',
-        'turnover': 'turnover',
         'nace': Reference(
             name='activity',
             referenced_field='nace',
@@ -77,7 +62,7 @@ class ActorCreateSerializer(BulkSerializerMixin,
             filter_args={'activitygroup__keyflow': '@keyflow'}
         )
     }
-    index_columns = ['BvDid']
+    index_columns = ['identifier']
 
     def get_queryset(self):
         return Actor.objects.filter(

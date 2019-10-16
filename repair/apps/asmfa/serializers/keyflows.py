@@ -39,8 +39,7 @@ class KeyflowSerializer(NestedHyperlinkedModelSerializer):
 
     class Meta:
         model = Keyflow
-        fields = ('url', 'id', 'code', 'name', 'casestudies',
-                  )
+        fields = ('url', 'id', 'code', 'name', 'casestudies')
 
     def update(self, instance, validated_data):
         """update the user-attributes, including profile information"""
@@ -110,20 +109,11 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     note = serializers.CharField(required=False, allow_blank=True)
     casestudy = IDRelatedField()
     keyflow = IDRelatedField()
-    groupstock_set = InKeyflowSetField(view_name='groupstock-list')
-    group2group_set = InKeyflowSetField(view_name='group2group-list')
-    activitystock_set = InKeyflowSetField(view_name='activitystock-list')
-    activity2activity_set = InKeyflowSetField(view_name='activity2activity-list')
-    actorstock_set = InKeyflowSetField(view_name='actorstock-list')
-    actor2actor_set = InKeyflowSetField(view_name='actor2actor-list')
 
     activitygroups = InCasestudyKeyflowListField(view_name='activitygroup-list')
     activities = InCasestudyKeyflowListField(view_name='activity-list')
     actors = InCasestudyKeyflowListField(view_name='actor-list')
-    administrative_locations = InCasestudyKeyflowListField(
-        view_name='administrativelocation-list')
-    operational_locations = InCasestudyKeyflowListField(
-        view_name='operationallocation-list')
+    locations = InCasestudyKeyflowListField(view_name='location-list')
 
     code = serializers.CharField(source='keyflow.code',
                                  allow_blank=True, required=False)
@@ -138,49 +128,18 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'keyflow',
                   'casestudy',
                   'note',
-                  'groupstock_set',
-                  'group2group_set',
-                  'activitystock_set',
-                  'activity2activity_set',
-                  'actorstock_set',
-                  'actor2actor_set',
                   'code',
                   'note',
                   'name',
                   'activitygroups',
                   'activities',
                   'actors',
-                  'administrative_locations',
-                  'operational_locations',
-                  'graph_date',
-                  'sustainability_statusquo',
-                  'sustainability_conclusions'
+                  'locations'
                   )
 
     def get_graph_date(self, obj):
         kfgraph = BaseGraph(obj)
         return kfgraph.date
-
-
-class KeyflowInCasestudyPostSerializer(InCasestudySerializerMixin,
-                                       NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-    note = serializers.CharField(required=False, allow_blank=True)
-    keyflow = IDRelatedField()
-
-    class Meta:
-        model = KeyflowInCasestudy
-        fields = ('keyflow',
-                  'note',
-                  'sustainability_statusquo',
-                  'sustainability_conclusions'
-                  )
-        extra_kwargs = {
-            'sustainability_statusquo': {'required': False, 'allow_null': True},
-            'sustainability_conclusions': {
-                'required': False, 'allow_null': True
-            },
-        }
 
 
 class KeyflowInCasestudyDetailCreateMixin:
@@ -200,33 +159,30 @@ class KeyflowInCasestudyDetailCreateMixin:
 
 
 class KeyflowInCasestudyField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
-                            }
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',}
 
 
 class WasteSerializer(NestedHyperlinkedModelSerializer):
 
     class Meta:
         model = Waste
-        fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous',
-                  'fractions', 'keyflow')
+        fields = ('url', 'id',
+                  'ewc_code', 'ewc-name', 'hazardous')
 
 
 class AllMaterialSerializer(serializers.ModelSerializer):
-    #keyflow = IDRelatedField(allow_null=True)
-    parent = IDRelatedField(allow_null=True)
-    level = serializers.IntegerField(required=False, default=0)
     flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Material
-        fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent',
+        fields = ('url', 'id',
+                  'name', 'keyflow',
                   'flow_count')
 
 
 class AllMaterialListSerializer(AllMaterialSerializer):
     class Meta(AllMaterialSerializer.Meta):
-        fields = ('id', 'name', 'level', 'parent', 'keyflow')
+        fields = ('id', 'name', 'keyflow')
 
 
 class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
@@ -236,11 +192,11 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
     keyflow = IDRelatedField(read_only=True)
     class Meta:
         model = Material
-        fields = ('id', 'name', 'level', 'parent', 'keyflow',
+        fields = ('id', 'name', 'keyflow',
                   'flow_count')
 
 
 class MaterialListSerializer(MaterialSerializer):
     class Meta(MaterialSerializer.Meta):
-        fields = ('id', 'name', 'level', 'parent', 'keyflow',
-                  'flow_count')
+        fields = ('id', 'name',
+                  'keyflow', 'flow_count')

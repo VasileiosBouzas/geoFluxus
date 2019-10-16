@@ -9,7 +9,8 @@ from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
 class Node(GDSEModel):
-    done = models.BooleanField(default=False)  # if true - data entry is done, no edit allowed
+    # if true - data entry is done, no edit allowed
+    done = models.BooleanField(default=False)
 
     class Meta(GDSEModel.Meta):
         abstract = True
