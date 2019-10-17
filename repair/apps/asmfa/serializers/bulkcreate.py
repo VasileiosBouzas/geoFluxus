@@ -18,7 +18,6 @@ from repair.apps.asmfa.models import (ActivityGroup,
 
 class ActivityGroupCreateSerializer(BulkSerializerMixin,
                                     ActivityGroupSerializer):
-
     field_map = {
         'code': 'code',
         'name': 'name'
@@ -31,7 +30,6 @@ class ActivityGroupCreateSerializer(BulkSerializerMixin,
 
 class ActivityCreateSerializer(BulkSerializerMixin,
                                ActivitySerializer):
-
     field_map = {
         'nace': 'nace',
         'name': 'name',
@@ -69,27 +67,21 @@ class ActorCreateSerializer(BulkSerializerMixin,
             activity__activitygroup__keyflow=self.keyflow)
 
 
-
-
-
-
-
-class AdminLocationCreateSerializer(
+class LocationCreateSerializer(
     BulkSerializerMixin, LocationSerializer):
 
     field_map = {
-        'BvDid': Reference(name='actor',
-                           referenced_field='BvDid',
-                           referenced_model=Actor,
-                           filter_args={
-                               'activity__activitygroup__keyflow':
-                               '@keyflow'}),
+        'identifier': Reference(name='actor',
+                                referenced_field='identifier',
+                                referenced_model=Actor,
+                                filter_args={'activity__activitygroup__keyflow':
+                                             '@keyflow'}),
         'Postcode': 'postcode',
         'Address': 'address',
         'City': 'city',
         'WKT': 'geom'
     }
-    index_columns = ['BvDid']
+    index_columns = ['identifier']
 
     def get_queryset(self):
         return Location.objects.filter(
@@ -97,13 +89,7 @@ class AdminLocationCreateSerializer(
 
 
 class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
-    field_map = {
-        'parent': Reference(name='parent',
-                            referenced_field='name',
-                            referenced_model=Material,
-                            allow_null=True),
-        'name': 'name',
-    }
+    field_map = {'name': 'name',}
     index_columns = ['name']
 
     parent_lookup_kwargs = {
@@ -124,8 +110,8 @@ class WasteCreateSerializer(BulkSerializerMixin,
     }
 
     field_map = {
-        'name': 'name',
-        'nace': 'nace',
+        'ewc_code': 'ewc_code',
+        'ewc_name': 'ewc_name',
         #'ewc':
         #'hazardous',
         #'Item_descr': ''

@@ -74,19 +74,19 @@ router.register(r'keyflows', KeyflowViewSet)
 router.register(r'wastes', AllWasteViewSet)
 router.register(r'materials', AllMaterialViewSet)
 router.register(r'publications', PublicationView)
-# router.register(r'sustainabilities', SustainabilityFieldViewSet)
-# router.register(r'impactcategories', ImpactcategoryViewSet)
-# router.register(r'targetvalues', TargetValueViewSet)
-# router.register(r'targetspecialreference', TargetSpatialReferenceViewSet)
-# router.register(r'areasofprotection', AreaOfProtectionViewSet)
+router.register(r'sustainabilities', SustainabilityFieldViewSet)
+router.register(r'impactcategories', ImpactcategoryViewSet)
+router.register(r'targetvalues', TargetValueViewSet)
+router.register(r'targetspecialreference', TargetSpatialReferenceViewSet)
+router.register(r'areasofprotection', AreaOfProtectionViewSet)
 router.register(r'processes', ProcessViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 # / sustainabilities/../
-# sus_router = NestedDefaultRouter(router, r'sustainabilities',
-#                                  lookup='sustainability')
-# sus_router.register(r'areasofprotection', AreaOfProtectionViewSet)
-# sus_router.register(r'impactcategories', ImpactCategoryInSustainabilityViewSet)
+sus_router = NestedDefaultRouter(router, r'sustainabilities',
+                                 lookup='sustainability')
+sus_router.register(r'areasofprotection', AreaOfProtectionViewSet)
+sus_router.register(r'impactcategories', ImpactCategoryInSustainabilityViewSet)
 
 # /casestudies/...
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
@@ -171,7 +171,7 @@ url(r'^api/payload', include('repair.static.webhook.urls'))
 urlpatterns = [
     url(r'^docs/', include_docs_urls(title='REPAiR API Documentation')),
     url(r'^', include(router.urls)),
-    # url(r'^', include(sus_router.urls)),
+    url(r'^', include(sus_router.urls)),
     url(r'^', include(cs_router.urls)),
     url(r'^', include(shcat_router.urls)),
     url(r'^', include(chart_router.urls)),

@@ -71,7 +71,6 @@ class ActivityViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
     def get_queryset(self):
         activities = Activity.objects.\
             select_related("activitygroup__keyflow__casestudy").defer(
-                "activitygroup__keyflow__note",
                 "activitygroup__keyflow__casestudy__geom",
                 "activitygroup__keyflow__casestudy__focusarea")
         keyflow_pk = self.kwargs.get('keyflow_pk')
@@ -99,8 +98,7 @@ class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
     def get_queryset(self):
         actors = Actor.objects.\
             select_related("activity__activitygroup__keyflow__casestudy").\
-            defer("activity__activitygroup__keyflow__note",
-                  "activity__activitygroup__keyflow__casestudy__geom",
+            defer("activity__activitygroup__keyflow__casestudy__geom",
                   "activity__activitygroup__keyflow__casestudy__focusarea")
         keyflow_pk = self.kwargs.get('keyflow_pk')
         if keyflow_pk is not None:

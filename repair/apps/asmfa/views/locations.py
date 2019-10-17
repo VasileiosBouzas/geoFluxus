@@ -29,7 +29,6 @@ class LocationViewSet(PostGetViewMixin, RevisionMixin,
     def get_queryset(self):
         locations = Location.objects.select_related(
             "actor__activity__activitygroup__keyflow__casestudy").all().defer(
-                "actor__activity__activitygroup__keyflow__note",
                 "actor__activity__activitygroup__keyflow__casestudy__geom",
                 "actor__activity__activitygroup__keyflow__casestudy__focusarea")
         if (self.isGET):
@@ -49,7 +48,6 @@ class LocationsOfActorViewSet(PostGetViewMixin, RevisionMixin,
     def get_queryset(self):
         locations = Location.objects.select_related(
             "actor__activity__activitygroup__keyflow__casestudy").all().defer(
-                "actor__activity__activitygroup__keyflow__note",
                 "actor__activity__activitygroup__keyflow__casestudy__geom",
                 "actor__activity__activitygroup__keyflow__casestudy__focusarea")
         if (self.isGET):
