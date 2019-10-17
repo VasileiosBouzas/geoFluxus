@@ -182,7 +182,6 @@ class ActorSerializer(DynamicFieldsModelSerializerMixin,
                                  source='activity',
                                  read_only=True)
     nace = serializers.CharField(source='activity.nace', read_only=True)
-    flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Actor

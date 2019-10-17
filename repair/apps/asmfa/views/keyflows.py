@@ -163,7 +163,6 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
         keyflow_id = self.kwargs['keyflow_pk']
 
         materials = Material.objects.\
-            prefetch_related('f_material').\
             select_related("keyflow__casestudy").defer(
                 "keyflow__note", "keyflow__casestudy__geom",
                 "keyflow__casestudy__focusarea")
@@ -171,13 +170,13 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
             Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
 
         # calc flow_count
-        # flows = Flow.objects.filter(
-        #     Q(origin__actor__activity__activitygroup__keyflow__id=keyflow_id) |
-        #     Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
-        # )
+        flows = Flow.objects.filter(
+            Q(origin__actor__activity__activitygroup__keyflow__id=keyflow_id) |
+            Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
+        )
         # materials = materials.annotate(
         #     flow_count=Count(Case(
-        #         When(f_material__in=flows, then=1),
+        #         When(flowchain__in=flows, then=1),
         #         output_field=IntegerField(),
         #     ))
         # )
