@@ -11,23 +11,25 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
 
 
 from repair.apps.asmfa.models import (
+    FlowChain,
     Flow,
-    Location,
-    Material,
-    Actor,
-    Activity,
-    ActivityGroup,
     Process
 )
 
-from repair.apps.studyarea.models import (
-    Area, AdminLevels
-)
-
 from repair.apps.asmfa.serializers import (
+    FlowChainSerializer,
     FlowSerializer,
     ProcessSerializer
 )
+
+
+class FlowChainViewSet(RevisionMixin,
+                       CasestudyViewSetMixin,
+                       ModelPermissionViewSet,
+                       ABC):
+    serializer_class = FlowChainSerializer
+    model = FlowChain
+    pagination_class =  UnlimitedResultsSetPagination
 
 
 class FlowViewSet(RevisionMixin,
@@ -46,6 +48,7 @@ class FlowViewSet(RevisionMixin,
 
 class StockViewSet():
     pass
+
 
 class ProcessViewSet(ModelViewSet):
     queryset = Process.objects.all()

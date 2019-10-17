@@ -26,18 +26,17 @@ class ActivityGroupSerializer(CreateWithUserInCasestudyMixin,
                             'keyflow_pk': 'keyflow__id', }
     keyflow = IDRelatedField(read_only=True, required=False)
     nace = serializers.ListField(read_only=True, source='nace_codes')
-    flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ActivityGroup
         fields = ('url', 'id', 'code', 'name',
-                  'keyflow', 'nace', 'flow_count')
+                  'keyflow', 'nace')
 
 
 class ActivityGroupListSerializer(ActivityGroupSerializer):
 
     class Meta(ActivityGroupSerializer.Meta):
-        fields = ('id', 'code', 'name', 'flow_count')
+        fields = ('id', 'code', 'name')
 
 
 class ActivityGroupField(InCasestudyField):
@@ -190,7 +189,7 @@ class ActorSerializer(DynamicFieldsModelSerializerMixin,
         fields = ('url', 'id', 'identifier', 'name',
                   'activity', 'activity_url', 'activity_name',
                   'activitygroup', 'activitygroup_name',
-                  'nace', 'flow_count')
+                  'nace')
 
 
 class ActorListSerializer(ActorSerializer):
@@ -198,6 +197,6 @@ class ActorListSerializer(ActorSerializer):
         fields = ('id',
                   'activity',  'activity_name',
                   'activitygroup', 'activitygroup_name',
-                  'name', 'flow_count')
+                  'name')
 
 

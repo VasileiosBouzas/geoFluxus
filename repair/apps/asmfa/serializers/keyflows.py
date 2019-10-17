@@ -142,6 +142,27 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
         return kfgraph.date
 
 
+class KeyflowInCasestudyPostSerializer(InCasestudySerializerMixin,
+                                       NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+    note = serializers.CharField(required=False, allow_blank=True)
+    keyflow = IDRelatedField()
+
+    class Meta:
+        model = KeyflowInCasestudy
+        fields = ('keyflow',
+                  'note',
+                  'sustainability_statusquo',
+                  'sustainability_conclusions'
+                  )
+        extra_kwargs = {
+            'sustainability_statusquo': {'required': False, 'allow_null': True},
+            'sustainability_conclusions': {
+                'required': False, 'allow_null': True
+            },
+        }
+
+
 class KeyflowInCasestudyDetailCreateMixin:
     def create(self, validated_data):
         """Create a new solution quantity"""
@@ -167,7 +188,7 @@ class WasteSerializer(NestedHyperlinkedModelSerializer):
     class Meta:
         model = Waste
         fields = ('url', 'id',
-                  'ewc_code', 'ewc-name', 'hazardous')
+                  'ewc_code', 'ewc_name', 'hazardous')
 
 
 class AllMaterialSerializer(serializers.ModelSerializer):
