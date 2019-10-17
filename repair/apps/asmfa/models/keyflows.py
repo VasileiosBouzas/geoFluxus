@@ -24,6 +24,7 @@ class KeyflowInCasestudy(GDSEModel):
     keyflow = models.ForeignKey(Keyflow, on_delete=models.CASCADE,
                                 related_name='products')
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
+    note = models.TextField(default='', blank=True)
 
     def __str__(self):
         return 'KeyflowInCasestudy {pk}: {k} in {c}'.format(

@@ -171,16 +171,16 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
             Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
 
         # calc flow_count
-        flows = Flow.objects.filter(
-            Q(origin__activity__activitygroup__keyflow__id=keyflow_id) |
-            Q(destination__activity__activitygroup__keyflow__id=keyflow_id)
-        )
-        materials = materials.annotate(
-            flow_count=Count(Case(
-                When(f_material__in=flows, then=1),
-                output_field=IntegerField(),
-            ))
-        )
+        # flows = Flow.objects.filter(
+        #     Q(origin__actor__activity__activitygroup__keyflow__id=keyflow_id) |
+        #     Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
+        # )
+        # materials = materials.annotate(
+        #     flow_count=Count(Case(
+        #         When(f_material__in=flows, then=1),
+        #         output_field=IntegerField(),
+        #     ))
+        # )
         return materials
 
     def checkMethod(self, request, **kwargs):
