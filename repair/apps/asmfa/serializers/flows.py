@@ -30,8 +30,8 @@ class FlowChainSerializer(NestedHyperlinkedModelSerializer):
 
 class FlowSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id'
     }
     flowchain = IDRelatedField()
     origin = IDRelatedField()

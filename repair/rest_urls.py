@@ -28,6 +28,8 @@ from repair.apps.changes.views import (
 )
 
 from repair.apps.asmfa.views import (
+    FlowViewSet,
+    FlowChainViewSet,
     FilterFlowChainViewSet,
     ActivityGroupViewSet,
     ActivityViewSet,
@@ -136,8 +138,8 @@ shcat_router.register(r'stakeholders', StakeholderViewSet)
 kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
 
 kf_router.register(r'stocks', StockViewSet)
-kf_router.register(r'flowchains', FilterFlowChainViewSet)
-kf_router.register(r'flows', FilterFlowViewSet)
+kf_router.register(r'flowchains', FlowChainViewSet)
+kf_router.register(r'flows', FlowViewSet)
 kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
 kf_router.register(r'activities', ActivityViewSet)
