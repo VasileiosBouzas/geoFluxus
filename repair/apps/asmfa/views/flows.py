@@ -29,7 +29,7 @@ class FlowChainViewSet(RevisionMixin,
                        ABC):
     serializer_class = FlowChainSerializer
     model = FlowChain
-    pagination_class =  UnlimitedResultsSetPagination
+    pagination_class = UnlimitedResultsSetPagination
 
 
 class FlowViewSet(RevisionMixin,

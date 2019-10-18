@@ -24,13 +24,13 @@ from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.models import (
     Flow, Location,
     Material, Flow, Actor, ActivityGroup, Activity,
-    Location, Process
+    Location, Process, FlowChain
 )
 from repair.apps.changes.models import Strategy
 from repair.apps.studyarea.models import Area
 
 from repair.apps.asmfa.serializers import (
-    FlowSerializer
+    FlowSerializer, FlowChainSerializer
 )
 
 # structure of serialized components of a flow as the serializer
@@ -130,6 +130,13 @@ def get_Flows(keyflow_pk, strategy=None):
 
     return queryset.order_by('origin', 'destination')
 
+class FilterFlowChainViewSet(PostGetViewMixin, RevisionMixin,
+                             CasestudyViewSetMixin,
+                             ModelPermissionViewSet):
+    serializer = FlowChainSerializer
+    model = FlowChain
+
+    queryset = FlowChain.objects.all()
 
 class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         CasestudyViewSetMixin,
