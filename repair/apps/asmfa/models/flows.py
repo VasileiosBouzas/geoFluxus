@@ -7,13 +7,7 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       Location,
                                       Material,
                                       Process)
-from repair.apps.changes.models.strategies import Strategy
 from repair.apps.publications.models import PublicationInCasestudy
-from repair.apps.asmfa.models.nodes import (
-    ActivityGroup,
-    Activity,
-    Actor
-)
 
 from repair.apps.login.models.bases import GDSEModel
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
@@ -43,14 +37,16 @@ class Flow(GDSEModel):
     flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
     destination = models.ForeignKey(Location,
                                     on_delete=PROTECT_CASCADE,
-                                    related_name='destination')
+                                    related_name='outputs')
     origin = models.ForeignKey(Location,
                                on_delete=PROTECT_CASCADE,
-                               related_name='origin')
+                               related_name='inputs')
 
 
+# Stock
 class Stock(GDSEModel):
     # stocks relate to only one node, also data will be entered by the users
+    origin = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='origin')
     amount = models.IntegerField(blank=True, default=0)
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)

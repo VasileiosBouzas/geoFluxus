@@ -62,7 +62,7 @@ function (Session) {
         wastes:                 '/api/casestudies/{0}/keyflows/{1}/wastes/',
         materials:              '/api/casestudies/{0}/keyflows/{1}/materials/',
         flows:                  '/api/casestudies/{0}/keyflows/{1}/flows/',
-        flowchains:             '/api/casetsudies/{0}/keyflows/{1}/flowchains/',
+        flowchains:             '/api/casestudies/{0}/keyflows/{1}/flowchains/',
         stocks:                 '/api/casestudies/{0}/keyflows/{1}/stocks/',
         flowIndicators:         '/api/casestudies/{0}/keyflows/{1}/flowindicators/',
         flowFilters:            '/api/casestudies/{0}/keyflows/{1}/flowfilters/',

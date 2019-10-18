@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.utils.functional import cached_property
 
 from django.db import models
-from collections import defaultdict
 
 from repair.apps.login.models import (CaseStudy, GDSEModel)
-from repair.apps.publications.models import PublicationInCasestudy
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 

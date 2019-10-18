@@ -52,11 +52,12 @@ class StockSerializer(NestedHyperlinkedModelSerializer):
                                       read_only=True)
     publication = IDRelatedField(allow_null=True, required=False)
     material = IDRelatedField()
+    origin = IDRelatedField
 
     class Meta:
         model = Stock
         fields = ('url', 'id', 'amount',
-                  'keyflow', 'description', 'year',
+                  'keyflow', 'origin', 'description', 'year',
                   'material', 'publication')
 
 
