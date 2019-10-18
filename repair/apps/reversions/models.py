@@ -12,6 +12,10 @@ from repair.apps.asmfa.models import (Actor,
                                       Material,
                                       Location,
                                       KeyflowInCasestudy,
+                                      Flow,
+                                      FlowChain,
+                                      Stock,
+                                      Waste
                                       )
 
 
@@ -57,3 +61,22 @@ class MaterialAdmin(VersionAdmin):
 @admin.register(Location)
 class Location(VersionAdmin):
     """Versioning of Location"""
+
+
+@admin.register(FlowChain)
+class FlowChain(VersionAdmin):
+    """Versioning of FlowChain"""
+
+
+@admin.register(Flow)
+class Flow(VersionAdmin):
+    """Versioning of Flow"""
+
+
+@admin.register(Stock)
+class Stock(VersionAdmin):
+    """Versioning of Stock"""
+
+@admin.register(Waste)
+class Waste(VersionAdmin):
+    """Versioning of Waste"""
