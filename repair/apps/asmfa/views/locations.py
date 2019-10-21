@@ -8,7 +8,8 @@ from repair.apps.asmfa.models import (
 
 from repair.apps.asmfa.serializers import (
     LocationSerializer,
-    LocationsOfActorSerializer
+    LocationsOfActorSerializer,
+    LocationCreateSerializer
 )
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
@@ -25,6 +26,10 @@ class LocationViewSet(PostGetViewMixin, RevisionMixin,
     delete_perm = 'asmfa.delete_location'
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+    serializers = {
+        'list': LocationSerializer,
+        'create': LocationCreateSerializer
+    }
 
     def get_queryset(self):
         locations = Location.objects.select_related(

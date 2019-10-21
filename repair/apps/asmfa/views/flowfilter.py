@@ -35,24 +35,29 @@ from repair.apps.asmfa.serializers import (
 
 # structure of serialized components of a flow as the serializer
 # will return it
+flowchain_struct = OrderedDict(id=None,
+                               route=None,
+                               collector=None,
+                               trips=0,
+                               description=None,
+                               amount=0,
+                               year=0,
+                               waste=None,
+                               keyflow_id=None,
+                               material_id=None,
+                               process_id=None,
+                               publication_id=None
+                              )
+
+
 flow_struct = OrderedDict(id=None,
-                          amount=0,
-                          composition=None,
+                          flowchain_id=None,
                           origin=None,
                           destination=None,
                           origin_level=None,
                           destination_level=None,
                           )
 
-composition_struct = OrderedDict(id=None,
-                                 name='custom',
-                                 nace='custom',
-                                 fractions=[],
-                                 )
-
-fractions_struct = OrderedDict(material=None,
-                               fraction=0
-                               )
 
 FILTER_SUFFIX = {
     Actor: '',
@@ -67,6 +72,7 @@ LEVEL_KEYWORD = {
 }
 
 
+# Filter flowchain for keyflow
 class FilterFlowChainViewSet(PostGetViewMixin, RevisionMixin,
                              CasestudyViewSetMixin,
                              ModelPermissionViewSet):
@@ -74,8 +80,12 @@ class FilterFlowChainViewSet(PostGetViewMixin, RevisionMixin,
     model = FlowChain
 
     queryset = FlowChain.objects.all()
+    for chain in queryset:
+        flows = Flow.objects.filter(flowchain_id=chain.id)
 
 
+
+# Flow Fliters
 class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         CasestudyViewSetMixin,
                         ModelPermissionViewSet):
@@ -83,4 +93,44 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     model = Flow
 
     queryset = Flow.objects.all()
+
+    @action(methods=['get', 'post'], detail=False)
+    def count(self, request, **kwargs):
+        """Count flows in casestudy"""
+        query_params = request.query_params.copy()
+        queryset = self._filter(kwargs, query_params=query_params)
+
+        # If flow origin in area, include
+        if ('origin_area' in request.data):
+            geojson = self.request.data['origin_area']
+            poly = GEOSGeometry(geojson)
+            queryset = queryset.filter(origin__location__geom__intersects=poly)
+
+        # If flow destination in area, include too
+        if ('destination_area' in request.data):
+            geojson = self.request.data['destination_area']
+            poly = GEOSGeometry(geojson)
+            queryset = queryset.filter(destination__location__geom__intersects=poly)
+
+        # Send count response
+        json = {'count': queryset.count()}
+        return Response(json)
+
+    # Flows for keyflow
+    def get_queryset(self):
+        keyflow_pk = self.kwargs.get('keyflow_pk')
+        return self._filter(keyflow_id = keyflow_pk)
+
+    def list(self, request, **kwargs):
+        self.check_permission(request, 'view')
+        self.check_casestudy(kwargs, request)
+
+        queryset = self._filter(kwargs, query_params=request.query_params)
+        if queryset is None:
+            return Response(status=400)
+        data = self.serialize(queryset)
+        return Response(data)
+
+
+
 

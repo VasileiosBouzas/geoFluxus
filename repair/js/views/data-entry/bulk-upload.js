@@ -56,10 +56,10 @@ var BulkUploadView = BaseView.extend(
                 ['activities', gettext('Activities')],
                 ['actors', gettext('Actors')],
                 ['locations', gettext('Locations')],
-                ['materials', gettext('Materials')],
-                ['wastes', gettext('Wastes')],
                 ['flowchains', gettext('Flow Chains')],
                 ['flows', gettext('Flows')],
+                ['materials', gettext('Materials')],
+                ['wastes', gettext('Wastes')],
                 ['stocks', gettext('Stocks')]
             ],
             upsCasestudy = [
@@ -75,7 +75,6 @@ var BulkUploadView = BaseView.extend(
         this.geolocations = ['adminLocations'];
 
         function renderRow(up, column){
-            console.log(up);
             var html = document.getElementById('upload-row-template').innerHTML,
                 template = _.template(html),
                 div = document.createElement('div'),

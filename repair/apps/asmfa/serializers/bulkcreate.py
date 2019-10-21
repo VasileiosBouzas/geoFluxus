@@ -6,6 +6,8 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            LocationSerializer,
                                            WasteSerializer,
                                            MaterialSerializer,
+                                           FlowSerializer,
+                                           FlowChainSerializer
                                            )
 from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity,
@@ -13,6 +15,10 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Location,
                                       Material,
                                       Waste,
+                                      Flow,
+                                      FlowChain,
+                                      Process,
+                                      PublicationInCasestudy
                                       )
 
 
@@ -63,29 +69,29 @@ class ActorCreateSerializer(BulkSerializerMixin,
     index_columns = ['identifier']
 
     def get_queryset(self):
-        return Actor.objects.filter(
-            activity__activitygroup__keyflow=self.keyflow)
+        return Actor.objects.filter(activity__activitygroup__keyflow=self.keyflow)
 
 
-class LocationCreateSerializer(
-    BulkSerializerMixin, LocationSerializer):
+class LocationCreateSerializer(BulkSerializerMixin,
+                               LocationSerializer):
 
     field_map = {
-        'identifier': Reference(name='actor',
-                                referenced_field='identifier',
-                                referenced_model=Actor,
-                                filter_args={'activity__activitygroup__keyflow':
-                                             '@keyflow'}),
+        'actor': Reference(name='actor',
+                           referenced_field='identifier',
+                           referenced_model=Actor,
+                           filter_args={'activity__activitygroup__keyflow':
+                                        '@keyflow'}),
         'Postcode': 'postcode',
         'Address': 'address',
         'City': 'city',
+        'Country': 'country',
+        'Role': 'role',
         'WKT': 'geom'
     }
-    index_columns = ['identifier']
+    index_columns = ['address']
 
     def get_queryset(self):
-        return Location.objects.filter(
-            actor__activity__activitygroup__keyflow=self.keyflow)
+        return Location.objects.filter(actor__activity__activitygroup__keyflow=self.keyflow)
 
 
 class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
@@ -112,11 +118,59 @@ class WasteCreateSerializer(BulkSerializerMixin,
     field_map = {
         'ewc_code': 'ewc_code',
         'ewc_name': 'ewc_name',
-        #'ewc':
-        #'hazardous',
-        #'Item_descr': ''
     }
-    index_columns = ['name']
+    index_columns = ['ewc_name']
 
     def get_queryset(self):
         return Waste.objects.filter(keyflow=self.keyflow)
+
+
+class FlowChainCreateSerializer(BulkSerializerMixin,
+                                FlowChainSerializer):
+    field_map = {
+        'process': Reference(name='process',
+                             referenced_field='code',
+                             referenced_model=Process),
+        'route': 'route',
+        'collector': 'collector',
+        'description': 'description',
+        'amount': 'amount',
+        'material': Reference(name='material',
+                              referenced_field='name',
+                              referenced_model=Material),
+        'trips': 'trips',
+        'year': 'year',
+        'waste': Reference(name='waste',
+                          referenced_field='ewc_code',
+                          referenced_model=Waste),
+        'source': Reference(name='publication',
+                            referenced_field='publication_citekey',
+                            referenced_model=PublicationInCasestudy)
+    }
+    index_columns = ['source']
+
+    def get_queryset(self):
+        return FlowChain.objects.filter(keyflow=self.keyflow)
+
+
+class FlowCreateSerializer(BulkSerializerMixin,
+                           FlowSerializer):
+    field_map = {
+        'flowchain': Reference(name='flowchain',
+                               referenced_field='flowchain',
+                               referenced_model=FlowChain),
+        'origin': Reference(name='origin',
+                            referenced_field='outputs',
+                            referenced_model=Location,
+                            filter_args={'actor__activity__activitygroup__keyflow':
+                                         '@keyflow'}),
+        'destination': Reference(name='destination',
+                                 referenced_field='inputs',
+                                 referenced_model=Location,
+                                 filter_args={'actor__activity__activitygroup__keyflow':
+                                              '@keyflow'})
+    }
+    index_columns = ['origin', 'destination']
+
+    def get_queryset(self):
+        return Flow.objects.filter(keyflow=self.keyflow)

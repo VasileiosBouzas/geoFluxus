@@ -174,8 +174,10 @@ class ActorSerializer(DynamicFieldsModelSerializerMixin,
         'keyflow_pk': 'activity__activitygroup__keyflow__id',
     }
     activity = IDRelatedField()
-    activity_name = serializers.CharField(source='activity.name', read_only=True)
-    activitygroup_name = serializers.CharField(source='activity.activitygroup.name', read_only=True)
+    activity_name = serializers.CharField(source='activity.name',
+                                          read_only=True)
+    activitygroup_name = serializers.CharField(source='activity.activitygroup.name',
+                                               read_only=True)
     activitygroup = serializers.IntegerField(source="activity.activitygroup.id",
                                              read_only=True)
     activity_url = ActivityField(view_name='activity-detail',

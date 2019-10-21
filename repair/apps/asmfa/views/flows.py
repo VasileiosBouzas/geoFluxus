@@ -21,7 +21,9 @@ from repair.apps.asmfa.serializers import (
     FlowChainSerializer,
     FlowSerializer,
     ProcessSerializer,
-    StockSerializer
+    StockSerializer,
+    FlowCreateSerializer,
+    FlowChainCreateSerializer
 )
 
 # FlowChain View
@@ -40,6 +42,10 @@ class FlowChainViewSet(FlowChainViewSetAbstract):
     delete_perm = 'asmfa.delete_flowchain'
     queryset =  FlowChain.objects.all()
     serializer_class = FlowChainSerializer
+    serializers = {
+        'list': FlowChainSerializer,
+        'create': FlowChainCreateSerializer
+    }
 
 
 # Flow View
@@ -63,6 +69,10 @@ class FlowViewSet(FlowViewSetAbstract):
     delete_perm = 'asmfa.delete_flow'
     queryset = Flow.objects.all()
     serializer_class = FlowSerializer
+    serializers = {
+        'list': FlowSerializer,
+        'create': FlowCreateSerializer
+    }
 
 
 # Stock View
