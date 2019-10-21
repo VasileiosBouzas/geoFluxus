@@ -23,7 +23,8 @@ from repair.apps.asmfa.serializers import (
     ProcessSerializer,
     StockSerializer,
     FlowCreateSerializer,
-    FlowChainCreateSerializer
+    FlowChainCreateSerializer,
+    StockCreateSerializer
 )
 
 # FlowChain View
@@ -102,6 +103,10 @@ class StockViewSet(StockViewSetAbstract):
     delete_perm = 'asmfa.delete_stock'
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
+    serializers = {
+        'list': StockSerializer,
+        'create': StockCreateSerializer
+    }
 
 
 class ProcessViewSet(ModelViewSet):

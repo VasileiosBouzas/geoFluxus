@@ -7,7 +7,8 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            WasteSerializer,
                                            MaterialSerializer,
                                            FlowSerializer,
-                                           FlowChainSerializer
+                                           FlowChainSerializer,
+                                           StockSerializer
                                            )
 from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity,
@@ -18,7 +19,8 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Flow,
                                       FlowChain,
                                       Process,
-                                      PublicationInCasestudy
+                                      PublicationInCasestudy,
+                                      Stock
                                       )
 
 
@@ -174,3 +176,26 @@ class FlowCreateSerializer(BulkSerializerMixin,
 
     def get_queryset(self):
         return Flow.objects.filter(keyflow=self.keyflow)
+
+
+class StockCreateSerializer(BulkSerializerMixin,
+                            StockSerializer):
+    field_map = {
+        'origin': Reference(name='origin',
+                            referenced_field='origin',
+                            referenced_model=Location),
+        'material': Reference(name='material',
+                              referenced_field='name',
+                              referenced_model=Material),
+        'amount': 'amount',
+        'description': 'description',
+        'year': 'year',
+        'source': Reference(name='publication',
+                            referenced_field='publication_citekey',
+                            referenced_model=PublicationInCasestudy)
+    }
+    index = ['origin']
+
+    def get_queryset(self):
+        return Stock.objects.filter(keyflow=self.keyflow)
+
