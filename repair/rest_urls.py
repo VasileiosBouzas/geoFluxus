@@ -28,30 +28,23 @@ from repair.apps.changes.views import (
 )
 
 from repair.apps.asmfa.views import (
+    FlowViewSet,
+    FlowChainViewSet,
+    FilterFlowChainViewSet,
     ActivityGroupViewSet,
     ActivityViewSet,
     ActorViewSet,
-    ReasonViewSet,
-    Activity2ActivityViewSet,
-    Group2GroupViewSet,
-    Actor2ActorViewSet,
     FilterFlowViewSet,
     KeyflowViewSet,
     KeyflowInCasestudyViewSet,
-    GroupStockViewSet,
-    ActivityStockViewSet,
-    ActorStockViewSet,
-    AdministrativeLocationOfActorViewSet,
-    OperationalLocationsOfActorViewSet,
-    AdministrativeLocationViewSet,
-    OperationalLocationViewSet,
-    ProductViewSet,
+    LocationsOfActorViewSet,
+    LocationViewSet,
     MaterialViewSet,
-    AllProductViewSet,
     AllWasteViewSet,
     AllMaterialViewSet,
     WasteViewSet,
-    ProcessViewSet
+    ProcessViewSet,
+    StockViewSet
 )
 
 from repair.apps.statusquo.views import (
@@ -82,24 +75,22 @@ from repair.apps.wmsresources.views import (WMSResourceInCasestudyViewSet, )
 router = DefaultRouter()
 router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'keyflows', KeyflowViewSet)
-router.register(r'products', AllProductViewSet)
 router.register(r'wastes', AllWasteViewSet)
 router.register(r'materials', AllMaterialViewSet)
 router.register(r'publications', PublicationView)
-router.register(r'reasons', ReasonViewSet)
-router.register(r'sustainabilities', SustainabilityFieldViewSet)
-router.register(r'impactcategories', ImpactcategoryViewSet)
-router.register(r'targetvalues', TargetValueViewSet)
-router.register(r'targetspecialreference', TargetSpatialReferenceViewSet)
-router.register(r'areasofprotection', AreaOfProtectionViewSet)
+# router.register(r'sustainabilities', SustainabilityFieldViewSet)
+# router.register(r'impactcategories', ImpactcategoryViewSet)
+# router.register(r'targetvalues', TargetValueViewSet)
+# router.register(r'targetspecialreference', TargetSpatialReferenceViewSet)
+# router.register(r'areasofprotection', AreaOfProtectionViewSet)
 router.register(r'processes', ProcessViewSet)
 
 ## nested routes (see https://github.com/alanjds/drf-nested-routers) ##
 # / sustainabilities/../
-sus_router = NestedDefaultRouter(router, r'sustainabilities',
-                                 lookup='sustainability')
-sus_router.register(r'areasofprotection', AreaOfProtectionViewSet)
-sus_router.register(r'impactcategories', ImpactCategoryInSustainabilityViewSet)
+# sus_router = NestedDefaultRouter(router, r'sustainabilities',
+#                                  lookup='sustainability')
+# sus_router.register(r'areasofprotection', AreaOfProtectionViewSet)
+# sus_router.register(r'impactcategories', ImpactCategoryInSustainabilityViewSet)
 
 # /casestudies/...
 cs_router = NestedDefaultRouter(router, r'casestudies', lookup='casestudy')
@@ -146,25 +137,19 @@ shcat_router.register(r'stakeholders', StakeholderViewSet)
 # /casestudies/*/keyflows/...
 kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
 
-kf_router.register(r'groupstock', GroupStockViewSet)
-kf_router.register(r'activitystock', ActivityStockViewSet)
-kf_router.register(r'actorstock', ActorStockViewSet)
-kf_router.register(r'group2group', Group2GroupViewSet)
-kf_router.register(r'activity2activity', Activity2ActivityViewSet)
-kf_router.register(r'actor2actor', Actor2ActorViewSet)
-kf_router.register(r'flows', FilterFlowViewSet)
+kf_router.register(r'stocks', StockViewSet)
+kf_router.register(r'flowchains', FlowChainViewSet)
+kf_router.register(r'flows', FlowViewSet)
 kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
 kf_router.register(r'activities', ActivityViewSet)
 kf_router.register(r'actors', ActorViewSet)
-kf_router.register(r'administrativelocations', AdministrativeLocationViewSet)
-kf_router.register(r'operationallocations', OperationalLocationViewSet)
+kf_router.register(r'locations', LocationViewSet)
 kf_router.register(r'flowindicators', FlowIndicatorViewSet)
 kf_router.register(r'flowfilters', FlowFilterViewSet)
 kf_router.register(r'solutioncategories', SolutionCategoryViewSet)
 kf_router.register(r'solutions', SolutionViewSet)
 kf_router.register(r'strategies', StrategyViewSet)
-kf_router.register(r'products', ProductViewSet)
 kf_router.register(r'wastes', WasteViewSet)
 kf_router.register(r'conclusions', ConclusionViewSet)
 
@@ -183,10 +168,7 @@ strat_router.register(r'solutions', SolutionInStrategyViewSet)
 # /casestudies/*/keyflows/*/actors/...
 actors_router = NestedSimpleRouter(kf_router, r'actors',
                                    lookup='actor')
-actors_router.register(r'administrativelocation',
-                   AdministrativeLocationOfActorViewSet)
-actors_router.register(r'operationallocations',
-                   OperationalLocationsOfActorViewSet)
+actors_router.register(r'locations', LocationsOfActorViewSet)
 
 ## webhook ##
 
@@ -195,7 +177,7 @@ url(r'^api/payload', include('repair.static.webhook.urls'))
 urlpatterns = [
     url(r'^docs/', include_docs_urls(title='REPAiR API Documentation')),
     url(r'^', include(router.urls)),
-    url(r'^', include(sus_router.urls)),
+    # url(r'^', include(sus_router.urls)),
     url(r'^', include(cs_router.urls)),
     url(r'^', include(shcat_router.urls)),
     url(r'^', include(chart_router.urls)),

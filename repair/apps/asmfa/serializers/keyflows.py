@@ -6,12 +6,8 @@ from repair.apps.asmfa.graphs.graph import BaseGraph
 from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import (Keyflow,
                                       KeyflowInCasestudy,
-                                      Product,
-                                      ProductFraction,
                                       Material,
                                       Waste,
-                                      Composition,
-                                      Actor2Actor
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -43,8 +39,7 @@ class KeyflowSerializer(NestedHyperlinkedModelSerializer):
 
     class Meta:
         model = Keyflow
-        fields = ('url', 'id', 'code', 'name', 'casestudies',
-                  )
+        fields = ('url', 'id', 'code', 'name', 'casestudies')
 
     def update(self, instance, validated_data):
         """update the user-attributes, including profile information"""
@@ -114,20 +109,11 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     note = serializers.CharField(required=False, allow_blank=True)
     casestudy = IDRelatedField()
     keyflow = IDRelatedField()
-    groupstock_set = InKeyflowSetField(view_name='groupstock-list')
-    group2group_set = InKeyflowSetField(view_name='group2group-list')
-    activitystock_set = InKeyflowSetField(view_name='activitystock-list')
-    activity2activity_set = InKeyflowSetField(view_name='activity2activity-list')
-    actorstock_set = InKeyflowSetField(view_name='actorstock-list')
-    actor2actor_set = InKeyflowSetField(view_name='actor2actor-list')
 
     activitygroups = InCasestudyKeyflowListField(view_name='activitygroup-list')
     activities = InCasestudyKeyflowListField(view_name='activity-list')
     actors = InCasestudyKeyflowListField(view_name='actor-list')
-    administrative_locations = InCasestudyKeyflowListField(
-        view_name='administrativelocation-list')
-    operational_locations = InCasestudyKeyflowListField(
-        view_name='operationallocation-list')
+    locations = InCasestudyKeyflowListField(view_name='location-list')
 
     code = serializers.CharField(source='keyflow.code',
                                  allow_blank=True, required=False)
@@ -142,23 +128,14 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'keyflow',
                   'casestudy',
                   'note',
-                  'groupstock_set',
-                  'group2group_set',
-                  'activitystock_set',
-                  'activity2activity_set',
-                  'actorstock_set',
-                  'actor2actor_set',
                   'code',
                   'note',
                   'name',
                   'activitygroups',
                   'activities',
                   'actors',
-                  'administrative_locations',
-                  'operational_locations',
-                  'graph_date',
-                  'sustainability_statusquo',
-                  'sustainability_conclusions'
+                  'locations',
+                  'graph_date'
                   )
 
     def get_graph_date(self, obj):
@@ -175,16 +152,7 @@ class KeyflowInCasestudyPostSerializer(InCasestudySerializerMixin,
     class Meta:
         model = KeyflowInCasestudy
         fields = ('keyflow',
-                  'note',
-                  'sustainability_statusquo',
-                  'sustainability_conclusions'
-                  )
-        extra_kwargs = {
-            'sustainability_statusquo': {'required': False, 'allow_null': True},
-            'sustainability_conclusions': {
-                'required': False, 'allow_null': True
-            },
-        }
+                  'note',)
 
 
 class KeyflowInCasestudyDetailCreateMixin:
@@ -204,129 +172,30 @@ class KeyflowInCasestudyDetailCreateMixin:
 
 
 class KeyflowInCasestudyField(InCasestudyField):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',
-                            }
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',}
 
 
-class ProductInKeyflowInCasestudyField(InCasestudyField):
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
-    }
-
-
-class ProductFractionSerializer(serializers.ModelSerializer):
-    publication = IDRelatedField(allow_null=True, required=False)
-    id = serializers.IntegerField(label='ID', read_only=False, required=False,
-                                  allow_null=True)
-    parent_lookup_kwargs = {}
-
-    class Meta:
-        model = ProductFraction
-        fields = ('id',
-                  'composition',
-                  'material',
-                  'fraction',
-                  'publication',
-                  'avoidable',
-                  'hazardous')
-        read_only_fields = ['composition']
-
-
-class CompositionSerializer(NestedHyperlinkedModelSerializer):
-    fractions = ProductFractionSerializer(many=True)
-    id = serializers.IntegerField(label='ID', read_only=False, required=False,
-                                  allow_null=True)
-    keyflow = IDRelatedField(read_only=True)
-    parent_lookup_kwargs = {}
-
-    class Meta:
-        model = Composition
-        fields = ('id',
-                  'name',
-                  'nace',
-                  'fractions',
-                  'keyflow')
-
-    def create(self, validated_data):
-        fractions = validated_data.pop('fractions')
-        instance = super().create(validated_data)
-        validated_data['fractions'] = fractions
-        self.update(instance, validated_data)
-        return instance
-
-    def update(self, instance, validated_data):
-        """update the user-attributes, including fraction information"""
-        composition = instance
-
-        # handle product fractions
-        new_fractions = validated_data.pop('fractions', None)
-
-        if new_fractions is not None:
-            product_fractions = ProductFraction.objects.filter(
-                composition=composition)
-            # delete existing rows not needed any more
-            ids = [fraction.get('id') for fraction in new_fractions if fraction.get('id') is not None]
-            to_delete = product_fractions.exclude(id__in=ids)
-            to_delete.delete()
-            # add or update new fractions
-            for new_fraction in new_fractions:
-                material_id = getattr(new_fraction.get('material'), 'id')
-                material = Material.objects.get(id=material_id)
-                fraction_id = new_fraction.get('id')
-                # create new fraction
-                if (fraction_id is None or
-                    len(product_fractions.filter(id=fraction_id)) == 0):
-                    fraction = ProductFraction(composition=composition)
-                # change existing fraction
-                else:
-                    fraction = product_fractions.get(id=fraction_id)
-
-                for attr, value in new_fraction.items():
-                    if attr in ('composition', 'id'):
-                        continue
-                    setattr(fraction, attr, value)
-                fraction.save()
-
-        # update other attributes
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
-
-
-class ProductSerializer(CompositionSerializer):
-
-    class Meta:
-        model = Product
-        fields = ('url', 'id', 'name', 'nace', 'cpa',
-                  'fractions', 'keyflow'
-                  )
-
-
-class WasteSerializer(CompositionSerializer):
+class WasteSerializer(KeyflowInCasestudyDetailCreateMixin,
+                      NestedHyperlinkedModelSerializer):
 
     class Meta:
         model = Waste
-        fields = ('url', 'id', 'name', 'nace', 'ewc', 'wastetype', 'hazardous',
-                  'fractions', 'keyflow')
+        fields = ('url', 'id',
+                  'ewc_code', 'ewc_name', 'hazardous')
 
 
 class AllMaterialSerializer(serializers.ModelSerializer):
-    #keyflow = IDRelatedField(allow_null=True)
-    parent = IDRelatedField(allow_null=True)
-    level = serializers.IntegerField(required=False, default=0)
     flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Material
-        fields = ('url', 'id', 'name', 'keyflow', 'level', 'parent',
-                  'flow_count')
+        fields = ('url', 'id',
+                  'name', 'keyflow')
 
 
 class AllMaterialListSerializer(AllMaterialSerializer):
     class Meta(AllMaterialSerializer.Meta):
-        fields = ('id', 'name', 'level', 'parent', 'keyflow')
+        fields = ('id', 'name', 'keyflow')
 
 
 class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
@@ -336,11 +205,11 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
     keyflow = IDRelatedField(read_only=True)
     class Meta:
         model = Material
-        fields = ('id', 'name', 'level', 'parent', 'keyflow',
+        fields = ('id', 'name', 'keyflow',
                   'flow_count')
 
 
 class MaterialListSerializer(MaterialSerializer):
     class Meta(MaterialSerializer.Meta):
-        fields = ('id', 'name', 'level', 'parent', 'keyflow',
-                  'flow_count')
+        fields = ('id', 'name',
+                  'keyflow', 'flow_count')

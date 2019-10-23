@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.db.utils import OperationalError
 
 from repair.apps.asmfa.graphs.graph import StrategyGraph
-from repair.apps.asmfa.models import FractionFlow, StrategyFractionFlow
+from repair.apps.asmfa.models import Flow
 from repair.apps.changes.models import (Strategy,
                                         SolutionInStrategy,
                                         ImplementationQuantity,
@@ -149,10 +149,10 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
         return instance
 
     def get_affected_activities(self, obj):
-        new_flows = FractionFlow.objects.filter(strategy=obj, amount__gt=0)
-        modified = StrategyFractionFlow.objects.filter(strategy=obj)
-        modified_flows = FractionFlow.objects.filter(
-            id__in=modified.values_list('fractionflow__id'))
+        new_flows = Flow.objects.filter(strategy=obj, amount__gt=0)
+        modified = StrategyFlow.objects.filter(strategy=obj)
+        modified_flows = Flow.objects.filter(
+            id__in=modified.values_list('Flow__id'))
         activities = list(new_flows.values_list(
             'origin__activity__id',
             'destination__activity__id',

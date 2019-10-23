@@ -1,8 +1,7 @@
 # API View
 from reversion.views import RevisionMixin
 from django.contrib.gis.geos import GEOSGeometry
-from django.db.models import CharField, Value
-from django.db.models import Q, Count
+from django.db.models import Count
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -54,9 +53,7 @@ class ActivityGroupViewSet(PostGetViewMixin,
             if 'id' in self.request.data:
                 ids = self.request.data['id'].split(",")
                 groups = groups.filter(id__in=ids)
-        groups = groups.annotate(
-            flow_count=Count('activity__actor__outputs') +
-            Count('activity__actor__inputs'))
+
         return groups.order_by('id')
 
 
@@ -74,7 +71,6 @@ class ActivityViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
     def get_queryset(self):
         activities = Activity.objects.\
             select_related("activitygroup__keyflow__casestudy").defer(
-                "activitygroup__keyflow__note",
                 "activitygroup__keyflow__casestudy__geom",
                 "activitygroup__keyflow__casestudy__focusarea")
         keyflow_pk = self.kwargs.get('keyflow_pk')
@@ -85,8 +81,6 @@ class ActivityViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
                 ids = self.request.data['id'].split(",")
                 activities = activities.filter(id__in=ids)
 
-        activities = activities.annotate(
-            flow_count=Count('actor__outputs') + Count('actor__inputs'))
         return activities.order_by('id')
 
 
@@ -104,10 +98,8 @@ class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
     def get_queryset(self):
         actors = Actor.objects.\
             select_related("activity__activitygroup__keyflow__casestudy").\
-            prefetch_related('administrative_location').defer(
-                "activity__activitygroup__keyflow__note",
-                "activity__activitygroup__keyflow__casestudy__geom",
-                "activity__activitygroup__keyflow__casestudy__focusarea")
+            defer("activity__activitygroup__keyflow__casestudy__geom",
+                  "activity__activitygroup__keyflow__casestudy__focusarea")
         keyflow_pk = self.kwargs.get('keyflow_pk')
         if keyflow_pk is not None:
             actors = actors.filter(
@@ -117,14 +109,7 @@ class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
             if 'id' in self.request.data:
                 ids = self.request.data['id'].split(",")
                 actors = actors.filter(id__in=ids)
-            if 'area' in self.request.data:
-                geojson = self.request.data['area']
-                poly = GEOSGeometry(geojson)
-                actors = actors.filter(
-                    administrative_location__geom__intersects=poly)
 
-        actors = actors.annotate(
-            flow_count=Count('outputs') + Count('inputs'))
         return actors.order_by('id')
 
     @action(methods=['get', 'post'], detail=False)

@@ -10,7 +10,7 @@ import numpy as np
 from django.db.models import Q
 import time
 
-from repair.apps.asmfa.models.flows import FractionFlow
+from repair.apps.asmfa.models.flows import Flow
 from repair.apps.asmfa.models import Actor
 
 

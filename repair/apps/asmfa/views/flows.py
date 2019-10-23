@@ -11,53 +11,49 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
 
 
 from repair.apps.asmfa.models import (
-    Reason,
+    FlowChain,
     Flow,
-    AdministrativeLocation,
-    Activity2Activity,
-    Actor2Actor,
-    Group2Group,
-    Material,
-    Composition,
-    ProductFraction,
-    Actor,
-    Activity,
-    ActivityGroup,
-    ActorStock,
-    GroupStock,
-    ActivityStock,
-    Process
-)
-
-from repair.apps.studyarea.models import (
-    Area, AdminLevels
+    Process,
+    Stock
 )
 
 from repair.apps.asmfa.serializers import (
-    ReasonSerializer,
+    FlowChainSerializer,
     FlowSerializer,
-    Actor2ActorSerializer,
-    Activity2ActivitySerializer,
-    Group2GroupSerializer,
-    Actor2ActorCreateSerializer,
-    GroupStockSerializer,
-    ActorStockSerializer,
-    ActivityStockSerializer,
-    ActorStockCreateSerializer,
-    ProcessSerializer
+    ProcessSerializer,
+    StockSerializer,
+    FlowCreateSerializer,
+    FlowChainCreateSerializer,
+    StockCreateSerializer
 )
 
+# FlowChain View
+class FlowChainViewSetAbstract(RevisionMixin,
+                               CasestudyViewSetMixin,
+                               ModelPermissionViewSet,
+                               ABC):
+    serializer_class = FlowChainSerializer
+    model = FlowChain
+    pagination_class = UnlimitedResultsSetPagination
 
-class ReasonViewSet(RevisionMixin, ModelViewSet):
-    pagination_class = None
-    serializer_class = ReasonSerializer
-    queryset = Reason.objects.all()
+
+class FlowChainViewSet(FlowChainViewSetAbstract):
+    add_perm = 'asmfa.add_flowchain'
+    change_perm = 'asmfa.change_flowchain'
+    delete_perm = 'asmfa.delete_flowchain'
+    queryset =  FlowChain.objects.all()
+    serializer_class = FlowChainSerializer
+    serializers = {
+        'list': FlowChainSerializer,
+        'create': FlowChainCreateSerializer
+    }
 
 
-class FlowViewSet(RevisionMixin,
-                  CasestudyViewSetMixin,
-                  ModelPermissionViewSet,
-                  ABC):
+# Flow View
+class FlowViewSetAbstract(RevisionMixin,
+                          CasestudyViewSetMixin,
+                          ModelPermissionViewSet,
+                          ABC):
     """
     Abstract BaseClass for a FlowViewSet
     The Subclass has to provide a model inheriting from Flow
@@ -68,83 +64,49 @@ class FlowViewSet(RevisionMixin,
     pagination_class = UnlimitedResultsSetPagination
 
 
-class Group2GroupViewSet(FlowViewSet):
-    add_perm = 'asmfa.add_group2group'
-    change_perm = 'asmfa.change_group2group'
-    delete_perm = 'asmfa.delete_group2group'
-    queryset = Group2Group.objects.all()
-    serializer_class = Group2GroupSerializer
-
-
-class Activity2ActivityViewSet(FlowViewSet):
-    add_perm = 'asmfa.add_activity2activity'
-    change_perm = 'asmfa.change_activity2activity'
-    delete_perm = 'asmfa.delete_activity2activity'
-    queryset = Activity2Activity.objects.all()
-    serializer_class = Activity2ActivitySerializer
-
-
-class Actor2ActorViewSet(PostGetViewMixin, FlowViewSet):
-    add_perm = 'asmfa.add_actor2actor'
-    change_perm = 'asmfa.change_actor2actor'
-    delete_perm = 'asmfa.delete_actor2actor'
-    queryset = Actor2Actor.objects.all()
-    serializer_class = Actor2ActorSerializer
+class FlowViewSet(FlowViewSetAbstract):
+    add_perm = 'asmfa.add_flow'
+    change_perm = 'asmfa.change_flow'
+    delete_perm = 'asmfa.delete_flow'
+    queryset = Flow.objects.all()
+    serializer_class = FlowSerializer
     serializers = {
-        'list': Actor2ActorSerializer,
-        'create': Actor2ActorCreateSerializer,
+        'list': FlowSerializer,
+        'create': FlowCreateSerializer
     }
-    additional_filters = {'origin__included': True,
-                          'destination__included': True}
 
 
-class StockViewSet(RevisionMixin,
-                   CasestudyViewSetMixin,
-                   ModelPermissionViewSet,
-                   ABC):
+# Stock View
+class StockViewSetAbstract(RevisionMixin,
+                           CasestudyViewSetMixin,
+                           ModelPermissionViewSet,
+                           ABC):
     pagination_class = UnlimitedResultsSetPagination
 
     def get_queryset(self):
         model = self.serializer_class.Meta.model
-        return model.objects.\
-               select_related('keyflow__casestudy').\
-               select_related('publication').\
-               select_related("origin").\
-               prefetch_related("composition__fractions").\
-               all().defer(
-                "keyflow__note",
-                "keyflow__casestudy__geom",
-                "keyflow__casestudy__focusarea").\
-               order_by('id')
+        return model.objects. \
+            select_related('keyflow__casestudy'). \
+            select_related('publication'). \
+            select_related("origin"). \
+            prefetch_related("composition__fractions"). \
+            all().defer(
+            "keyflow__note",
+            "keyflow__casestudy__geom",
+            "keyflow__casestudy__focusarea"). \
+            order_by('id')
 
 
-class GroupStockViewSet(StockViewSet):
-    add_perm = 'asmfa.add_groupstock'
-    change_perm = 'asmfa.change_groupstock'
-    delete_perm = 'asmfa.delete_groupstock'
-    queryset = GroupStock.objects.all()
-    serializer_class = GroupStockSerializer
-
-
-class ActivityStockViewSet(StockViewSet):
-    add_perm = 'asmfa.add_activitystock'
-    change_perm = 'asmfa.change_activitystock'
-    delete_perm = 'asmfa.delete_activitystock'
-    queryset = ActivityStock.objects.all()
-    serializer_class = ActivityStockSerializer
-
-
-class ActorStockViewSet(PostGetViewMixin, StockViewSet):
-    add_perm = 'asmfa.add_actorstock'
-    change_perm = 'asmfa.change_actorstock'
-    delete_perm = 'asmfa.delete_actorstock'
-    queryset = ActorStock.objects.all()
-    serializer_class = ActorStockSerializer
+class StockViewSet(StockViewSetAbstract):
+    add_perm = 'asfma.add_stock'
+    change_perm = 'asmfa.change_stock'
+    delete_perm = 'asmfa.delete_stock'
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
     serializers = {
-        'list': ActorStockSerializer,
-        'create': ActorStockCreateSerializer,
+        'list': StockSerializer,
+        'create': StockCreateSerializer
     }
-    additional_filters = {'origin__included': True}
 
 
 class ProcessViewSet(ModelViewSet):
