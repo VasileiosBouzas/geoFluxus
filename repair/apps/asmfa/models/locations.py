@@ -60,6 +60,7 @@ class Establishment(Geolocation):
 class Location(Establishment):
     """One actor => Many locations
        One location => One role"""
+    identifier = models.CharField(max_length=255, default='')
     actor = models.ForeignKey(Actor,
                               related_name='locations',
                               on_delete=models.CASCADE)
