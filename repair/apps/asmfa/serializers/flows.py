@@ -22,7 +22,7 @@ class FlowChainSerializer(NestedHyperlinkedModelSerializer):
 
     class Meta:
         model = FlowChain
-        fields = ('id', 'process', 'route',
+        fields = ('id', 'identifier', 'process', 'route',
                   'collector', 'route', 'trips',
                   'keyflow', 'description', 'amount',
                   'material', 'year', 'waste', 'publication')
@@ -52,11 +52,11 @@ class StockSerializer(NestedHyperlinkedModelSerializer):
                                       read_only=True)
     publication = IDRelatedField(allow_null=True, required=False)
     material = IDRelatedField()
-    origin = IDRelatedField
+    origin = IDRelatedField()
 
     class Meta:
         model = Stock
-        fields = ('url', 'id', 'amount',
+        fields = ('url', 'id', 'identifier', 'amount',
                   'keyflow', 'origin', 'description', 'year',
                   'material', 'publication')
 
@@ -64,4 +64,4 @@ class StockSerializer(NestedHyperlinkedModelSerializer):
 class ProcessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Process
-        fields = ('id', 'name')
+        fields = ('id', 'code', 'name')

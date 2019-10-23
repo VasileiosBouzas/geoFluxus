@@ -38,7 +38,7 @@ require(['d3', 'underscore', 'models/casestudy', 'collections/geolocations',
         target: 'welcome-map',
         view: new ol.View({
             center: ol.proj.fromLonLat([4.90, 52.37]),
-            zoom:11
+            zoom: 12
         })
     });
 

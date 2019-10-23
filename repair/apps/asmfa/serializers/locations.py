@@ -40,7 +40,7 @@ class LocationSerializer(PatchFields,
     class Meta:
         model = Location
         geo_field = 'geom'
-        fields = ['id', 'url', 'address', 'postcode', 'country',
+        fields = ['id', 'identifier', 'url', 'address', 'postcode', 'country',
                   'city', 'geom', 'name', 'actor', 'role',
                   'area', 'level']
 
@@ -53,7 +53,7 @@ class LocationsOfActorSerializer(LocationSerializer):
     }
 
     class Meta(LocationSerializer.Meta):
-        fields = ['id', 'url', 'address', 'postcode', 'country',
+        fields = ['id', 'identifier', 'url', 'address', 'postcode', 'country',
                   'city', 'geom', 'name', 'actor', 'role'
                   'area']
 

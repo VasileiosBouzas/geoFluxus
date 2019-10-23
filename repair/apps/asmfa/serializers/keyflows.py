@@ -190,8 +190,7 @@ class AllMaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Material
         fields = ('url', 'id',
-                  'name', 'keyflow',
-                  'flow_count')
+                  'name', 'keyflow')
 
 
 class AllMaterialListSerializer(AllMaterialSerializer):

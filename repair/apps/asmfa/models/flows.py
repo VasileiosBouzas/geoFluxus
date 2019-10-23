@@ -6,7 +6,8 @@ from django.db import models
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       Location,
                                       Material,
-                                      Process)
+                                      Process,
+                                      Waste)
 from repair.apps.publications.models import PublicationInCasestudy
 
 from repair.apps.login.models.bases import GDSEModel
@@ -16,6 +17,7 @@ from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 class FlowChain(GDSEModel):
     # Chain specifics
+    identifier = models.CharField(max_length=255)
     process = models.ForeignKey(Process, on_delete=models.SET_NULL, null=True)
     route = models.BooleanField(default=False)
     collector = models.BooleanField(default=False)
@@ -27,7 +29,7 @@ class FlowChain(GDSEModel):
     amount = models.BigIntegerField(blank=True, default=0)
     material = models.ForeignKey(Material, on_delete=models.CASCADE, default='')
     year = models.IntegerField(default=2019)
-    waste = models.BooleanField(default=False)
+    waste = models.ForeignKey(Waste, on_delete=models.CASCADE, default='')
     publication = models.ForeignKey(PublicationInCasestudy,null=True,on_delete=models.SET_NULL)
 
 
@@ -46,6 +48,7 @@ class Flow(GDSEModel):
 # Stock
 class Stock(GDSEModel):
     # stocks relate to only one node, also data will be entered by the users
+    identifier = models.CharField(max_length=255)
     origin = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='origin')
     amount = models.IntegerField(blank=True, default=0)
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)

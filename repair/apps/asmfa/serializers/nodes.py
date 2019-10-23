@@ -57,18 +57,17 @@ class ActivitySerializer(CreateWithUserInCasestudyMixin,
                                            read_only=True)
     activitygroup_name = serializers.CharField(source='activitygroup.name',
                                                read_only=True)
-    flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Activity
         fields = ('url', 'id', 'nace', 'name', 'activitygroup',
-                  'activitygroup_name', 'activitygroup_url', 'flow_count')
+                  'activitygroup_name', 'activitygroup_url')
 
 
 class ActivityListSerializer(ActivitySerializer):
     class Meta(ActivitySerializer.Meta):
         fields = ('id', 'name', 'activitygroup', 'activitygroup_name',
-                  'nace', 'flow_count')
+                  'nace')
 
 
 class ActivityField(InCasestudyField):
