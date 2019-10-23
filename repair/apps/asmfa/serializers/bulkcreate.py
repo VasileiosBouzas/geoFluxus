@@ -58,8 +58,6 @@ class ActorCreateSerializer(BulkSerializerMixin,
     field_map = {
         'identifier': 'identifier',
         'name': 'name',
-        'description english': 'description_eng',
-        'description original': 'description',
         'nace': Reference(
             name='activity',
             referenced_field='nace',
