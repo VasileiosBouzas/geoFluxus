@@ -27,7 +27,7 @@ class FlowChain(GDSEModel):
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
     amount = models.BigIntegerField(blank=True, default=0)
-    material = models.ForeignKey(Material, on_delete=models.CASCADE, default='')
+    material = models.ManyToManyField(Material)
     year = models.IntegerField(default=2019)
     waste = models.ForeignKey(Waste, on_delete=models.CASCADE, default='')
     publication = models.ForeignKey(PublicationInCasestudy,null=True,on_delete=models.SET_NULL)
@@ -56,3 +56,31 @@ class Stock(GDSEModel):
     year = models.IntegerField(default=2019)
     material = models.ForeignKey(Material, on_delete=models.CASCADE, default='')
     publication = models.ForeignKey(PublicationInCasestudy, null=True, on_delete=models.SET_NULL)
+
+
+# Classification
+class Classification(GDSEModel):
+    flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
+    clean = models.BooleanField(default=False)
+    mixed = models.BooleanField(default=False)
+    product = models.CharField(max_length=255)
+    composition = models.CharField(max_length=255)
+
+
+# Extra description
+class ExtraDescription(GDSEModel):
+    flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
+    description_type_choices = (("Reason", "Reason"),
+                                ("Origin", "Origin"),
+                                ("Colour", "Colour"),
+                                ("State", "State"),
+                                ("Dimensions", "Dimensions"),
+                                ("Shape", "Shape"),
+                                ("Consistency", "Consistency"),
+                                ("Codes", "Codes"),
+                                ("Material type", "Material type"),
+                                ("Composition type", "Composition type"),
+                                ("Product type", "Product type")
+                                )
+    type = models.CharField(max_length=255, choices=description_type_choices, default='')
+    description = models.TextField(default='', null=True)

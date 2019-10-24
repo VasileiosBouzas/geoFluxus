@@ -70,7 +70,9 @@ function (Session) {
         arealevels:             '/api/casestudies/{0}/levels/',
         allareas:               '/api/casestudies/{0}/areas/',
         areas:                  '/api/casestudies/{0}/levels/{1}/areas/',
-        wmsresources:           '/api/casestudies/{0}/wmsresources/'
+        wmsresources:           '/api/casestudies/{0}/wmsresources/',
+        classifications:        '/api/casestudies/{0}/keyflows/{1}/classifications/',
+        extradescriptions:      '/api/casestudies/{0}/keyflows/{1}/extradescriptions/'
     };
 
     return config;

@@ -8,7 +8,9 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            MaterialSerializer,
                                            FlowSerializer,
                                            FlowChainSerializer,
-                                           StockSerializer
+                                           StockSerializer,
+                                           ClassificationSerializer,
+                                           ExtraDescriptionSerializer
                                            )
 from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity,
@@ -20,7 +22,9 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       FlowChain,
                                       Process,
                                       PublicationInCasestudy,
-                                      Stock
+                                      Stock,
+                                      Classification,
+                                      ExtraDescription
                                       )
 
 
@@ -157,9 +161,13 @@ class FlowChainCreateSerializer(BulkSerializerMixin,
 
 class FlowCreateSerializer(BulkSerializerMixin,
                            FlowSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id',
+    }
     field_map = {
         'flowchain': Reference(name='flowchain',
-                               referenced_field='flowchain',
+                               referenced_field='identifier',
                                referenced_model=FlowChain),
         'origin': Reference(name='origin',
                             referenced_field='outputs',
@@ -175,7 +183,7 @@ class FlowCreateSerializer(BulkSerializerMixin,
     index_columns = ['flowchain', 'origin', 'destination']
 
     def get_queryset(self):
-        return Flow.objects.all()
+        return Flow.objects.all(keyflow=self.keyflow)
 
 
 class StockCreateSerializer(BulkSerializerMixin,
@@ -200,3 +208,42 @@ class StockCreateSerializer(BulkSerializerMixin,
     def get_queryset(self):
         return Stock.objects.filter(keyflow=self.keyflow)
 
+
+class ClassificationCreateSerializer(BulkSerializerMixin,
+                                     ClassificationSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id',
+    }
+    field_map = {
+        'flowchain': Reference(name='flowchain',
+                               referenced_field='identifier',
+                               referenced_model=FlowChain),
+        'clean': 'clean',
+        'mixed': 'mixed',
+        'product': 'product',
+        'composition': 'composition'
+    }
+    index_columns = ['flowchain']
+
+    def get_queryset(self):
+        return Classification.objects.all(keyflow=self.keyflow)
+
+
+class ExtraDescriptionCreateSerializer(BulkSerializerMixin,
+                                       ExtraDescriptionSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id',
+    }
+    field_map = {
+        'flowchain': Reference(name='flowchain',
+                               referenced_field='identifier',
+                               referenced_model=FlowChain),
+        'type': 'type',
+        'description': 'description'
+    }
+    index_columns = ['flowchain']
+
+    def get_queryset(self):
+        return ExtraDescription.objects.all(keyflow=self.keyflow)

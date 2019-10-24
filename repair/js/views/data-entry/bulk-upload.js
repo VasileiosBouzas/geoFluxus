@@ -59,7 +59,9 @@ var BulkUploadView = BaseView.extend(
                 ['flowchains', gettext('Flow Chains')],
                 ['flows', gettext('Flows')],
                 ['materials', gettext('Materials')],
-                ['stocks', gettext('Stocks')]
+                ['stocks', gettext('Stocks')],
+                ['classifications', gettext('Classifications')],
+                ['extradescriptions', gettext('Extra Descriptions')]
             ],
             upsCasestudy = [
                 ['arealevels', gettext('Area Levels')],
