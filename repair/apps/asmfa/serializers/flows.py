@@ -22,14 +22,13 @@ class FlowChainSerializer(NestedHyperlinkedModelSerializer):
                                       read_only=True)
     publication = IDRelatedField(allow_null=True, required=False)
     process = IDRelatedField(allow_null=True)
-    material = IDRelatedField()
 
     class Meta:
         model = FlowChain
         fields = ('id', 'identifier', 'process', 'route',
                   'collector', 'route', 'trips',
                   'keyflow', 'description', 'amount',
-                  'material', 'year', 'waste', 'publication')
+                  'year', 'waste', 'publication')
 
 
 class FlowSerializer(NestedHyperlinkedModelSerializer):
