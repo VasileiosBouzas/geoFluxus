@@ -9,6 +9,7 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            FlowSerializer,
                                            FlowChainSerializer,
                                            StockSerializer,
+                                           MaterialInChainSerializer,
                                            ClassificationSerializer,
                                            ExtraDescriptionSerializer
                                            )
@@ -23,6 +24,7 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       Process,
                                       PublicationInCasestudy,
                                       Stock,
+                                      MaterialInChain,
                                       Classification,
                                       ExtraDescription
                                       )
@@ -207,6 +209,26 @@ class StockCreateSerializer(BulkSerializerMixin,
 
     def get_queryset(self):
         return Stock.objects.filter(keyflow=self.keyflow)
+
+
+class MaterialInChainCreateSerializer(BulkSerializerMixin,
+                                      MaterialInChainSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id',
+    }
+    field_map = {
+        'material': Reference(name='material',
+                              referenced_field='name',
+                              referenced_model=Material),
+        'flowchain': Reference(name='flowchain',
+                               referenced_field='identifier',
+                               referenced_model=FlowChain),
+    }
+    index_columns = ['material', 'flowchain']
+
+    def get_queryset(self):
+        return MaterialInChain.objects.all(keyflow=self.keyflow)
 
 
 class ClassificationCreateSerializer(BulkSerializerMixin,
