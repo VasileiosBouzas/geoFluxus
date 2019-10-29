@@ -15,7 +15,7 @@ from repair.apps.asmfa.models import (
     Flow,
     Process,
     Stock,
-    MaterialInChain,
+    Material,
     Classification,
     ExtraDescription
 )
@@ -28,7 +28,7 @@ from repair.apps.asmfa.serializers import (
     FlowCreateSerializer,
     FlowChainCreateSerializer,
     StockCreateSerializer,
-    MaterialInChainSerializer,
+    MaterialSerializer,
     MaterialInChainCreateSerializer,
     ClassificationSerializer,
     ClassificationCreateSerializer,
@@ -111,8 +111,8 @@ class MaterialInChainViewSetAbstract(RevisionMixin,
                                      CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
                                      ABC):
-    serializer_class = MaterialInChainSerializer
-    model = MaterialInChain
+    serializer_class = MaterialSerializer
+    model = Material
     pagination_class = UnlimitedResultsSetPagination
 
 
@@ -120,10 +120,10 @@ class MaterialInChainViewSet(MaterialInChainViewSetAbstract):
     add_perm = 'asfma.add_materialinchain'
     change_perm = 'asmfa.change_materialinchain'
     delete_perm = 'asmfa.delete_materialinchain'
-    queryset = MaterialInChain.objects.all()
-    serializer_class = MaterialInChainSerializer
+    queryset = Material.objects.all()
+    serializer_class = MaterialSerializer
     serializers = {
-        'list': MaterialInChainSerializer,
+        'list': MaterialSerializer,
         'create': MaterialInChainCreateSerializer
     }
 
