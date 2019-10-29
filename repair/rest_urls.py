@@ -152,7 +152,6 @@ kf_router.register(r'flowfilters', FlowFilterViewSet)
 kf_router.register(r'solutioncategories', SolutionCategoryViewSet)
 kf_router.register(r'solutions', SolutionViewSet)
 kf_router.register(r'strategies', StrategyViewSet)
-kf_router.register(r'wastes', WasteViewSet)
 kf_router.register(r'conclusions', ConclusionViewSet)
 kf_router.register(r'classifications', ClassificationViewSet),
 kf_router.register(r'extradescriptions', ExtraDescriptionViewSet)

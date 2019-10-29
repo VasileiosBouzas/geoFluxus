@@ -175,8 +175,7 @@ class KeyflowInCasestudyField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',}
 
 
-class WasteSerializer(KeyflowInCasestudyDetailCreateMixin,
-                      NestedHyperlinkedModelSerializer):
+class WasteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Waste
