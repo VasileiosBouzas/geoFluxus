@@ -77,17 +77,17 @@ class Classification(GDSEModel):
 # Extra description
 class ExtraDescription(GDSEModel):
     flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
-    description_type_choices = (("Reason", "Reason"),
-                                ("Origin", "Origin"),
-                                ("Colour", "Colour"),
-                                ("State", "State"),
-                                ("Dimensions", "Dimensions"),
-                                ("Shape", "Shape"),
-                                ("Consistency", "Consistency"),
-                                ("Codes", "Codes"),
-                                ("Material type", "Material type"),
-                                ("Composition type", "Composition type"),
-                                ("Product type", "Product type")
+    description_type_choices = (("RE", "Reason"),
+                                ("OR", "Origin"),
+                                ("COL", "Colour"),
+                                ("ST", "State"),
+                                ("DIM", "Dimensions"),
+                                ("SH", "Shape"),
+                                ("CON", "Consistency"),
+                                ("COD", "Codes"),
+                                ("MAT", "Material type"),
+                                ("COMP", "Composition type"),
+                                ("PRO", "Product type")
                                 )
     type = models.CharField(max_length=255, choices=description_type_choices, default='')
     description = models.TextField(default='', null=True)
