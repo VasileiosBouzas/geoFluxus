@@ -380,7 +380,13 @@
         <div class="row" style="margin-top: 10 px">
           <div class="col-md-2">
             <label>{% trans "Waste" %}</label>
-            <div id='Waste-filter'></div>
+            <select name="waste-select" multiple class="form-control" data-live-search="true" data-size="6" style="resize: vertical;">
+              <option value="-1"> {% trans "All" %} </option>
+              <option data-divider="true"></option>
+              <% wastes.forEach(function(waste){ %>
+                <option value="<%= waste.id %>"> <%= waste.get('name') %> </option>
+              <% }); %>
+            </select>
           </div>
           <div class="col-md-2">
             <label>{% trans "Route" %}</label>
