@@ -107,7 +107,7 @@ class StockViewSet(StockViewSetAbstract):
     }
 
 
-class MaterialInChainViewSetAbstract(RevisionMixin,
+class MaterialViewSetAbstract(RevisionMixin,
                                      CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
                                      ABC):
@@ -116,10 +116,10 @@ class MaterialInChainViewSetAbstract(RevisionMixin,
     pagination_class = UnlimitedResultsSetPagination
 
 
-class MaterialInChainViewSet(MaterialInChainViewSetAbstract):
-    add_perm = 'asfma.add_materialinchain'
-    change_perm = 'asmfa.change_materialinchain'
-    delete_perm = 'asmfa.delete_materialinchain'
+class MaterialViewSet(MaterialViewSetAbstract):
+    add_perm = 'asfma.add_material'
+    change_perm = 'asmfa.change_material'
+    delete_perm = 'asmfa.delete_material'
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
     serializers = {
