@@ -175,11 +175,36 @@ class KeyflowInCasestudyField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',}
 
 
-class WasteSerializer(serializers.ModelSerializer):
+class AllWasteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Waste
         fields = ('url', 'id',
+                  'ewc_code', 'ewc_name', 'hazardous')
+
+
+class AllWasteListSerializer(AllWasteSerializer):
+
+    class Meta:
+        model = Waste
+        fields = ('id',
+                  'ewc_code', 'ewc_name', 'hazardous')
+
+
+class WasteSerializer(KeyflowInCasestudyDetailCreateMixin,
+                      AllWasteSerializer):
+    parent_looup_kwargs = {}
+
+    class Meta:
+        model = Waste
+        fields = ('url', 'id',
+                  'ewc_code', 'ewc_name', 'hazardous')
+
+
+class WasteListSerializer(WasteSerializer):
+    class Meta:
+        model = Waste
+        fields = ('id',
                   'ewc_code', 'ewc_name', 'hazardous')
 
 

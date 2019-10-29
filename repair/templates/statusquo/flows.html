@@ -326,10 +326,6 @@
           </div>
         </div>
         <div class="row" style="margin-top: 10px">
-          <div class="col-md-3">
-            <label>{% trans "Material" %}</label>
-            <div id='material-filter'></div>
-          </div>
           <div class="col-md-2">
             <label>{% trans "Process" %}</label>
             <select name="process-select" multiple class="form-control" data-live-search="true" data-size="6" style="resize: vertical;">
@@ -338,6 +334,38 @@
               <% processes.forEach(function(process){ %>
                 <option value="<%= process.id %>"> <%= process.get('name') %> </option>
               <% }); %>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label>{% trans "Waste" %}</label>
+            <select name="waste-select" multiple class="form-control" data-live-search="true" data-size="6" style="resize: vertical;">
+              <option value="-1"> {% trans "All" %} </option>
+              <option data-divider="true"></option>
+              <% wastes.forEach(function(waste){ %>
+                <option value="<%= waste.id %>"> <%= waste.get('ewc_name') %> </option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label>{% trans "Material" %}</label>
+            <div id='material-filter'></div>
+          </div>
+        </div>
+        <div class="row" style="margin-top: 10px">
+          <div class="col-md-2">
+            <label>{% trans "Route" %}</label>
+            <select name="level" class="form-control">
+              <option value='both'> {% trans "ignore" %} </option>
+              <option value='no'> {% trans "not route" %} </option>
+              <option value='yes'> {% trans "route" %} </option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label>{% trans "Collector" %}</label>
+            <select name="level" class="form-control">
+              <option value='both'> {% trans "ignore" %} </option>
+              <option value='no'> {% trans "not collector" %} </option>
+              <option value='yes'> {% trans "collector" %} </option>
             </select>
           </div>
           <div class="col-md-2">
@@ -350,8 +378,6 @@
               </select>
             </div>
           </div>
-        </div>
-        <div class="row" style="margin-top: 10px">
           <div class="col-md-2">
             <label>{% trans "Clean" %}</label>
             <select name="level" class="form-control">
@@ -368,6 +394,8 @@
               <option value='yes'> {% trans "mixed" %} </option>
             </select>
           </div>
+        </div>
+        <div class="row" style="margin-top: 10 px">
           <div class="col-md-2">
             <label>{% trans "Product" %}</label>
             <div id='product-filter'></div>
@@ -375,34 +403,6 @@
           <div class="col-md-2">
             <label>{% trans "Composition" %}</label>
             <div id='comp-filter'></div>
-          </div>
-        </div>
-        <div class="row" style="margin-top: 10 px">
-          <div class="col-md-2">
-            <label>{% trans "Waste" %}</label>
-            <select name="waste-select" multiple class="form-control" data-live-search="true" data-size="6" style="resize: vertical;">
-              <option value="-1"> {% trans "All" %} </option>
-              <option data-divider="true"></option>
-              <% wastes.forEach(function(waste){ %>
-                <option value="<%= waste.id %>"> <%= waste.get('name') %> </option>
-              <% }); %>
-            </select>
-          </div>
-          <div class="col-md-2">
-            <label>{% trans "Route" %}</label>
-            <select name="level" class="form-control">
-              <option value='both'> {% trans "ignore" %} </option>
-              <option value='no'> {% trans "not route" %} </option>
-              <option value='yes'> {% trans "route" %} </option>
-            </select>
-          </div>
-          <div class="col-md-2">
-            <label>{% trans "Collector" %}</label>
-            <select name="level" class="form-control">
-              <option value='both'> {% trans "ignore" %} </option>
-              <option value='no'> {% trans "not collector" %} </option>
-              <option value='yes'> {% trans "collector" %} </option>
-            </select>
           </div>
         </div>
       </div>

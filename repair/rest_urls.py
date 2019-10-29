@@ -139,6 +139,7 @@ shcat_router.register(r'stakeholders', StakeholderViewSet)
 # /casestudies/*/keyflows/...
 kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
 
+kf_router.register(r'wastes', WasteViewSet)
 kf_router.register(r'stocks', StockViewSet)
 kf_router.register(r'flowchains', FlowChainViewSet)
 kf_router.register(r'flows', FlowViewSet)

@@ -46,3 +46,6 @@ class Waste(GDSEModel):
     ewc_code = models.CharField(max_length=255, default='')
     ewc_name = models.CharField(max_length=255, default='')
     hazardous = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.ewc_name
