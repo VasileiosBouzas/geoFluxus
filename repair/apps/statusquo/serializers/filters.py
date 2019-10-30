@@ -16,8 +16,10 @@ class FlowFilterSerializer(serializers.ModelSerializer):
     filter_level = EnumField(enum=NodeLevel, required=False)
     direction = EnumField(enum=Direction, required=False)
     hazardous = EnumField(enum=TriState, required=False)
-    avoidable = EnumField(enum=TriState, required=False)
     material = IDRelatedField(allow_null=True, required=False)
+
+    role = EnumField(enum=TriState, required=False)
+    route = EnumField(enum=TriState, required=False)
 
     class Meta:
         model = FlowFilter
@@ -26,7 +28,6 @@ class FlowFilterSerializer(serializers.ModelSerializer):
                   'description',
                   'direction',
                   'material',
-                  'aggregate_materials',
                   'area_level',
                   'areas',
                   'flow_type',
@@ -34,7 +35,6 @@ class FlowFilterSerializer(serializers.ModelSerializer):
                   'node_ids',
                   'process_ids',
                   'hazardous',
-                  'avoidable',
-                  'anonymize',
-                  'included')
-        extra_kwargs = {'included': {'required': False}}
+                  'role',
+                  'waste_ids',
+                  'route')

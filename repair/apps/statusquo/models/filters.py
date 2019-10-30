@@ -33,19 +33,21 @@ class FlowFilter(GDSEModel):
     direction = EnumIntegerField(
         enum=Direction, default=Direction.BOTH)
     flow_type = EnumIntegerField(
-        enum=FlowType, default=FlowType.BOTH)
+        enum=FlowType, default=FlowType.FLOW)
     process_ids = models.TextField(
         validators=[validate_comma_separated_integer_list],
         blank=True, null=True)
     hazardous = EnumIntegerField(
         enum=TriState, default=TriState.BOTH)
-    avoidable = EnumIntegerField(
-        enum=TriState, default=TriState.BOTH)
-    anonymize = models.BooleanField(default=False)
-    aggregate_materials = models.BooleanField(default=True)
     area_level = models.ForeignKey(AdminLevels,
                                    on_delete=models.SET_NULL,
                                    null=True)
     areas = models.ManyToManyField(Area, blank=True)
-    included = models.BooleanField(default=True)
+
+    role = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    waste_ids = models.TextField(
+        validators=[validate_comma_separated_integer_list],
+        blank=True, null=True
+    )
+    route = EnumIntegerField(enum=TriState, default=TriState.BOTH)
 
