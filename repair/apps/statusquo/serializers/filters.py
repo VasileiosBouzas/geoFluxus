@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from repair.apps.statusquo.models import (FlowType, NodeLevel, Direction,
-                                          FlowFilter, TriState)
+                                          FlowFilter, TriState, Year)
 
 from repair.apps.utils.serializers import EnumField
 from repair.apps.login.serializers import (IDRelatedField,
@@ -20,6 +20,10 @@ class FlowFilterSerializer(serializers.ModelSerializer):
 
     role = EnumField(enum=TriState, required=False)
     route = EnumField(enum=TriState, required=False)
+    collector = EnumField(enum=TriState, required=False)
+    clean = EnumField(enum=TriState, required=False)
+    mixed = EnumField(enum=TriState, required=False)
+    year = EnumField(enum=Year, required= False)
 
     class Meta:
         model = FlowFilter
@@ -37,4 +41,8 @@ class FlowFilterSerializer(serializers.ModelSerializer):
                   'hazardous',
                   'role',
                   'waste_ids',
-                  'route')
+                  'route',
+                  'collector',
+                  'clean',
+                  'mixed',
+                  'year')

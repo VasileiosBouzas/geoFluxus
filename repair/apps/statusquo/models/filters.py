@@ -14,6 +14,20 @@ class Direction(Enum):
     FROM = 2
     TO = 3
 
+class Role(Enum):
+    Production = 1
+    Collection = 2
+    Treatment = 3
+
+class Year(Enum):
+    ALL = 1
+    y13 = 2
+    y14 = 3
+    y15 = 4
+    y16 = 5
+    y17 = 5
+    y18 = 6
+
 
 class FlowFilter(GDSEModel):
     '''
@@ -44,10 +58,14 @@ class FlowFilter(GDSEModel):
                                    null=True)
     areas = models.ManyToManyField(Area, blank=True)
 
-    role = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    role = EnumIntegerField(enum=Role, default=Role.Production)
     waste_ids = models.TextField(
         validators=[validate_comma_separated_integer_list],
         blank=True, null=True
     )
     route = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    collector = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    clean = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    mixed = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    year = EnumIntegerField(enum=Year, default=Year.ALL)
 
