@@ -154,6 +154,7 @@ var FilterFlowsView = BaseView.extend(
         this.activitySelect = this.el.querySelector('select[name="activity"]');
         this.actorSelect = this.el.querySelector('select[name="actor"]');
         this.flowTypeSelect = this.el.querySelector('select[name="level"]');
+        this.roleSelect = this.el.querySelector('select[name="role"]');
         //this.aggregateCheck = this.el.querySelector('input[name="aggregateMaterials"]');
         this.processSelect = this.el.querySelector('select[name="process-select"]');
         this.wasteSelect = this.el.querySelector('select[name="waste-select"]');
@@ -548,6 +549,7 @@ var FilterFlowsView = BaseView.extend(
         filter.set('waste_ids', waste_ids);
 
         filter.set('flow_type', this.flowTypeSelect.value);
+        filter.set('role', this.roleSelect.value);
         filter.set('hazardous', this.hazardousSelect.value);
         //filter.set('avoidable', this.avoidableSelect.value);
         //filter.set('anonymize', this.anonymousSelect.checked);
@@ -617,6 +619,7 @@ var FilterFlowsView = BaseView.extend(
             directionOption = document.querySelector('input[name="direction"][value="' + direction.toLowerCase() + '"]')
         directionOption.checked = true;
         this.flowTypeSelect.value = filter.get('flow_type').toLowerCase();
+        this.roleSelect.value = filter.get('role').toLowerCase();
         //this.aggregateCheck.checked = filter.get('aggregate_materials');
 
         var process_ids = filter.get('process_ids');
