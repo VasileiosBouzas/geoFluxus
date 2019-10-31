@@ -298,7 +298,7 @@
         </a>
         <div class="row" style="margin-top: 10px">
           <div class="col-md-2">
-            <label>{% trans "Analysis Level" %}</label>
+            <label>{% trans "Flow Type" %}</label>
             <select name="level" class="form-control">
               <option value='flow'> {% trans "Flows" %} </option>
               <option value='flowchain'> {% trans "Flow Chains" %} </option>
@@ -315,13 +315,13 @@
           <div class="col-md-2">
             <label>{% trans "Year" %}</label>
             <select name="year" class="form-control">
+              <option value='all'> {% trans "All" %} </option>
               <option value='y13'> {% trans "2013" %} </option>
               <option value='y14'> {% trans "2014" %} </option>
               <option value='y15'> {% trans "2015" %} </option>
               <option value='y16'> {% trans "2016" %} </option>
               <option value='y17'> {% trans "2017" %} </option>
               <option value='y18'> {% trans "2018" %} </option>
-              <option value='yall'> {% trans "All" %} </option>
             </select>
           </div>
         </div>
@@ -354,7 +354,7 @@
         <div class="row" style="margin-top: 10px">
           <div class="col-md-2">
             <label>{% trans "Route" %}</label>
-            <select name="level" class="form-control">
+            <select name="route" class="form-control">
               <option value='both'> {% trans "ignore" %} </option>
               <option value='no'> {% trans "not route" %} </option>
               <option value='yes'> {% trans "route" %} </option>
@@ -362,7 +362,7 @@
           </div>
           <div class="col-md-2">
             <label>{% trans "Collector" %}</label>
-            <select name="level" class="form-control">
+            <select name="collector" class="form-control">
               <option value='both'> {% trans "ignore" %} </option>
               <option value='no'> {% trans "not collector" %} </option>
               <option value='yes'> {% trans "collector" %} </option>
@@ -380,7 +380,7 @@
           </div>
           <div class="col-md-2">
             <label>{% trans "Clean" %}</label>
-            <select name="level" class="form-control">
+            <select name="clean" class="form-control">
               <option value='both'> {% trans "ignore" %} </option>
               <option value='no'> {% trans "not clean" %} </option>
               <option value='yes'> {% trans "clean" %} </option>
@@ -388,7 +388,7 @@
           </div>
           <div class="col-md-2">
             <label>{% trans "Mixed" %}</label>
-            <select name="level" class="form-control">
+            <select name="mixed" class="form-control">
               <option value='both'> {% trans "ignore" %} </option>
               <option value='no'> {% trans "not mixed" %} </option>
               <option value='yes'> {% trans "mixed" %} </option>

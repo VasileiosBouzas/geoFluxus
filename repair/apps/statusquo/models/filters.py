@@ -21,12 +21,12 @@ class Role(Enum):
 
 class Year(Enum):
     ALL = 1
-    y13 = 2
-    y14 = 3
-    y15 = 4
-    y16 = 5
-    y17 = 5
-    y18 = 6
+    Y13 = 2
+    Y14 = 3
+    Y15 = 4
+    Y16 = 5
+    Y17 = 6
+    Y18 = 7
 
 
 class FlowFilter(GDSEModel):

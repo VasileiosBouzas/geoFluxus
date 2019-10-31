@@ -158,7 +158,12 @@ var FilterFlowsView = BaseView.extend(
         //this.aggregateCheck = this.el.querySelector('input[name="aggregateMaterials"]');
         this.processSelect = this.el.querySelector('select[name="process-select"]');
         this.wasteSelect = this.el.querySelector('select[name="waste-select"]');
+        this.yearSelect = this.el.querySelector('select[name="year"]');
         this.hazardousSelect = this.el.querySelector('select[name="hazardous"]');
+        this.routeSelect = this.el.querySelector('select[name="route"]');
+        this.collectorSelect = this.el.querySelector('select[name="collector"]');
+        this.cleanSelect = this.el.querySelector('select[name="clean"]');
+        this.mixedSelect = this.el.querySelector('select[name="mixed"]');
         //this.avoidableSelect = this.el.querySelector('select[name="avoidable"]');
         $(this.groupSelect).selectpicker();
         $(this.activitySelect).selectpicker();
@@ -550,7 +555,12 @@ var FilterFlowsView = BaseView.extend(
 
         filter.set('flow_type', this.flowTypeSelect.value);
         filter.set('role', this.roleSelect.value);
+        filter.set('year', this.yearSelect.value);
         filter.set('hazardous', this.hazardousSelect.value);
+        filter.set('route', this.routeSelect.value);
+        filter.set('collector', this.collectorSelect.value);
+        filter.set('clean', this.cleanSelect.value);
+        filter.set('mixed', this.mixedSelect.value);
         //filter.set('avoidable', this.avoidableSelect.value);
         //filter.set('anonymize', this.anonymousSelect.checked);
 
@@ -638,7 +648,12 @@ var FilterFlowsView = BaseView.extend(
         }
          $(this.wasteSelect).selectpicker('refresh');
 
+        this.yearSelect.value = filter.get('year').toLowerCase;
         this.hazardousSelect.value = filter.get('hazardous').toLowerCase();
+        this.routeSelect.value = filter.get('route').toLowerCase();
+        this.collectorSelect.value = filter.get('collector').toLowerCase();
+        this.cleanSelect.value = filter.get('clean').toLowerCase();
+        this.mixedSelect.value = filter.get('mixed').toLowerCase();
         //this.avoidableSelect.value = filter.get('avoidable').toLowerCase();
         //this.anonymousSelect.checked = filter.get('anonymize');
 
