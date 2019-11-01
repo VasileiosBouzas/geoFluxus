@@ -20,13 +20,13 @@ class Role(Enum):
     TREATMENT = 3
 
 class Year(Enum):
-    ALL = 1
-    Y13 = 2
-    Y14 = 3
-    Y15 = 4
-    Y16 = 5
-    Y17 = 6
-    Y18 = 7
+    all = 1
+    y2013 = 2
+    y2014 = 3
+    y2015 = 4
+    y2016 = 5
+    y2017 = 6
+    y2018 = 7
 
 
 class FlowFilter(GDSEModel):
@@ -67,5 +67,5 @@ class FlowFilter(GDSEModel):
     collector = EnumIntegerField(enum=TriState, default=TriState.BOTH)
     clean = EnumIntegerField(enum=TriState, default=TriState.BOTH)
     mixed = EnumIntegerField(enum=TriState, default=TriState.BOTH)
-    year = EnumIntegerField(enum=Year, default=Year.ALL)
+    year = EnumIntegerField(enum=Year, default=Year.all)
 

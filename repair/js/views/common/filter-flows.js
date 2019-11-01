@@ -648,7 +648,7 @@ var FilterFlowsView = BaseView.extend(
         }
          $(this.wasteSelect).selectpicker('refresh');
 
-        this.yearSelect.value = filter.get('year').toLowerCase;
+        this.yearSelect.value = filter.get('year');
         this.hazardousSelect.value = filter.get('hazardous').toLowerCase();
         this.routeSelect.value = filter.get('route').toLowerCase();
         this.collectorSelect.value = filter.get('collector').toLowerCase();
