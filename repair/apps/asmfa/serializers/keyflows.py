@@ -175,8 +175,7 @@ class KeyflowInCasestudyField(InCasestudyField):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id',}
 
 
-class WasteSerializer(KeyflowInCasestudyDetailCreateMixin,
-                      NestedHyperlinkedModelSerializer):
+class AllWasteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Waste
@@ -184,8 +183,32 @@ class WasteSerializer(KeyflowInCasestudyDetailCreateMixin,
                   'ewc_code', 'ewc_name', 'hazardous')
 
 
+class AllWasteListSerializer(AllWasteSerializer):
+
+    class Meta:
+        model = Waste
+        fields = ('id',
+                  'ewc_code', 'ewc_name', 'hazardous')
+
+
+class WasteSerializer(KeyflowInCasestudyDetailCreateMixin,
+                      AllWasteSerializer):
+    parent_looup_kwargs = {}
+
+    class Meta:
+        model = Waste
+        fields = ('url', 'id',
+                  'ewc_code', 'ewc_name', 'hazardous')
+
+
+class WasteListSerializer(WasteSerializer):
+    class Meta:
+        model = Waste
+        fields = ('id',
+                  'ewc_code', 'ewc_name', 'hazardous')
+
+
 class AllMaterialSerializer(serializers.ModelSerializer):
-    flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Material
@@ -205,11 +228,12 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
     keyflow = IDRelatedField(read_only=True)
     class Meta:
         model = Material
-        fields = ('id', 'name', 'keyflow',
-                  'flow_count')
+        fields = ('url', 'id',
+                  'name', 'keyflow')
 
 
 class MaterialListSerializer(MaterialSerializer):
     class Meta(MaterialSerializer.Meta):
         fields = ('id', 'name',
-                  'keyflow', 'flow_count')
+                  'keyflow')
+

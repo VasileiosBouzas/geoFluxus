@@ -14,7 +14,10 @@ from repair.apps.asmfa.models import (
     FlowChain,
     Flow,
     Process,
-    Stock
+    Stock,
+    Material,
+    Classification,
+    ExtraDescription
 )
 
 from repair.apps.asmfa.serializers import (
@@ -24,7 +27,13 @@ from repair.apps.asmfa.serializers import (
     StockSerializer,
     FlowCreateSerializer,
     FlowChainCreateSerializer,
-    StockCreateSerializer
+    StockCreateSerializer,
+    MaterialSerializer,
+    MaterialInChainCreateSerializer,
+    ClassificationSerializer,
+    ClassificationCreateSerializer,
+    ExtraDescriptionSerializer,
+    ExtraDescriptionCreateSerializer
 )
 
 # FlowChain View
@@ -81,20 +90,9 @@ class StockViewSetAbstract(RevisionMixin,
                            CasestudyViewSetMixin,
                            ModelPermissionViewSet,
                            ABC):
+    serializer_class = StockSerializer
+    model = Stock
     pagination_class = UnlimitedResultsSetPagination
-
-    def get_queryset(self):
-        model = self.serializer_class.Meta.model
-        return model.objects. \
-            select_related('keyflow__casestudy'). \
-            select_related('publication'). \
-            select_related("origin"). \
-            prefetch_related("composition__fractions"). \
-            all().defer(
-            "keyflow__note",
-            "keyflow__casestudy__geom",
-            "keyflow__casestudy__focusarea"). \
-            order_by('id')
 
 
 class StockViewSet(StockViewSetAbstract):
@@ -106,6 +104,69 @@ class StockViewSet(StockViewSetAbstract):
     serializers = {
         'list': StockSerializer,
         'create': StockCreateSerializer
+    }
+
+
+class MaterialViewSetAbstract(RevisionMixin,
+                                     CasestudyViewSetMixin,
+                                     ModelPermissionViewSet,
+                                     ABC):
+    serializer_class = MaterialSerializer
+    model = Material
+    pagination_class = UnlimitedResultsSetPagination
+
+
+class MaterialViewSet(MaterialViewSetAbstract):
+    add_perm = 'asfma.add_material'
+    change_perm = 'asmfa.change_material'
+    delete_perm = 'asmfa.delete_material'
+    queryset = Material.objects.all()
+    serializer_class = MaterialSerializer
+    serializers = {
+        'list': MaterialSerializer,
+        'create': MaterialInChainCreateSerializer
+    }
+
+
+class ClassificationViewSetAbstract(RevisionMixin,
+                                    CasestudyViewSetMixin,
+                                    ModelPermissionViewSet,
+                                    ABC):
+    serializer_class = ClassificationSerializer
+    model = Classification
+    pagination_class = UnlimitedResultsSetPagination
+
+
+class ClassificationViewSet(ClassificationViewSetAbstract):
+    add_perm = 'asfma.add_classification'
+    change_perm = 'asmfa.change_classification'
+    delete_perm = 'asmfa.delete_classification'
+    queryset = Classification.objects.all()
+    serializer_class = ClassificationSerializer
+    serializers = {
+        'list': ClassificationSerializer,
+        'create': ClassificationCreateSerializer
+    }
+
+
+class ExtraDescriptionViewSetAbstract(RevisionMixin,
+                                     CasestudyViewSetMixin,
+                                     ModelPermissionViewSet,
+                                     ABC):
+    serializer_class = ExtraDescriptionSerializer
+    model = ExtraDescription
+    pagination_class = UnlimitedResultsSetPagination
+
+
+class ExtraDescriptionViewSet(ClassificationViewSetAbstract):
+    add_perm = 'asfma.add_extradescription'
+    change_perm = 'asmfa.change_extradescription'
+    delete_perm = 'asmfa.delete_extradescription'
+    queryset = ExtraDescription.objects.all()
+    serializer_class = ExtraDescriptionSerializer
+    serializers = {
+        'list': ExtraDescriptionSerializer,
+        'create': ExtraDescriptionCreateSerializer
     }
 
 

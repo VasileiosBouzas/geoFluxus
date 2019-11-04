@@ -34,9 +34,8 @@ class IndicatorType(Enum):
 
 
 class FlowType(Enum):
-    BOTH = 1
-    WASTE = 2
-    PRODUCT = 3
+    FLOW = 1
+    FLOWCHAIN = 2
 
 
 class SpatialType(Enum):
@@ -68,7 +67,7 @@ class IndicatorFlow(GDSEModel):
         enum=SpatialChoice, default=SpatialChoice.BOTH)
 
     flow_type = EnumIntegerField(
-        enum=FlowType, default=FlowType.BOTH)
+        enum=FlowType, default=FlowType.FLOW)
 
 
 class FlowIndicator(GDSEModel):

@@ -15,7 +15,9 @@ from repair.apps.asmfa.models import (Actor,
                                       Flow,
                                       FlowChain,
                                       Stock,
-                                      Waste
+                                      Waste,
+                                      Classification,
+                                      ExtraDescription
                                       )
 
 
@@ -80,3 +82,11 @@ class Stock(VersionAdmin):
 @admin.register(Waste)
 class Waste(VersionAdmin):
     """Versioning of Waste"""
+
+@admin.register(Classification)
+class Classification(VersionAdmin):
+    """Versioning of Classification"""
+
+@admin.register(ExtraDescription)
+class ExtraDescription(VersionAdmin):
+    """Versioning of ExtraDescription"""

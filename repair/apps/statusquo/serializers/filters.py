@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from repair.apps.statusquo.models import (FlowType, NodeLevel, Direction,
-                                          FlowFilter, TriState)
+                                          FlowFilter, TriState, Year, Role)
 
 from repair.apps.utils.serializers import EnumField
 from repair.apps.login.serializers import (IDRelatedField,
@@ -16,8 +16,14 @@ class FlowFilterSerializer(serializers.ModelSerializer):
     filter_level = EnumField(enum=NodeLevel, required=False)
     direction = EnumField(enum=Direction, required=False)
     hazardous = EnumField(enum=TriState, required=False)
-    avoidable = EnumField(enum=TriState, required=False)
     material = IDRelatedField(allow_null=True, required=False)
+
+    role = EnumField(enum=Role, required=False)
+    route = EnumField(enum=TriState, required=False)
+    collector = EnumField(enum=TriState, required=False)
+    clean = EnumField(enum=TriState, required=False)
+    mixed = EnumField(enum=TriState, required=False)
+    year = EnumField(enum=Year, required= False)
 
     class Meta:
         model = FlowFilter
@@ -26,7 +32,6 @@ class FlowFilterSerializer(serializers.ModelSerializer):
                   'description',
                   'direction',
                   'material',
-                  'aggregate_materials',
                   'area_level',
                   'areas',
                   'flow_type',
@@ -34,7 +39,10 @@ class FlowFilterSerializer(serializers.ModelSerializer):
                   'node_ids',
                   'process_ids',
                   'hazardous',
-                  'avoidable',
-                  'anonymize',
-                  'included')
-        extra_kwargs = {'included': {'required': False}}
+                  'role',
+                  'waste_ids',
+                  'route',
+                  'collector',
+                  'clean',
+                  'mixed',
+                  'year')

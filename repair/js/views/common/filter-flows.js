@@ -39,6 +39,9 @@ var FilterFlowsView = BaseView.extend(
         this.processes = new GDSECollection([], {
             apiTag: 'processes'
         });
+        this.wastes = new GDSECollection([], {
+            apiTag: 'wastes'
+        });
         this.activities = new GDSECollection([], {
             apiTag: 'activities',
             apiIds: [this.caseStudy.id, this.keyflowId ],
@@ -67,7 +70,8 @@ var FilterFlowsView = BaseView.extend(
             this.activityGroups.fetch(),
             this.materials.fetch(),
             this.areaLevels.fetch(),
-            this.processes.fetch()
+            this.processes.fetch(),
+            this.wastes.fetch()
         ]
         Promise.all(promises).then(function(){
             _this.activities.sort();
@@ -99,7 +103,7 @@ var FilterFlowsView = BaseView.extend(
         var _this = this,
             html = document.getElementById(this.template).innerHTML
             template = _.template(html);
-        this.el.innerHTML = template({ processes: this.processes });
+        this.el.innerHTML = template({ processes: this.processes, wastes: this.wastes });
 
         var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
         $(popovers).popover({ trigger: "focus" });
@@ -144,20 +148,28 @@ var FilterFlowsView = BaseView.extend(
         });
         this.displayLevelSelect = this.el.querySelector('select[name="display-level-select"]');
         this.nodeLevelSelect = this.el.querySelector('select[name="node-level-select"]');
-        this.anonymousSelect = this.el.querySelector('input[name="anonymous"]');
+        //this.anonymousSelect = this.el.querySelector('input[name="anonymous"]');
         this.showFlowOnlyCheck = this.el.querySelector('input[name="show-flow-only"]');
         this.groupSelect = this.el.querySelector('select[name="group"]');
         this.activitySelect = this.el.querySelector('select[name="activity"]');
         this.actorSelect = this.el.querySelector('select[name="actor"]');
-        this.flowTypeSelect = this.el.querySelector('select[name="waste"]');
-        this.aggregateCheck = this.el.querySelector('input[name="aggregateMaterials"]');
+        this.flowTypeSelect = this.el.querySelector('select[name="level"]');
+        this.roleSelect = this.el.querySelector('select[name="role"]');
+        //this.aggregateCheck = this.el.querySelector('input[name="aggregateMaterials"]');
         this.processSelect = this.el.querySelector('select[name="process-select"]');
+        this.wasteSelect = this.el.querySelector('select[name="waste-select"]');
+        this.yearSelect = this.el.querySelector('select[name="year"]');
         this.hazardousSelect = this.el.querySelector('select[name="hazardous"]');
-        this.avoidableSelect = this.el.querySelector('select[name="avoidable"]');
+        this.routeSelect = this.el.querySelector('select[name="route"]');
+        this.collectorSelect = this.el.querySelector('select[name="collector"]');
+        this.cleanSelect = this.el.querySelector('select[name="clean"]');
+        this.mixedSelect = this.el.querySelector('select[name="mixed"]');
+        //this.avoidableSelect = this.el.querySelector('select[name="avoidable"]');
         $(this.groupSelect).selectpicker();
         $(this.activitySelect).selectpicker();
         $(this.actorSelect).selectpicker();
         $(this.processSelect).selectpicker();
+        $(this.wasteSelect).selectpicker();
         this.resetNodeSelects();
         this.renderMatFilter();
         this.addEventListeners();
@@ -455,6 +467,7 @@ var FilterFlowsView = BaseView.extend(
         $(this.actorSelect).on('changed.bs.select', multiCheck);
 
         $(this.processSelect).on('changed.bs.select', multiCheck);
+        $(this.wasteSelect).on('changed.bs.select', multiCheck);
     },
 
     renderMatFilter: function(){
@@ -513,7 +526,7 @@ var FilterFlowsView = BaseView.extend(
         filter.set('material', (material) ? material.id : null);
         var direction = this.el.querySelector('input[name="direction"]:checked').value;
         filter.set('direction', direction);
-        filter.set('aggregate_materials', this.aggregateCheck.checked)
+        //filter.set('aggregate_materials', this.aggregateCheck.checked)
 
         var process_ids = null;
         if (this.processSelect.value != "-1"){
@@ -526,10 +539,30 @@ var FilterFlowsView = BaseView.extend(
             process_ids = values.join(',')
         }
         filter.set('process_ids', process_ids);
+
+        var waste_ids = null;
+        if (this.wasteSelect.value != "-1"){
+            var values = [];
+            var options = this.wasteSelect.selectedOptions;
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                values.push(option.value);
+            }
+            waste_ids = values.join(',')
+        }
+
+        filter.set('waste_ids', waste_ids);
+
         filter.set('flow_type', this.flowTypeSelect.value);
+        filter.set('role', this.roleSelect.value);
+        filter.set('year', this.yearSelect.value);
         filter.set('hazardous', this.hazardousSelect.value);
-        filter.set('avoidable', this.avoidableSelect.value);
-        filter.set('anonymize', this.anonymousSelect.checked);
+        filter.set('route', this.routeSelect.value);
+        filter.set('collector', this.collectorSelect.value);
+        filter.set('clean', this.cleanSelect.value);
+        filter.set('mixed', this.mixedSelect.value);
+        //filter.set('avoidable', this.avoidableSelect.value);
+        //filter.set('anonymize', this.anonymousSelect.checked);
 
         var areas = [];
         this.selectedAreas.forEach(function(area){
@@ -596,7 +629,8 @@ var FilterFlowsView = BaseView.extend(
             directionOption = document.querySelector('input[name="direction"][value="' + direction.toLowerCase() + '"]')
         directionOption.checked = true;
         this.flowTypeSelect.value = filter.get('flow_type').toLowerCase();
-        this.aggregateCheck.checked = filter.get('aggregate_materials');
+        this.roleSelect.value = filter.get('role').toLowerCase();
+        //this.aggregateCheck.checked = filter.get('aggregate_materials');
 
         var process_ids = filter.get('process_ids');
         if (process_ids == null)
@@ -606,9 +640,22 @@ var FilterFlowsView = BaseView.extend(
         }
          $(this.processSelect).selectpicker('refresh');
 
+        var waste_ids = filter.get('waste_ids');
+        if (waste_ids == null)
+            this.wasteSelect.value = -1;
+        else {
+            $(this.wasteSelect).selectpicker('val', waste_ids.split(','))
+        }
+         $(this.wasteSelect).selectpicker('refresh');
+
+        this.yearSelect.value = filter.get('year');
         this.hazardousSelect.value = filter.get('hazardous').toLowerCase();
-        this.avoidableSelect.value = filter.get('avoidable').toLowerCase();
-        this.anonymousSelect.checked = filter.get('anonymize');
+        this.routeSelect.value = filter.get('route').toLowerCase();
+        this.collectorSelect.value = filter.get('collector').toLowerCase();
+        this.cleanSelect.value = filter.get('clean').toLowerCase();
+        this.mixedSelect.value = filter.get('mixed').toLowerCase();
+        //this.avoidableSelect.value = filter.get('avoidable').toLowerCase();
+        //this.anonymousSelect.checked = filter.get('anonymize');
 
         // hierarchy-select plugin offers no functions to set (actually no functions at all) -> emulate clicking on row
         var material = filter.get('material'),

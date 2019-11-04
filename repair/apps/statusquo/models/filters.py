@@ -14,6 +14,20 @@ class Direction(Enum):
     FROM = 2
     TO = 3
 
+class Role(Enum):
+    PRODUCTION = 1
+    COLLECTION = 2
+    TREATMENT = 3
+
+class Year(Enum):
+    all = 1
+    y2013 = 2
+    y2014 = 3
+    y2015 = 4
+    y2016 = 5
+    y2017 = 6
+    y2018 = 7
+
 
 class FlowFilter(GDSEModel):
     '''
@@ -33,19 +47,25 @@ class FlowFilter(GDSEModel):
     direction = EnumIntegerField(
         enum=Direction, default=Direction.BOTH)
     flow_type = EnumIntegerField(
-        enum=FlowType, default=FlowType.BOTH)
+        enum=FlowType, default=FlowType.FLOW)
     process_ids = models.TextField(
         validators=[validate_comma_separated_integer_list],
         blank=True, null=True)
     hazardous = EnumIntegerField(
         enum=TriState, default=TriState.BOTH)
-    avoidable = EnumIntegerField(
-        enum=TriState, default=TriState.BOTH)
-    anonymize = models.BooleanField(default=False)
-    aggregate_materials = models.BooleanField(default=True)
     area_level = models.ForeignKey(AdminLevels,
                                    on_delete=models.SET_NULL,
                                    null=True)
     areas = models.ManyToManyField(Area, blank=True)
-    included = models.BooleanField(default=True)
+
+    role = EnumIntegerField(enum=Role, default=Role.PRODUCTION)
+    waste_ids = models.TextField(
+        validators=[validate_comma_separated_integer_list],
+        blank=True, null=True
+    )
+    route = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    collector = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    clean = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    mixed = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    year = EnumIntegerField(enum=Year, default=Year.all)
 

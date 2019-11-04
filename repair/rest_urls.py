@@ -44,7 +44,9 @@ from repair.apps.asmfa.views import (
     AllMaterialViewSet,
     WasteViewSet,
     ProcessViewSet,
-    StockViewSet
+    StockViewSet,
+    ClassificationViewSet,
+    ExtraDescriptionViewSet
 )
 
 from repair.apps.statusquo.views import (
@@ -137,6 +139,7 @@ shcat_router.register(r'stakeholders', StakeholderViewSet)
 # /casestudies/*/keyflows/...
 kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
 
+kf_router.register(r'wastes', WasteViewSet)
 kf_router.register(r'stocks', StockViewSet)
 kf_router.register(r'flowchains', FlowChainViewSet)
 kf_router.register(r'flows', FlowViewSet)
@@ -150,8 +153,9 @@ kf_router.register(r'flowfilters', FlowFilterViewSet)
 kf_router.register(r'solutioncategories', SolutionCategoryViewSet)
 kf_router.register(r'solutions', SolutionViewSet)
 kf_router.register(r'strategies', StrategyViewSet)
-kf_router.register(r'wastes', WasteViewSet)
 kf_router.register(r'conclusions', ConclusionViewSet)
+kf_router.register(r'classifications', ClassificationViewSet),
+kf_router.register(r'extradescriptions', ExtraDescriptionViewSet)
 
 # /casestudies/*/keyflows/*/solutions...
 sol_router = NestedSimpleRouter(kf_router, r'solutions',

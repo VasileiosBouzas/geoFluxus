@@ -95,7 +95,7 @@ var FlowsView = BaseView.extend(
 
         var flowType = filter.get('flow_type') || 'both',
             hazardous = filter.get('hazardous').toLowerCase(),
-            avoidable = filter.get('avoidable').toLowerCase(),
+            //avoidable = filter.get('avoidable').toLowerCase(),
             nodeLevel = filter.get('filter_level') || 'activitygroup',
             direction = filter.get('direction') || 'both';
 
@@ -134,10 +134,10 @@ var FlowsView = BaseView.extend(
             var is_hazardous = (hazardous == 'yes') ? true : false;
             typeFilterFunctions['hazardous'] = is_hazardous;
         }
-        if (avoidable != 'both') {
-            var is_avoidable = (avoidable == 'yes') ? true : false;
-            typeFilterFunctions['avoidable'] = is_avoidable
-        }
+        //if (avoidable != 'both') {
+            //var is_avoidable = (avoidable == 'yes') ? true : false;
+            //typeFilterFunctions['avoidable'] = is_avoidable
+        //}
         var processIds = filter.get('process_ids');
         if (processIds) {
             typeFilterFunctions['process_id__in'] = processIds.split(',');

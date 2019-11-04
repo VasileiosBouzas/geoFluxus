@@ -12,11 +12,18 @@ require(['d3', 'underscore', 'models/casestudy', 'collections/geolocations',
             //}),
             new ol.layer.Tile({
                 source: new ol.source.XYZ({
-                    url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',
-                    attributions: [
-                        '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use" target="_blank">Wikimedia maps</a> | Map data © ',
-                        ol.source.OSM.ATTRIBUTION
-                    ],
+                    attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+                                  'rest/services/World_Imagery/MapServer">ArcGIS</a>',
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+                         'World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                })
+            }),
+            new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                    attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+                                  'rest/services/Reference/World_Boundaries_and_Places/MapServer">ArcGIS</a>',
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+                         'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'
                 })
             })
         ],

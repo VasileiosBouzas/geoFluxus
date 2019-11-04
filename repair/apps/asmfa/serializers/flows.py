@@ -1,12 +1,16 @@
 from repair.apps.asmfa.models import (Flow,
                                       FlowChain,
                                       Stock,
-                                      Process
+                                      Process,
+                                      MaterialInChain,
+                                      Classification,
+                                      ExtraDescription,
                                       )
 from rest_framework import serializers
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            IDRelatedField)
-from repair.apps.asmfa.serializers.keyflows import (KeyflowInCasestudyField)
+from repair.apps.asmfa.serializers.keyflows import (KeyflowInCasestudyField,
+                                                    KeyflowInCasestudyDetailCreateMixin)
 
 
 class FlowChainSerializer(NestedHyperlinkedModelSerializer):
@@ -18,14 +22,13 @@ class FlowChainSerializer(NestedHyperlinkedModelSerializer):
                                       read_only=True)
     publication = IDRelatedField(allow_null=True, required=False)
     process = IDRelatedField(allow_null=True)
-    material = IDRelatedField()
 
     class Meta:
         model = FlowChain
         fields = ('id', 'identifier', 'process', 'route',
                   'collector', 'route', 'trips',
                   'keyflow', 'description', 'amount',
-                  'material', 'year', 'waste', 'publication')
+                  'year', 'waste', 'publication')
 
 
 class FlowSerializer(NestedHyperlinkedModelSerializer):
@@ -33,13 +36,15 @@ class FlowSerializer(NestedHyperlinkedModelSerializer):
         'casestudy_pk': 'flowchain__keyflow__casestudy__id',
         'keyflow_pk': 'flowchain__keyflow__id'
     }
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
     flowchain = IDRelatedField()
     origin = IDRelatedField()
     destination = IDRelatedField()
 
     class Meta:
         model = Flow
-        fields = ('id', 'flowchain',
+        fields = ('id', 'keyflow', 'flowchain',
                   'origin', 'destination')
 
 
@@ -65,3 +70,51 @@ class ProcessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Process
         fields = ('id', 'code', 'name')
+
+
+class MaterialInChainSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id'
+    }
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    material = IDRelatedField()
+    flowchain = IDRelatedField()
+
+    class Meta:
+        model = MaterialInChain
+        fields = ('url', 'id', 'keyflow',
+                  'material', 'flowchain',)
+
+
+class ClassificationSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id'
+    }
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    flowchain = IDRelatedField()
+
+    class Meta:
+        model = Classification
+        fields = ('url', 'id', 'keyflow', 'flowchain',
+                  'clean', 'mixed', 'product', 'composition')
+
+
+class ExtraDescriptionSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id'
+    }
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    flowchain = IDRelatedField()
+
+    class Meta:
+        model = ExtraDescription
+        fields = ('url', 'id', 'keyflow', 'flowchain',
+                  'type', 'description')
+
+
