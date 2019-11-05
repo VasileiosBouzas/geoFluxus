@@ -3,7 +3,7 @@ from repair.apps.utils.serializers import (BulkSerializerMixin,
 from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            ActivitySerializer,
                                            ActorSerializer,
-                                           LocationSerializer,
+                                           AdministrativeLocationSerializer,
                                            WasteSerializer,
                                            MaterialSerializer,
                                            FlowSerializer,
@@ -16,7 +16,7 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
 from repair.apps.asmfa.models import (ActivityGroup,
                                       Activity,
                                       Actor,
-                                      Location,
+                                      AdministrativeLocation,
                                       Material,
                                       Waste,
                                       Flow,
@@ -62,7 +62,7 @@ class ActorCreateSerializer(BulkSerializerMixin,
                             ActorSerializer):
 
     field_map = {
-        'identifier': 'identifier',
+        'BvDid': 'BvDid',
         'name': 'name',
         'nace': Reference(
             name='activity',
@@ -72,33 +72,32 @@ class ActorCreateSerializer(BulkSerializerMixin,
             filter_args={'activitygroup__keyflow': '@keyflow'}
         )
     }
-    index_columns = ['identifier']
+    index_columns = ['BvDid']
 
     def get_queryset(self):
         return Actor.objects.filter(activity__activitygroup__keyflow=self.keyflow)
 
 
-class LocationCreateSerializer(BulkSerializerMixin,
-                               LocationSerializer):
+class AdminLocationCreateSerializer(
+    BulkSerializerMixin, AdministrativeLocationSerializer):
 
     field_map = {
-        'Identifier': 'identifier',
-        'Actor': Reference(name='actor',
-                           referenced_field='identifier',
+        'BvDid': Reference(name='actor',
+                           referenced_field='BvDid',
                            referenced_model=Actor,
-                           filter_args={'activity__activitygroup__keyflow':
-                                        '@keyflow'}),
+                           filter_args={
+                               'activity__activitygroup__keyflow':
+                               '@keyflow'}),
         'Postcode': 'postcode',
         'Address': 'address',
         'City': 'city',
-        'Country': 'country',
-        'Role': 'role',
         'WKT': 'geom'
     }
-    index_columns = ['identifier']
+    index_columns = ['BvDid']
 
     def get_queryset(self):
-        return Location.objects.filter(actor__activity__activitygroup__keyflow=self.keyflow)
+        return AdministrativeLocation.objects.filter(
+            actor__activity__activitygroup__keyflow=self.keyflow)
 
 
 class MaterialCreateSerializer(BulkSerializerMixin, MaterialSerializer):
@@ -170,12 +169,12 @@ class FlowCreateSerializer(BulkSerializerMixin,
                                referenced_model=FlowChain),
         'origin': Reference(name='origin',
                             referenced_field='outputs',
-                            referenced_model=Location,
+                            referenced_model=Actor,
                             filter_args={'actor__activity__activitygroup__keyflow':
                                          '@keyflow'}),
         'destination': Reference(name='destination',
                                  referenced_field='inputs',
-                                 referenced_model=Location,
+                                 referenced_model=Actor,
                                  filter_args={'actor__activity__activitygroup__keyflow':
                                               '@keyflow'})
     }
@@ -191,7 +190,7 @@ class StockCreateSerializer(BulkSerializerMixin,
         'identifier': 'identifier',
         'origin': Reference(name='origin',
                             referenced_field='origin',
-                            referenced_model=Location),
+                            referenced_model=Actor),
         'material': Reference(name='material',
                               referenced_field='name',
                               referenced_model=Material),

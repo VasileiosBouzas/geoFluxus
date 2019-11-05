@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 from repair.apps.asmfa.models import (KeyflowInCasestudy,
-                                      Location,
+                                      Actor,
                                       Material,
                                       Process,
                                       Waste)
@@ -38,19 +38,21 @@ class FlowChain(GDSEModel):
 class Flow(GDSEModel):
     """One chain => Many flows"""
     flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
-    destination = models.ForeignKey(Location,
+    destination = models.ForeignKey(Actor,
                                     on_delete=PROTECT_CASCADE,
                                     related_name='outputs')
-    origin = models.ForeignKey(Location,
+    origin = models.ForeignKey(Actor,
                                on_delete=PROTECT_CASCADE,
                                related_name='inputs')
+    origin_role = models.CharField(max_length=255, default='')
+    destination_role = models.CharField(max_length=255, default='')
 
 
 # Stock
 class Stock(GDSEModel):
     # stocks relate to only one node, also data will be entered by the users
     identifier = models.CharField(max_length=255)
-    origin = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='origin')
+    origin = models.ForeignKey(Actor, on_delete=models.CASCADE, related_name='origin')
     amount = models.IntegerField(blank=True, default=0)
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)

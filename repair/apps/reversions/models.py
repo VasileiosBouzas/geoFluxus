@@ -10,7 +10,7 @@ from repair.apps.asmfa.models import (Actor,
                                       Activity,
                                       ActivityGroup,
                                       Material,
-                                      Location,
+                                      AdministrativeLocation,
                                       KeyflowInCasestudy,
                                       Flow,
                                       FlowChain,
@@ -60,9 +60,9 @@ class MaterialAdmin(VersionAdmin):
     """Versioning of Material"""
 
 
-@admin.register(Location)
-class Location(VersionAdmin):
-    """Versioning of Location"""
+@admin.register(AdministrativeLocation)
+class AdministrativeLocation(VersionAdmin):
+    """Versioning of AdministrativeLocation"""
 
 
 @admin.register(FlowChain)

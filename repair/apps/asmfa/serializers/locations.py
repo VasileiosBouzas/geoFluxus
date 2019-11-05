@@ -1,11 +1,15 @@
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 from repair.apps.asmfa.models import (Actor,
-                                      Location)
+                                      AdministrativeLocation,
+                                      OperationalLocation,
+                                      )
 
 from repair.apps.login.serializers import NestedHyperlinkedModelSerializer
-from repair.apps.studyarea.models import Area
+from repair.apps.studyarea.models import Area, AdminLevels
 
 from .nodes import ActorIDField
 
@@ -22,13 +26,14 @@ class PatchFields:
         return fields
 
 
-class LocationSerializer(PatchFields,
-                         GeoFeatureModelSerializer,
-                         NestedHyperlinkedModelSerializer):
+class AdministrativeLocationSerializer(PatchFields,
+                                       GeoFeatureModelSerializer,
+                                       NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
-        'casestudy_pk':'actor__activity__activitygroup__keyflow__casestudy__id',
-        'keyflow_pk':'actor__activity__activitygroup__keyflow__id'
-    }
+        'casestudy_pk':
+        'actor__activity__activitygroup__keyflow__casestudy__id',
+        'keyflow_pk':
+        'actor__activity__activitygroup__keyflow__id', }
     actor = ActorIDField()
     area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
                                               queryset=Area.objects.all())
@@ -38,59 +43,119 @@ class LocationSerializer(PatchFields,
     )
 
     class Meta:
-        model = Location
+        model = AdministrativeLocation
         geo_field = 'geom'
-        fields = ['id', 'identifier', 'url', 'address', 'postcode', 'country',
-                  'city', 'geom', 'name', 'actor', 'role',
+        fields = ['id', 'url', 'address', 'postcode', 'country',
+                  'city', 'geom', 'name',
+                  'actor',
+                  'area',
+                  'level'
+                  ]
+
+    def create(self, validated_data):
+        """Create a new AdministrativeLocation"""
+        if self.Meta.model.objects.all().filter(actor=validated_data['actor']):
+            msg = _('Actor <{}> already has an administrative location '
+                    '(has to be unique).'.format(validated_data['actor']))
+            raise ValidationError(detail=msg)
+        return super().create(validated_data)
+
+
+class AdministrativeLocationOfActorSerializer(AdministrativeLocationSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk':
+        'actor__activity__activitygroup__keyflow__casestudy__id',
+        'keyflow_pk':
+        'actor__activity__activitygroup__keyflow__id',
+        'actor_pk': 'actor__id', }
+    actor = ActorIDField(required=False)
+
+    def create(self, validated_data):
+        """Create a new AdministrativeLocation"""
+        actor = validated_data.pop('actor', None)
+        if actor is None:
+            url_pks = self.context['request'].session['url_pks']
+            actor_pk = url_pks['actor_pk']
+            actor = Actor.objects.get(pk=actor_pk)
+
+        aloc = AdministrativeLocation.objects.get_or_create(actor=actor)[0]
+        for attr, value in validated_data.items():
+            setattr(aloc, attr, value)
+        aloc.save()
+        return aloc
+
+
+class OperationalLocationSerializer(PatchFields,
+                                    GeoFeatureModelSerializer,
+                                    NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk':
+        'actor__activity__activitygroup__keyflow__casestudy__id',
+        'keyflow_pk':
+        'actor__activity__activitygroup__keyflow__id', }
+    actor = ActorIDField()
+    area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
+                                              queryset=Area.objects.all())
+    level = serializers.PrimaryKeyRelatedField(
+        required=False, allow_null=True,
+        read_only=True,
+    )
+
+    class Meta:
+        model = OperationalLocation
+        geo_field = 'geom'
+        fields = ['id', 'url', 'address', 'postcode', 'country',
+                  'city', 'geom', 'name', 'actor',
                   'area', 'level']
 
 
-class LocationsOfActorSerializer(LocationSerializer):
+class OperationalLocationsOfActorSerializer(OperationalLocationSerializer):
     parent_lookup_kwargs = {
-        'casestudy_pk':'actor__activity__activitygroup__keyflow__casestudy__id',
-        'keyflow_pk':'actor__activity__activitygroup__keyflow__id',
-        'actor_pk': 'actor__id',
-    }
+        'casestudy_pk':
+        'actor__activity__activitygroup__keyflow__casestudy__id',
+        'keyflow_pk':
+        'actor__activity__activitygroup__keyflow__id',
+        'actor_pk': 'actor__id', }
 
-    class Meta(LocationSerializer.Meta):
-        fields = ['id', 'identifier', 'url', 'address', 'postcode', 'country',
-                  'city', 'geom', 'name', 'actor', 'role'
+    class Meta(OperationalLocationSerializer.Meta):
+        fields = ['id', 'url', 'address', 'postcode', 'country',
+                  'city', 'geom', 'name', 'actor',
                   'area']
 
     id = serializers.IntegerField(label='ID', required=False)
     actor = ActorIDField(required=False)
 
     def create(self, validated_data):
-        """Handle Post on Locations"""
+        """Handle Post on OperationalLocations"""
         url_pks = self.context['request'].session['url_pks']
         actor_pk = url_pks['actor_pk']
         actor = Actor.objects.get(pk=actor_pk)
 
-        locations = validated_data.get('features', None)
+        operational_locations = validated_data.get('features', None)
 
-        if locations is None:
+        if operational_locations is None:
             # No Feature Collection: Add Single Location
             validated_data['actor'] = actor
             return super().create(validated_data)
         else:
             # Feature Collection: Add all Locations
-            locs = Location.objects.filter(actor=actor)
+            olocs = OperationalLocation.objects.filter(actor=actor)
             # delete existing rows not needed any more
-            to_delete = locs.exclude(id__in=(ol.get('id') for ol
-                                              in locations
+            to_delete = olocs.exclude(id__in=(ol.get('id') for ol
+                                              in operational_locations
                                               if ol.get('id') is not None))
             to_delete.delete()
-            # add or update new locations
-            for location in locations:
-                loc = Location.objects.update_or_create(
-                    actor=actor, id=location.get('id'))[0]
+            # add or update new operational locations
+            for operational_location in operational_locations:
+                oloc = OperationalLocation.objects.update_or_create(
+                    actor=actor, id=operational_location.get('id'))[0]
 
-                for attr, value in location.items():
-                    setattr(loc, attr, value)
-                loc.save()
+                for attr, value in operational_location.items():
+                    setattr(oloc, attr, value)
+                oloc.save()
 
         # return the last location that was created
-        return loc
+        return oloc
 
     def to_internal_value(self, data):
         """

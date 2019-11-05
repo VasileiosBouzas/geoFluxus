@@ -8,7 +8,7 @@ from django.db.models.functions import Coalesce
 
 from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.models import (Actor, Flow, Process,
-                                      Location, Material)
+                                      AdministrativeLocation, Material)
 
 
 def filter_actors_by_area(actors, geom):

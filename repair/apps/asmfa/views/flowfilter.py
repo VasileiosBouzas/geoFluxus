@@ -22,9 +22,9 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
 from repair.apps.utils.utils import descend_materials
 
 from repair.apps.asmfa.models import (
-    Flow, Location,
+    Flow, AdministrativeLocation,
     Material, Flow, Actor, ActivityGroup, Activity,
-    Location, Process, FlowChain
+    Process, FlowChain
 )
 from repair.apps.changes.models import Strategy
 from repair.apps.studyarea.models import Area
