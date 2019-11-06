@@ -34,6 +34,18 @@ class Material(GDSEModel):
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE,
                                 null=True)
 
+# Product
+class Product(GDSEModel):
+    name = models.CharField(max_length=255)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE,
+                                null=True)
+
+
+# Composite
+class Composite(GDSEModel):
+    name = models.CharField(max_length=255)
+    keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=PROTECT_CASCADE,
+                                null=True)
 
 # Process
 class Process(GDSEModel):

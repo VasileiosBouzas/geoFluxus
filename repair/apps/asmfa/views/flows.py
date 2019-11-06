@@ -107,27 +107,6 @@ class StockViewSet(StockViewSetAbstract):
     }
 
 
-class MaterialViewSetAbstract(RevisionMixin,
-                                     CasestudyViewSetMixin,
-                                     ModelPermissionViewSet,
-                                     ABC):
-    serializer_class = MaterialSerializer
-    model = Material
-    pagination_class = UnlimitedResultsSetPagination
-
-
-class MaterialViewSet(MaterialViewSetAbstract):
-    add_perm = 'asfma.add_material'
-    change_perm = 'asmfa.change_material'
-    delete_perm = 'asmfa.delete_material'
-    queryset = Material.objects.all()
-    serializer_class = MaterialSerializer
-    serializers = {
-        'list': MaterialSerializer,
-        'create': MaterialInChainCreateSerializer
-    }
-
-
 class ClassificationViewSetAbstract(RevisionMixin,
                                     CasestudyViewSetMixin,
                                     ModelPermissionViewSet,

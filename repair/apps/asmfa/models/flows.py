@@ -7,7 +7,9 @@ from repair.apps.asmfa.models import (KeyflowInCasestudy,
                                       Actor,
                                       Material,
                                       Process,
-                                      Waste)
+                                      Waste,
+                                      Product,
+                                      Composite)
 from repair.apps.publications.models import PublicationInCasestudy
 
 from repair.apps.login.models.bases import GDSEModel
@@ -29,6 +31,10 @@ class FlowChain(GDSEModel):
     amount = models.DecimalField(decimal_places=3, max_digits=3, default=0)
     materials = models.ManyToManyField(Material,
                                        through='MaterialInChain')
+    products = models.ManyToManyField(Product,
+                                      through='ProductInChain')
+    composites = models.ManyToManyField(Composite,
+                                        through='CompositeInChain')
     year = models.IntegerField(default=2019)
     waste = models.ForeignKey(Waste, on_delete=models.CASCADE, default='')
     publication = models.ForeignKey(PublicationInCasestudy,null=True,on_delete=models.SET_NULL)
@@ -67,13 +73,23 @@ class MaterialInChain(GDSEModel):
     flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
 
 
+# Product in Chain
+class ProductInChain(GDSEModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
+
+
+# Product in Chain
+class CompositeInChain(GDSEModel):
+    composite = models.ForeignKey(Composite, on_delete=models.CASCADE)
+    flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
+
+
 # Classification
 class Classification(GDSEModel):
     flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
     clean = models.BooleanField(default=False)
     mixed = models.BooleanField(default=False)
-    product = models.CharField(max_length=255)
-    composition = models.CharField(max_length=255)
 
 
 # Extra description
