@@ -113,7 +113,8 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     activitygroups = InCasestudyKeyflowListField(view_name='activitygroup-list')
     activities = InCasestudyKeyflowListField(view_name='activity-list')
     actors = InCasestudyKeyflowListField(view_name='actor-list')
-    locations = InCasestudyKeyflowListField(view_name='location-list')
+    administrative_locations = InCasestudyKeyflowListField(
+        view_name='administrativelocation-list')
 
     code = serializers.CharField(source='keyflow.code',
                                  allow_blank=True, required=False)
@@ -134,7 +135,7 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'activitygroups',
                   'activities',
                   'actors',
-                  'locations',
+                  'administrative_locations',
                   'graph_date'
                   )
 
