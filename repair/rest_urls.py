@@ -45,6 +45,10 @@ from repair.apps.asmfa.views import (
     WasteViewSet,
     ProcessViewSet,
     StockViewSet,
+    AllProductViewSet,
+    ProductViewSet,
+    AllCompositeViewSet,
+    CompositeViewSet,
     ClassificationViewSet,
     ExtraDescriptionViewSet
 )
@@ -79,6 +83,8 @@ router.register(r'casestudies', login_views.CaseStudyViewSet)
 router.register(r'keyflows', KeyflowViewSet)
 router.register(r'wastes', AllWasteViewSet)
 router.register(r'materials', AllMaterialViewSet)
+router.register(r'products', AllProductViewSet)
+router.register(r'composites', AllCompositeViewSet)
 router.register(r'publications', PublicationView)
 # router.register(r'sustainabilities', SustainabilityFieldViewSet)
 # router.register(r'impactcategories', ImpactcategoryViewSet)
@@ -144,6 +150,8 @@ kf_router.register(r'stocks', StockViewSet)
 kf_router.register(r'flowchains', FlowChainViewSet)
 kf_router.register(r'flows', FlowViewSet)
 kf_router.register(r'materials', MaterialViewSet)
+kf_router.register(r'products', ProductViewSet)
+kf_router.register(r'composites', CompositeViewSet)
 kf_router.register(r'activitygroups', ActivityGroupViewSet)
 kf_router.register(r'activities', ActivityViewSet)
 kf_router.register(r'actors', ActorViewSet)

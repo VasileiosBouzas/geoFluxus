@@ -61,6 +61,7 @@ function (Session) {
         locations:              '/api/casestudies/{0}/keyflows/{1}/locations/',
         products:               '/api/casestudies/{0}/keyflows/{1}/products/',
         materials:              '/api/casestudies/{0}/keyflows/{1}/materials/',
+        composites:             '/api/casestudies/{0}/keyflows/{1}/composites',
         flows:                  '/api/casestudies/{0}/keyflows/{1}/flows/',
         flowchains:             '/api/casestudies/{0}/keyflows/{1}/flowchains/',
         stocks:                 '/api/casestudies/{0}/keyflows/{1}/stocks/',

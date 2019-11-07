@@ -18,7 +18,9 @@ from repair.apps.asmfa.models import (
     KeyflowInCasestudy,
     Material,
     Waste,
-    Flow
+    Flow,
+    Product,
+    Composite
 )
 
 from repair.apps.asmfa.serializers import (
@@ -31,7 +33,17 @@ from repair.apps.asmfa.serializers import (
     AllMaterialListSerializer,
     WasteSerializer,
     WasteCreateSerializer,
-    MaterialCreateSerializer
+    MaterialInChainCreateSerializer,
+    ProductSerializer,
+    ProductListSerializer,
+    AllProductSerializer,
+    AllProductListSerializer,
+    ProductInChainCreateSerializer,
+    CompositeSerializer,
+    CompositeListSerializer,
+    AllCompositeSerializer,
+    AllCompositeListSerializer,
+    CompositeInChainCreateSerializer
 )
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
@@ -104,6 +116,18 @@ class MaterialFilter(FilterSet):
         model = Material
         fields = ('name', 'keyflow')
 
+class ProductFilter(FilterSet):
+
+    class Meta:
+        model = Product
+        fields = ('name', 'keyflow')
+
+class CompositeFilter(FilterSet):
+
+    class Meta:
+        model = Composite
+        fields = ('name', 'keyflow')
+
 
 class AllWasteViewSet(RevisionMixin, ModelPermissionViewSet):
     pagination_class = UnlimitedResultsSetPagination
@@ -155,7 +179,7 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
     serializer_class = MaterialSerializer
     serializers = {
         'list': MaterialListSerializer,
-        'create': MaterialCreateSerializer,
+        'create': MaterialInChainCreateSerializer,
     }
 
     # include materials with keyflows with pk null as well (those are the default ones)
@@ -170,10 +194,10 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
             Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
 
         # calc flow_count
-        flows = Flow.objects.filter(
-            Q(origin__actor__activity__activitygroup__keyflow__id=keyflow_id) |
-            Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
-        )
+        # flows = Flow.objects.filter(
+        #     Q(oactor__activity__activitygroup__keyflow__id=keyflow_id) |
+        #     Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
+        # )
         # materials = materials.annotate(
         #     flow_count=Count(Case(
         #         When(flowchain__in=flows, then=1),
@@ -192,6 +216,136 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
             raise exceptions.MethodNotAllowed(
                 'PUT',
                 _('This material is a default material '
+                  'and can neither be edited nor deleted.')
+            )
+
+    def update(self, request, **kwargs):
+        self.checkMethod(request, **kwargs)
+        return super().update(request, **kwargs)
+
+    def destroy(self, request, **kwargs):
+        self.checkMethod(request, **kwargs)
+        return super().destroy(request, **kwargs)
+
+
+class AllProductViewSet(RevisionMixin, ModelPermissionViewSet):
+    add_perm = 'asmfa.add_product'
+    change_perm = 'asmfa.change_product'
+    delete_perm = 'asmfa.delete_product'
+    queryset = Product.objects.order_by('id')
+    serializer_class = AllProductSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = ProductFilter
+    serializers = {'list': AllProductListSerializer}
+
+
+class ProductViewSet(CasestudyViewSetMixin, AllProductViewSet):
+    pagination_class = UnlimitedResultsSetPagination
+    serializer_class = ProductSerializer
+    serializers = {
+        'list': ProductListSerializer,
+        'create': ProductInChainCreateSerializer,
+    }
+
+    # include materials with keyflows with pk null as well (those are the default ones)
+    def get_queryset(self):
+        keyflow_id = self.kwargs['keyflow_pk']
+
+        products = Product.objects.\
+            select_related("keyflow__casestudy").defer(
+                "keyflow__note", "keyflow__casestudy__geom",
+                "keyflow__casestudy__focusarea")
+        products = products.filter(
+            Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
+
+        # calc flow_count
+        # flows = Flow.objects.filter(
+        #     Q(origin__actor__activity__activitygroup__keyflow__id=keyflow_id) |
+        #     Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
+        # )
+        # materials = materials.annotate(
+        #     flow_count=Count(Case(
+        #         When(flowchain__in=flows, then=1),
+        #         output_field=IntegerField(),
+        #     ))
+        # )
+        return products
+
+    def checkMethod(self, request, **kwargs):
+        model = self.serializer_class.Meta.model
+        try:
+            instance = model.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return
+        if instance.keyflow is None:
+            raise exceptions.MethodNotAllowed(
+                'PUT',
+                _('This product is a default product'
+                  'and can neither be edited nor deleted.')
+            )
+
+    def update(self, request, **kwargs):
+        self.checkMethod(request, **kwargs)
+        return super().update(request, **kwargs)
+
+    def destroy(self, request, **kwargs):
+        self.checkMethod(request, **kwargs)
+        return super().destroy(request, **kwargs)
+
+
+class AllCompositeViewSet(RevisionMixin, ModelPermissionViewSet):
+    add_perm = 'asmfa.add_composite'
+    change_perm = 'asmfa.change_composite'
+    delete_perm = 'asmfa.delete_composite'
+    queryset = Composite.objects.order_by('id')
+    serializer_class = AllCompositeSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = CompositeFilter
+    serializers = {'list': AllCompositeListSerializer}
+
+
+class CompositeViewSet(CasestudyViewSetMixin, AllCompositeViewSet):
+    pagination_class = UnlimitedResultsSetPagination
+    serializer_class = CompositeSerializer
+    serializers = {
+        'list': CompositeListSerializer,
+        'create': CompositeInChainCreateSerializer,
+    }
+
+    # include materials with keyflows with pk null as well (those are the default ones)
+    def get_queryset(self):
+        keyflow_id = self.kwargs['keyflow_pk']
+
+        products = Composite.objects.\
+            select_related("keyflow__casestudy").defer(
+                "keyflow__note", "keyflow__casestudy__geom",
+                "keyflow__casestudy__focusarea")
+        products = products.filter(
+            Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
+
+        # calc flow_count
+        # flows = Flow.objects.filter(
+        #     Q(origin__actor__activity__activitygroup__keyflow__id=keyflow_id) |
+        #     Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
+        # )
+        # materials = materials.annotate(
+        #     flow_count=Count(Case(
+        #         When(flowchain__in=flows, then=1),
+        #         output_field=IntegerField(),
+        #     ))
+        # )
+        return products
+
+    def checkMethod(self, request, **kwargs):
+        model = self.serializer_class.Meta.model
+        try:
+            instance = model.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return
+        if instance.keyflow is None:
+            raise exceptions.MethodNotAllowed(
+                'PUT',
+                _('This composite is a default composite'
                   'and can neither be edited nor deleted.')
             )
 

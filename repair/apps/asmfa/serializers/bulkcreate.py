@@ -10,6 +10,8 @@ from repair.apps.asmfa.serializers import (ActivityGroupSerializer,
                                            FlowChainSerializer,
                                            StockSerializer,
                                            MaterialInChainSerializer,
+                                           ProductInChainSerializer,
+                                           CompositeInChainSerializer,
                                            ClassificationSerializer,
                                            ExtraDescriptionSerializer
                                            )
@@ -25,6 +27,8 @@ from repair.apps.asmfa.models import (ActivityGroup,
                                       PublicationInCasestudy,
                                       Stock,
                                       MaterialInChain,
+                                      ProductInChain,
+                                      CompositeInChain,
                                       Classification,
                                       ExtraDescription
                                       )
@@ -225,6 +229,46 @@ class MaterialInChainCreateSerializer(BulkSerializerMixin,
 
     def get_queryset(self):
         return MaterialInChain.objects.all(keyflow=self.keyflow)
+
+
+class ProductInChainCreateSerializer(BulkSerializerMixin,
+                                     ProductInChainSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id',
+    }
+    field_map = {
+        'product': Reference(name='product',
+                              referenced_field='name',
+                              referenced_model=Material),
+        'flowchain': Reference(name='flowchain',
+                               referenced_field='identifier',
+                               referenced_model=FlowChain),
+    }
+    index_columns = ['product', 'flowchain']
+
+    def get_queryset(self):
+        return ProductInChain.objects.all(keyflow=self.keyflow)
+
+
+class CompositeInChainCreateSerializer(BulkSerializerMixin,
+                                       CompositeInChainSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id',
+    }
+    field_map = {
+        'composite': Reference(name='composite',
+                              referenced_field='name',
+                              referenced_model=Material),
+        'flowchain': Reference(name='flowchain',
+                               referenced_field='identifier',
+                               referenced_model=FlowChain),
+    }
+    index_columns = ['composite', 'flowchain']
+
+    def get_queryset(self):
+        return CompositeInChain.objects.all(keyflow=self.keyflow)
 
 
 class ClassificationCreateSerializer(BulkSerializerMixin,

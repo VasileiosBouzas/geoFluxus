@@ -8,6 +8,8 @@ from repair.apps.asmfa.models import (Keyflow,
                                       KeyflowInCasestudy,
                                       Material,
                                       Waste,
+                                      Product,
+                                      Composite
                                       )
 
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
@@ -238,3 +240,60 @@ class MaterialListSerializer(MaterialSerializer):
         fields = ('id', 'name',
                   'keyflow')
 
+
+class AllProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ('url', 'id',
+                  'name', 'keyflow')
+
+
+class AllProductListSerializer(AllProductSerializer):
+    class Meta:
+        fields = ('id', 'name', 'keyflow')
+
+
+class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
+                        AllProductSerializer):
+    parent_lookup_kwargs = {}
+    keyflow = IDRelatedField(read_only=True)
+
+    class Meta:
+        model = Product
+        fields = ('url', 'id',
+                  'name', 'keyflow')
+
+
+class ProductListSerializer(ProductSerializer):
+    class Meta(MaterialSerializer.Meta):
+        fields = ('id', 'name',
+                  'keyflow')
+
+
+class AllCompositeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Composite
+        fields = ('url', 'id',
+                  'name', 'keyflow')
+
+
+class AllCompositeListSerializer(AllCompositeSerializer):
+    class Meta:
+        fields = ('id', 'name', 'keyflow')
+
+
+class CompositeSerializer(KeyflowInCasestudyDetailCreateMixin,
+                          AllCompositeSerializer):
+    parent_lookup_kwargs = {}
+    keyflow = IDRelatedField(read_only=True)
+
+    class Meta:
+        model = Composite
+        fields = ('url', 'id',
+                  'name', 'keyflow')
+
+
+class CompositeListSerializer(CompositeSerializer):
+    class Meta(MaterialSerializer.Meta):
+        fields = ('id', 'name',
+                  'keyflow')

@@ -3,6 +3,8 @@ from repair.apps.asmfa.models import (Flow,
                                       Stock,
                                       Process,
                                       MaterialInChain,
+                                      ProductInChain,
+                                      CompositeInChain,
                                       Classification,
                                       ExtraDescription,
                                       )
@@ -86,6 +88,36 @@ class MaterialInChainSerializer(NestedHyperlinkedModelSerializer):
         model = MaterialInChain
         fields = ('url', 'id', 'keyflow',
                   'material', 'flowchain',)
+
+class ProductInChainSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id'
+    }
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    product = IDRelatedField()
+    flowchain = IDRelatedField()
+
+    class Meta:
+        model = ProductInChain
+        fields = ('url', 'id', 'keyflow',
+                  'product', 'flowchain',)
+
+class CompositeInChainSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'flowchain__keyflow__casestudy__id',
+        'keyflow_pk': 'flowchain__keyflow__id'
+    }
+    keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
+                                      read_only=True)
+    composite = IDRelatedField()
+    flowchain = IDRelatedField()
+
+    class Meta:
+        model = CompositeInChain
+        fields = ('url', 'id', 'keyflow',
+                  'composite', 'flowchain',)
 
 
 class ClassificationSerializer(NestedHyperlinkedModelSerializer):
