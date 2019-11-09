@@ -28,7 +28,7 @@ class FlowChain(GDSEModel):
     # Flow properties
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
-    amount = models.DecimalField(decimal_places=3, max_digits=3, default=0)
+    amount = models.FloatField(default=0)
     materials = models.ManyToManyField(Material,
                                        through='MaterialInChain')
     products = models.ManyToManyField(Product,

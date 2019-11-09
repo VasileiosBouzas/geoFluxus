@@ -7,12 +7,16 @@ from repair.apps.asmfa.models import (Flow,
                                       CompositeInChain,
                                       Classification,
                                       ExtraDescription,
+                                      Material
                                       )
 from rest_framework import serializers
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
-                                           IDRelatedField)
+                                           IDRelatedField,)
 from repair.apps.asmfa.serializers.keyflows import (KeyflowInCasestudyField,
-                                                    KeyflowInCasestudyDetailCreateMixin)
+                                                    KeyflowInCasestudyDetailCreateMixin,
+                                                    MaterialListSerializer,
+                                                    ProductListSerializer,
+                                                    CompositeListSerializer)
 
 
 class FlowChainSerializer(NestedHyperlinkedModelSerializer):
@@ -22,15 +26,17 @@ class FlowChainSerializer(NestedHyperlinkedModelSerializer):
     }
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
-    publication = IDRelatedField(allow_null=True, required=False)
     process = IDRelatedField(allow_null=True)
+    waste = IDRelatedField(allow_null=True)
+    materials = MaterialListSerializer(read_only=True, many=True)
+    products = ProductListSerializer(read_only=True, many=True)
+    composites = CompositeListSerializer(read_only=True, many=True)
 
     class Meta:
         model = FlowChain
-        fields = ('id', 'identifier', 'process', 'route',
-                  'collector', 'route', 'trips',
-                  'keyflow', 'description', 'amount',
-                  'year', 'waste', 'publication')
+        fields = ('id', 'identifier', 'keyflow', 'description',
+                  'amount', 'year', 'collector', 'route', 'trips',
+                  'process', 'waste', 'materials', 'products', 'composites')
 
 
 class FlowSerializer(NestedHyperlinkedModelSerializer):
@@ -40,14 +46,55 @@ class FlowSerializer(NestedHyperlinkedModelSerializer):
     }
     keyflow = KeyflowInCasestudyField(view_name='keyflowincasestudy-detail',
                                       read_only=True)
-    flowchain = IDRelatedField()
-    origin = IDRelatedField()
-    destination = IDRelatedField()
+    origin = IDRelatedField(allow_null=True, required=False)
+    destination = IDRelatedField(allow_null=True, required=False)
+
+    # Inherited from flowchain
+    collector = serializers.BooleanField(source='flowchain.collector',
+                                         allow_null=True,
+                                         required=False)
+    route = serializers.BooleanField(source='flowchain.route',
+                                     allow_null=True,
+                                     required=False)
+    trips = serializers.IntegerField(source='flowchain.trips',
+                                     allow_null=True,
+                                     required=False)
+    amount = serializers.FloatField(source='flowchain.amount',
+                                    allow_null=True,
+                                    required=False)
+    year = serializers.IntegerField(source='flowchain.year',
+                                    allow_null=True,
+                                    required=False)
+
+    process = serializers.IntegerField(source='flowchain.process.id',
+                                       allow_null=True,
+                                       required=False)
+    waste = serializers.IntegerField(source='flowchain.waste.id',
+                                     allow_null=True,
+                                     required=False)
+
+    materials = MaterialListSerializer(source='flowchain.materials',
+                                       many=True)
+    products = ProductListSerializer(source='flowchain.products',
+                                     many=True)
+    composites = CompositeListSerializer(source='flowchain.composites',
+                                         many=True)
 
     class Meta:
         model = Flow
-        fields = ('id', 'keyflow', 'flowchain',
-                  'origin', 'destination')
+        fields = ('id', 'keyflow',
+                  'origin', 'origin_role',
+                  'destination', 'destination_role',
+                  'collector',
+                  'route',
+                  'trips',
+                  'amount',
+                  'year',
+                  'process',
+                  'waste',
+                  'materials',
+                  'products',
+                  'composites')
 
 
 class StockSerializer(NestedHyperlinkedModelSerializer):
@@ -88,6 +135,7 @@ class MaterialInChainSerializer(NestedHyperlinkedModelSerializer):
         model = MaterialInChain
         fields = ('url', 'id', 'keyflow',
                   'material', 'flowchain',)
+
 
 class ProductInChainSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {

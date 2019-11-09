@@ -236,6 +236,7 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
 
 
 class MaterialListSerializer(MaterialSerializer):
+
     class Meta(MaterialSerializer.Meta):
         fields = ('id', 'name',
                   'keyflow')

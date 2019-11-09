@@ -33,31 +33,6 @@ from repair.apps.asmfa.serializers import (
     FlowSerializer, FlowChainSerializer
 )
 
-# structure of serialized components of a flow as the serializer
-# will return it
-flowchain_struct = OrderedDict(id=None,
-                               route=None,
-                               collector=None,
-                               trips=0,
-                               description=None,
-                               amount=0,
-                               year=0,
-                               waste=None,
-                               keyflow_id=None,
-                               material_id=None,
-                               process_id=None,
-                               publication_id=None
-                              )
-
-
-flow_struct = OrderedDict(id=None,
-                          flowchain_id=None,
-                          origin=None,
-                          destination=None,
-                          origin_level=None,
-                          destination_level=None,
-                          )
-
 
 FILTER_SUFFIX = {
     Actor: '',
@@ -72,24 +47,24 @@ LEVEL_KEYWORD = {
 }
 
 
-# Filter flowchain for keyflow
+# Flowchain filters
 class FilterFlowChainViewSet(PostGetViewMixin, RevisionMixin,
                              CasestudyViewSetMixin,
                              ModelPermissionViewSet):
     serializer = FlowChainSerializer
     model = FlowChain
 
-    queryset = FlowChain.objects.all()
+    queryset = FlowChain.objects.order_by('id')
 
 
-# Flow Fliters
+# Flow Filters
 class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         CasestudyViewSetMixin,
                         ModelPermissionViewSet):
     serializer_class = FlowSerializer
     model = Flow
 
-    queryset = Flow.objects.all()
+    queryset = Flow.objects.order_by('id')
 
 
 
