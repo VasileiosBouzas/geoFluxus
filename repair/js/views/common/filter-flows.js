@@ -663,7 +663,6 @@ var FilterFlowsView = BaseView.extend(
             }
             waste_ids = values.join(',')
         }
-
         filter.set('waste_ids', waste_ids);
 
         filter.set('flow_type', this.flowTypeSelect.value);
@@ -780,6 +779,28 @@ var FilterFlowsView = BaseView.extend(
         // click first one, if no material
         else{
             this.matSelect.querySelector('a').click();
+        }
+
+        var product = filter.get('product'),
+            li = this.proSelect.querySelector('li[data-value="' + product + '"]');
+        if(li){
+            proItem = li.querySelector('a');
+            proItem.click();
+        }
+        // click first one, if no material
+        else{
+            this.proSelect.querySelector('a').click();
+        }
+
+        var composite = filter.get('composite'),
+            li = this.compSelect.querySelector('li[data-value="' + composite + '"]');
+        if(li){
+            compItem = li.querySelector('a');
+            compItem.click();
+        }
+        // click first one, if no material
+        else{
+            this.compSelect.querySelector('a').click();
         }
 
         // level actor -> filter actors

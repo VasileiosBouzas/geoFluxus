@@ -36,8 +36,8 @@ var FlowsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
         this.materials = options.materials;
-        this.products = options.products,
-        this.composites = options.composites,
+        //this.products = options.products;
+        //this.composites = options.composites;
         this.strategy = options.strategy;
         this.filter = options.filter;
         this.caseStudy = options.caseStudy;
@@ -110,9 +110,9 @@ var FlowsView = BaseView.extend(
         direction = direction.toLowerCase();
 
         // material options for stocks and flows
-        filterParams.materials = {
-            aggregate: filter.get('aggregate_materials')
-        }
+        filterParams.materials = {}
+        filterParams.products = {}
+        filterParams.composites = {}
 
         var material = filter.get('material');
         // material -> filter/aggregate by this material and its direct children
@@ -124,25 +124,25 @@ var FlowsView = BaseView.extend(
             filterParams.materials.ids = materialIds;
         }
 
-        var product = filter.get('product');
+        //var product = filter.get('product');
         // material -> filter/aggregate by this material and its direct children
-        if (product != null) {
-            var childProducts = this.products.filterBy({ parent: product }),
-                productIds = childProducts.pluck('id');
+        //if (product != null) {
+            //var childProducts = this.products.filterBy({ parent: product }),
+                //productIds = childProducts.pluck('id');
             // the selected material should be included as well
-            filterParams.products.unaltered = [product];
-            filterParams.products.ids = productIds;
-        }
+            //filterParams.products.unaltered = [product];
+            //filterParams.products.ids = productIds;
+        //}
 
-        var composite = filter.get('composite');
+        //var composite = filter.get('composite');
         // material -> filter/aggregate by this material and its direct children
-        if (composite != null) {
-            var childComposites = this.composites.filterBy({ parent: composite }),
-                compositeIds = childComposites.pluck('id');
+        //if (composite != null) {
+            //var childComposites = this.composites.filterBy({ parent: composite }),
+               // compositeIds = childComposites.pluck('id');
             // the selected material should be included as well
-            filterParams.composites.unaltered = [composite];
-            filterParams.composites.ids = compositeIds;
-        }
+            //filterParams.composites.unaltered = [composite];
+            //filterParams.composites.ids = compositeIds;
+        //}
 
         var nodeIds = filter.get('node_ids');
         if (nodeIds) nodeIds = nodeIds.split(',');
@@ -172,6 +172,10 @@ var FlowsView = BaseView.extend(
         if (clean != 'both') {
             var is_clean = (clean == 'yes') ? true : false;
             typeFilterFunctions['clean'] = is_clean;
+        }
+        if (mixed != 'both') {
+            var is_mixed = (mixed == 'yes') ? true : false;
+            typeFilterFunctions['mixed'] = is_mixed;
         }
         //if (avoidable != 'both') {
             //var is_avoidable = (avoidable == 'yes') ? true : false;
@@ -216,6 +220,7 @@ var FlowsView = BaseView.extend(
             }
             flowFilters.push(area_filter);
         }
+
         return filterParams;
     },
 
