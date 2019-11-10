@@ -503,18 +503,18 @@ var FlowsView = BaseView.extend(
         // put filtering by clicked flow origin/destination into query params
         if (this.nodeLevel === 'activitygroup')
             filterSuffix += '__activitygroup';
-        var queryParams = {},
-            is_stock = flow.get('stock'),
-            process = flow.get('process_id');
+        //var queryParams = {},
+            //is_stock = flow.get('stock'),
+            //process = flow.get('process_id');
         queryParams['origin__' + filterSuffix] = flow.get('origin').id;
         if (!is_stock)
             queryParams['destination__' + filterSuffix] = flow.get('destination').id;
-        queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
-        queryParams['stock'] = (is_stock) ? 'True': 'False';
-        if (process)
-            queryParams['process'] = process;
-        else
-            queryParams['process__isnull'] = true;
+        //queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
+        //queryParams['stock'] = (is_stock) ? 'True': 'False';
+        //if (process)
+           // queryParams['process'] = process;
+        //else
+           // queryParams['process__isnull'] = true;
 
         if (this.strategy && this.modDisplaySelect.value != 'statusquo')
             queryParams['strategy'] = this.strategy.id;
@@ -526,8 +526,7 @@ var FlowsView = BaseView.extend(
                 color: origin.color,
                 name: origin.name,
                 id: origin.id
-            };
-        if (!is_stock)
+            },
             destination_group = {
                 color: destination.color,
                 name: destination.name,
@@ -542,14 +541,14 @@ var FlowsView = BaseView.extend(
         function addFlows(flows){
             // override value and color
             flows.forEach(function(flow){
-                var amount = flow._amount;
+                var amount = 1000;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
-                flow.set('amount', amount)
-                var materials = flow.get('materials');
-                flow.get('materials').forEach(function(material){
-                    material.amount = material._amount;
-                })
-                flow.set('materials', materials);
+                //flow.set('amount', amount)
+                //var materials = flow.get('materials');
+                //flow.get('materials').forEach(function(material){
+                    //material.amount = material._amount;
+                //})
+                //flow.set('materials', materials);
             });
             _this.flowMapView.addFlows(flows);
         }

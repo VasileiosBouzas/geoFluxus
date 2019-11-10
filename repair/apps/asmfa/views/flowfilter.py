@@ -230,14 +230,16 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     def filter_chain(queryset, filters, keyflow):
         for sub_filter in filters:
             filter_link = sub_filter.pop('link', 'and')
-            filter_link = sub_filter.pop('hazardous') # TO ADD LATER
-            filter_link = sub_filter.pop('clean') # TO ADD LATER
-            filter_link = sub_filter.pop('mixed') # TO ADD LATER
+            filter_link = sub_filter.pop('hazardous', None) # TO ADD LATER
+            filter_link = sub_filter.pop('clean', None) # TO ADD LATER
+            filter_link = sub_filter.pop('mixed', None) # TO ADD LATER
+            filter_link = sub_filter.pop('collector', None) # TO ADD LATER
+            filter_link = sub_filter.pop('route', None) # TO ADD LATER
             filter_functions = []
             for func, v in sub_filter.items():
                 if func.endswith('__areas'):
                     func, v = build_area_filter(func, v, keyflow)
-                filter_function = Q(**{('flowchain__'+func): v})
+                filter_function = Q(**{(func): v})
                 filter_functions.append(filter_function)
             if filter_link == 'and':
                 link_func = np.bitwise_and
