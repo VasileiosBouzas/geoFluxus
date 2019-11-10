@@ -74,56 +74,73 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         ModelPermissionViewSet):
     serializer_class = FlowSerializer
     model = Flow
-
     queryset = Flow.objects.all()
+
 
     # POST is used to send filter parameters not to create
     def post_get(self, request, **kwargs):
-
         self.check_permission(request, 'view')
 
         # filter by query params
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=self.get_serializer_class())
 
+        # filter by flow params
         params = {}
-        # values of body keys are not parsed
         for key, value in request.data.items():
             try:
                 params[key] = json.loads(value)
             except json.decoder.JSONDecodeError:
                 params[key] = value
 
+        # Divide filters
         filter_chains = params.get('filters', None)
         material_filter = params.get('materials', None)
+        # product_filter = params.get('products', None)
+        # composite_filter = params.get('composite', None)
 
+        # Check the aggregation level for nodes
         l_a = params.get('aggregation_level', {})
         inv_map = {v: k for k, v in LEVEL_KEYWORD.items()}
         origin_level = inv_map[l_a['origin']] if 'origin' in l_a else Actor
         destination_level = inv_map[l_a['destination']] \
             if 'destination' in l_a else Actor
 
+        # Filter by KEYFLOW & FILTERS
         keyflow = kwargs['keyflow_pk']
-        # filter queryset based on passed filters
         if filter_chains:
             queryset = self.filter_chain(queryset, filter_chains, keyflow)
 
+        # Filter by MATERIALS
         material_ids = (None if material_filter is None
-                        else material_filter.get('ids', None))
-
-        materials = None
-        # filter the flows by their fractions excluding flows whose
-        # fractions don't contain the requested materials
-        # (including child materials)
+                        else material_filter.get('unaltered', []))
         if material_ids is not None:
-            materials = Material.objects.filter(id__in=material_ids)
             queryset = queryset.filter(flowchain__materials__in=
-                                       Material.objects.filter(id__in=list(materials)))
+                                       Material.objects.filter(id__in=list(material_ids)))
 
-        data = self.serialize(queryset, origin_model=origin_level,
-                              destination_model=destination_level)
+        # # Filter by PRODUCTS
+        # product_ids = (None if product_filter is None
+        #                 else product_filter.get('unaltered', []))
+        # if product_ids is not None:
+        #     queryset = queryset.filter(flowchain__products__in=
+        #                                Product.objects.filter(id__in=list(product_ids)))
+        #
+        # # Filter by COMPOSITES
+        # composite_ids = (None if composite_filter is None
+        #                  else composite_filter.get('unaltered', []))
+        # if composite_ids is not None:
+        #     queryset = queryset.filter(flowchain__composites__in=
+        #                                Composite.objects.filter(id__in=list(composite_ids)))
 
+        # Serialize data
+        data = self.serialize(queryset, origin_model=origin_level, destination_model=destination_level)
         return Response(data)
+
+
+    # def _filter(self, lookup_args, query_params=None, SerializerClass=None):
+    #     queryset = super()._filter(lookup_args, query_params=query_params,
+    #                                SerializerClass=SerializerClass)
+    #     return queryset
 
 
     def list(self, request, **kwargs):
