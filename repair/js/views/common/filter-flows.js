@@ -36,6 +36,14 @@ var FilterFlowsView = BaseView.extend(
             apiTag: 'materials',
             apiIds: [this.caseStudy.id, this.keyflowId ]
         });
+        this.products = new GDSECollection([], {
+            apiTag: 'products',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
+        this.composites = new GDSECollection([], {
+            apiTag: 'composites',
+            apiIds: [this.caseStudy.id, this.keyflowId ]
+        });
         this.processes = new GDSECollection([], {
             apiTag: 'processes'
         });
@@ -69,6 +77,8 @@ var FilterFlowsView = BaseView.extend(
             this.activities.fetch(),
             this.activityGroups.fetch(),
             this.materials.fetch(),
+            this.products.fetch(),
+            this.composites.fetch(),
             this.areaLevels.fetch(),
             this.processes.fetch(),
             this.wastes.fetch()
@@ -172,6 +182,8 @@ var FilterFlowsView = BaseView.extend(
         $(this.wasteSelect).selectpicker();
         this.resetNodeSelects();
         this.renderMatFilter();
+        this.renderProFilter();
+        this.renderCompFilter();
         this.addEventListeners();
         this.selectedAreas = [];
     },
@@ -516,6 +528,103 @@ var FilterFlowsView = BaseView.extend(
         })
         this.el.querySelector('#material-filter').appendChild(matSelect);
     },
+
+
+    renderProFilter: function(){
+        var _this = this;
+        this.selectedProduct = null;
+        // select product
+        var proSelect = document.createElement('div');
+        proSelect.classList.add('productSelect');
+        var select = this.el.querySelector('.hierarchy-select');
+
+        var compAttrBefore = this.products.comparatorAttr;
+        this.products.comparatorAttr = 'level';
+        this.products.sort();
+        var flowsInChildren = {};
+        // count materials in parent, descending level (leafs first)
+        this.products.models.reverse().forEach(function(product){
+            var parent = product.get('parent'),
+                count = product.get('flow_count') + (flowsInChildren[product.id] || 0);
+            flowsInChildren[parent] = (!flowsInChildren[parent]) ? count: flowsInChildren[parent] + count;
+        })
+        this.products.comparatorAttr = compAttrBefore;
+        this.products.sort();
+
+        this.proSelect = this.hierarchicalSelect(this.products, proSelect, {
+            onSelect: function(model){
+                 _this.selectedProduct = model;
+            },
+            defaultOption: gettext('All products'),
+            label: function(model, option){
+                var compCount = model.get('flow_count'),
+                    childCount = flowsInChildren[model.id] || 0,
+                    label = model.get('name') + '(' + compCount + ' / ' + childCount + ')';
+                return label;
+            }
+        });
+
+        var proFlowless = this.products.filterBy({'flow_count': 0});
+        // grey out materials not used in any flows in keyflow
+        // (do it afterwards, because hierarchical select is build in template)
+        proFlowless.forEach(function(product){
+            var li = _this.proSelect.querySelector('li[data-value="' + product.id + '"]');
+            if (!li) return;
+            var a = li.querySelector('a'),
+                cls = (flowsInChildren[product.id] > 0) ? 'half': 'empty';
+            a.classList.add(cls);
+        })
+        this.el.querySelector('#product-filter').appendChild(proSelect);
+    },
+
+
+    renderCompFilter: function(){
+        var _this = this;
+        this.selectedComposite = null;
+        // select product
+        var compSelect = document.createElement('div');
+        compSelect.classList.add('compSelect');
+        var select = this.el.querySelector('.hierarchy-select');
+
+        var compAttrBefore = this.composites.comparatorAttr;
+        this.composites.comparatorAttr = 'level';
+        this.composites.sort();
+        var flowsInChildren = {};
+        // count materials in parent, descending level (leafs first)
+        this.composites.models.reverse().forEach(function(composite){
+            var parent = composite.get('parent'),
+                count = composite.get('flow_count') + (flowsInChildren[composite.id] || 0);
+            flowsInChildren[parent] = (!flowsInChildren[parent]) ? count: flowsInChildren[parent] + count;
+        })
+        this.composites.comparatorAttr = compAttrBefore;
+        this.composites.sort();
+
+        this.compSelect = this.hierarchicalSelect(this.composites, compSelect, {
+            onSelect: function(model){
+                 _this.selectedComposite = model;
+            },
+            defaultOption: gettext('All composites'),
+            label: function(model, option){
+                var compCount = model.get('flow_count'),
+                    childCount = flowsInChildren[model.id] || 0,
+                    label = model.get('name') + '(' + compCount + ' / ' + childCount + ')';
+                return label;
+            }
+        });
+
+        var compFlowless = this.composites.filterBy({'flow_count': 0});
+        // grey out materials not used in any flows in keyflow
+        // (do it afterwards, because hierarchical select is build in template)
+        compFlowless.forEach(function(composite){
+            var li = _this.compSelect.querySelector('li[data-value="' + product.id + '"]');
+            if (!li) return;
+            var a = li.querySelector('a'),
+                cls = (flowsInChildren[product.id] > 0) ? 'half': 'empty';
+            a.classList.add(cls);
+        })
+        this.el.querySelector('#comp-filter').appendChild(compSelect);
+    },
+
 
     // return a model representing the current filter settings
     // overwrites properties of given filter or creates a new one, if not given

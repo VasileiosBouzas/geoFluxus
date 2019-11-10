@@ -58,31 +58,31 @@ class FlowChainViewSet(FlowChainViewSetAbstract):
     }
 
 
-# Flow View
-class FlowViewSetAbstract(RevisionMixin,
-                          CasestudyViewSetMixin,
-                          ModelPermissionViewSet,
-                          ABC):
-    """
-    Abstract BaseClass for a FlowViewSet
-    The Subclass has to provide a model inheriting from Flow
-    and a serializer-class inheriting form and a model
-    """
-    serializer_class = FlowSerializer
-    model = Flow
-    pagination_class = UnlimitedResultsSetPagination
-
-
-class FlowViewSet(FlowViewSetAbstract):
-    add_perm = 'asmfa.add_flow'
-    change_perm = 'asmfa.change_flow'
-    delete_perm = 'asmfa.delete_flow'
-    queryset = Flow.objects.order_by('id')
-    serializer_class = FlowSerializer
-    serializers = {
-        'list': FlowSerializer,
-        'create': FlowCreateSerializer
-    }
+# # Flow View
+# class FlowViewSetAbstract(RevisionMixin,
+#                           CasestudyViewSetMixin,
+#                           ModelPermissionViewSet,
+#                           ABC):
+#     """
+#     Abstract BaseClass for a FlowViewSet
+#     The Subclass has to provide a model inheriting from Flow
+#     and a serializer-class inheriting form and a model
+#     """
+#     serializer_class = FlowSerializer
+#     model = Flow
+#     pagination_class = UnlimitedResultsSetPagination
+#
+#
+# class FlowViewSet(FlowViewSetAbstract):
+#     add_perm = 'asmfa.add_flow'
+#     change_perm = 'asmfa.change_flow'
+#     delete_perm = 'asmfa.delete_flow'
+#     queryset = Flow.objects.order_by('id')
+#     serializer_class = FlowSerializer
+#     serializers = {
+#         'list': FlowSerializer,
+#         'create': FlowCreateSerializer
+#     }
 
 
 # Stock View
