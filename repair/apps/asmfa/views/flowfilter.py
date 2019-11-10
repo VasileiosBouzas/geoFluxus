@@ -94,8 +94,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             except json.decoder.JSONDecodeError:
                 params[key] = value
 
-        print(params)
-
         filter_chains = params.get('filters', None)
         material_filter = params.get('materials', None)
 
@@ -119,7 +117,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         # (including child materials)
         if material_ids is not None:
             materials = Material.objects.filter(id__in=material_ids)
-            queryset = queryset.filter(material__in=
+            queryset = queryset.filter(flowchain__materials__in=
                                        Material.objects.filter(id__in=list(materials)))
 
         data = self.serialize(queryset, origin_model=origin_level,
@@ -178,7 +176,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
         groups = queryset.values(
             origin_filter, destination_filter,
-            'waste', 'process', 'hazardous').distinct()
+            ).distinct()
 
         def get_code_field(model):
             if model == Actor:
@@ -239,11 +237,14 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     def filter_chain(queryset, filters, keyflow):
         for sub_filter in filters:
             filter_link = sub_filter.pop('link', 'and')
+            filter_link = sub_filter.pop('hazardous') # TO ADD LATER
+            filter_link = sub_filter.pop('clean') # TO ADD LATER
+            filter_link = sub_filter.pop('mixed') # TO ADD LATER
             filter_functions = []
             for func, v in sub_filter.items():
                 if func.endswith('__areas'):
                     func, v = build_area_filter(func, v, keyflow)
-                filter_function = Q(**{func: v})
+                filter_function = Q(**{('flowchain__'+func): v})
                 filter_functions.append(filter_function)
             if filter_link == 'and':
                 link_func = np.bitwise_and

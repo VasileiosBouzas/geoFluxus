@@ -153,10 +153,10 @@ var FlowsView = BaseView.extend(
         var flowFilters = filterParams['filters'] = [];
 
         var typeFilterFunctions = {};
-        if (flowType != 'both') {
-            var is_waste = (flowType == 'waste') ? true : false;
-            typeFilterFunctions['waste'] = is_waste;
-        }
+        //if (flowType != 'both') {
+            //var is_waste = (flowType == 'waste') ? true : false;
+            //typeFilterFunctions['waste'] = is_waste;
+        //}
         if (route != 'both') {
             var is_route = (route == 'yes') ? true : false;
             typeFilterFunctions['route'] = is_route;
