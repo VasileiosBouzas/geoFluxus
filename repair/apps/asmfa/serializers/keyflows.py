@@ -212,11 +212,12 @@ class WasteListSerializer(WasteSerializer):
 
 
 class AllMaterialSerializer(serializers.ModelSerializer):
+    flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Material
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class AllMaterialListSerializer(AllMaterialSerializer):
@@ -232,14 +233,14 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Material
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class MaterialListSerializer(MaterialSerializer):
 
     class Meta(MaterialSerializer.Meta):
         fields = ('id', 'name',
-                  'keyflow')
+                  'keyflow', 'flow_count')
 
 
 class AllProductSerializer(serializers.ModelSerializer):

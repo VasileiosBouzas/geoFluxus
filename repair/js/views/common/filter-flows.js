@@ -633,6 +633,10 @@ var FilterFlowsView = BaseView.extend(
         filter.set('area_level', this.areaLevelSelect.value);
         var material = this.selectedMaterial;
         filter.set('material', (material) ? material.id : null);
+        var product = this.selectedProduct;
+        filter.set('product', (product) ? product.id : null);
+        var composite = this.selectedComposite;
+        filter.set('composite', (composite) ? composite.id : null);
         var direction = this.el.querySelector('input[name="direction"]:checked').value;
         filter.set('direction', direction);
         //filter.set('aggregate_materials', this.aggregateCheck.checked)

@@ -36,6 +36,8 @@ var FlowsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
         this.materials = options.materials;
+        this.products = options.products,
+        this.composites = options.composites,
         this.strategy = options.strategy;
         this.filter = options.filter;
         this.caseStudy = options.caseStudy;
@@ -94,7 +96,11 @@ var FlowsView = BaseView.extend(
         if(!filter) return filterParams;
 
         var flowType = filter.get('flow_type') || 'both',
+            route = filter.get('route').toLowerCase(),
+            collector = filter.get('collector').toLowerCase(),
             hazardous = filter.get('hazardous').toLowerCase(),
+            clean = filter.get('clean').toLowerCase(),
+            mixed = filter.get('mixed').toLowerCase(),
             //avoidable = filter.get('avoidable').toLowerCase(),
             nodeLevel = filter.get('filter_level') || 'activitygroup',
             direction = filter.get('direction') || 'both';
@@ -117,6 +123,27 @@ var FlowsView = BaseView.extend(
             filterParams.materials.unaltered = [material];
             filterParams.materials.ids = materialIds;
         }
+
+        var product = filter.get('product');
+        // material -> filter/aggregate by this material and its direct children
+        if (product != null) {
+            var childProducts = this.products.filterBy({ parent: product }),
+                productIds = childProducts.pluck('id');
+            // the selected material should be included as well
+            filterParams.products.unaltered = [product];
+            filterParams.products.ids = productIds;
+        }
+
+        var composite = filter.get('composite');
+        // material -> filter/aggregate by this material and its direct children
+        if (composite != null) {
+            var childComposites = this.composites.filterBy({ parent: composite }),
+                compositeIds = childComposites.pluck('id');
+            // the selected material should be included as well
+            filterParams.composites.unaltered = [composite];
+            filterParams.composites.ids = compositeIds;
+        }
+
         var nodeIds = filter.get('node_ids');
         if (nodeIds) nodeIds = nodeIds.split(',');
 
@@ -130,9 +157,21 @@ var FlowsView = BaseView.extend(
             var is_waste = (flowType == 'waste') ? true : false;
             typeFilterFunctions['waste'] = is_waste;
         }
+        if (route != 'both') {
+            var is_route = (route == 'yes') ? true : false;
+            typeFilterFunctions['route'] = is_route;
+        }
+        if (collector != 'both') {
+            var is_collector = (collector == 'yes') ? true : false;
+            typeFilterFunctions['collector'] = is_collector;
+        }
         if (hazardous != 'both') {
             var is_hazardous = (hazardous == 'yes') ? true : false;
             typeFilterFunctions['hazardous'] = is_hazardous;
+        }
+        if (clean != 'both') {
+            var is_clean = (clean == 'yes') ? true : false;
+            typeFilterFunctions['clean'] = is_clean;
         }
         //if (avoidable != 'both') {
             //var is_avoidable = (avoidable == 'yes') ? true : false;
@@ -141,6 +180,10 @@ var FlowsView = BaseView.extend(
         var processIds = filter.get('process_ids');
         if (processIds) {
             typeFilterFunctions['process_id__in'] = processIds.split(',');
+        }
+        var wasteIds = filter.get('waste_ids');
+        if (wasteIds) {
+            typeFilterFunctions['waste_id__in'] = wasteIds.split(',');
         }
 
         if (Object.keys(typeFilterFunctions).length > 0) {

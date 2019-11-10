@@ -195,8 +195,8 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
 
         # calc flow_count
         # flows = Flow.objects.filter(
-        #     Q(oactor__activity__activitygroup__keyflow__id=keyflow_id) |
-        #     Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
+        #     Q(origin__activity__activitygroup__keyflow__id=keyflow_id) |
+        #     Q(destination__activity__activitygroup__keyflow__id=keyflow_id)
         # )
         # materials = materials.annotate(
         #     flow_count=Count(Case(

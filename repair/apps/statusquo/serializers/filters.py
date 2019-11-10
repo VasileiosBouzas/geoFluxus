@@ -17,6 +17,8 @@ class FlowFilterSerializer(serializers.ModelSerializer):
     direction = EnumField(enum=Direction, required=False)
     hazardous = EnumField(enum=TriState, required=False)
     material = IDRelatedField(allow_null=True, required=False)
+    product = IDRelatedField(allow_null=True, required=False)
+    composite = IDRelatedField(allow_null=True, required=False)
 
     role = EnumField(enum=Role, required=False)
     route = EnumField(enum=TriState, required=False)
@@ -32,6 +34,8 @@ class FlowFilterSerializer(serializers.ModelSerializer):
                   'description',
                   'direction',
                   'material',
+                  'product',
+                  'composite',
                   'area_level',
                   'areas',
                   'flow_type',

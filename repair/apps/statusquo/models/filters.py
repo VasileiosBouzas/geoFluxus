@@ -4,7 +4,7 @@ from enum import Enum
 from enumfields import EnumIntegerField
 
 from repair.apps.login.models import GDSEModel
-from repair.apps.asmfa.models import Material, KeyflowInCasestudy
+from repair.apps.asmfa.models import Material, Product, Composite, KeyflowInCasestudy
 from repair.apps.statusquo.models.indicators import NodeLevel, FlowType, TriState
 from repair.apps.studyarea.models import Area, AdminLevels
 
@@ -44,6 +44,12 @@ class FlowFilter(GDSEModel):
     material = models.ForeignKey(Material,
                                  on_delete=models.SET_NULL,
                                  null=True)
+    product = models.ForeignKey(Product,
+                                on_delete=models.SET_NULL,
+                                null=True)
+    composite = models.ForeignKey(Composite,
+                                  on_delete=models.SET_NULL,
+                                  null=True)
     direction = EnumIntegerField(
         enum=Direction, default=Direction.BOTH)
     flow_type = EnumIntegerField(
