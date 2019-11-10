@@ -191,9 +191,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         # workaround Django ORM bug
         queryset = queryset.order_by()
 
-        groups = queryset.values(
-            origin_filter, destination_filter,
-            ).distinct()
+        groups = queryset.values(origin_filter, destination_filter).distinct()
 
         def get_code_field(model):
             if model == Actor:
@@ -219,32 +217,10 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             dest_item = destination_dict[group[destination_filter]]
             if dest_item:
                 dest_item['level'] = destination_level
-            # sum up same materials
-            annotation = {
-                'material': F('material'),
-                'name': F('material_name'),
-                'level': F('material_level'),
-                'amount': Sum('amount')
-            }
-            grouped_mats = \
-                list(grouped.values('material').annotate(**annotation))
-            process = Process.objects.get(id=group['process']) \
-                if group['process'] else None
-            # sum over all rows in group
-            # sq_total_amount = list(grouped.aggregate(Sum('amount')).values())[0]
-            strat_total_amount = list(
-                grouped.aggregate(Sum('amount')).values())[0]
-            # deltas = list(grouped.aggregate(Sum('strategy_delta')).values())[0]
+
             flow_item = OrderedDict((
                 ('origin', origin_item),
                 ('destination', dest_item),
-                ('waste', group['strategy_waste']),
-                ('hazardous', group['strategy_hazardous']),
-                ('stock', group['to_stock']),
-                ('process', process.name if process else ''),
-                ('process_id', process.id if process else None),
-                ('amount', strat_total_amount),
-                ('materials', grouped_mats),
             ))
             data.append(flow_item)
         return data

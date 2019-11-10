@@ -248,12 +248,12 @@ var FlowsView = BaseView.extend(
             idx++;
 
             // remember original amounts to be able to swap amount with delta and back
-            flow._amount = flow.get('amount');
-            var materials = flow.get('materials');
-            flow.get('materials').forEach(function(material){
-                material._amount =  material.amount;
-            })
-            flow.set('materials', materials);
+            //flow._amount = flow.get('amount');
+            //var materials = flow.get('materials');
+            //flow.get('materials').forEach(function(material){
+                //material._amount =  material.amount;
+            //})
+            //flow.set('materials', materials);
 
             origin.color = utils.colorByName(origin.name);
             if (!flow.get('stock'))
@@ -418,34 +418,34 @@ var FlowsView = BaseView.extend(
             showDelta = this.modDisplaySelect.value === 'delta',
             _this = this;
 
-        function listFlows() {
-            var flowTable = _this.el.querySelector('#flow_table');
+       // function listFlows() {
+            //var flowTable = _this.el.querySelector('#flow_table');
             // flowTable.innerHTML = '<strong>FLOW MATERIALS</strong>';
-            var modDisplay = _this.modDisplaySelect.value,
-                flows = (modDisplay == 'statusquo') ? _this.flows : (modDisplay == 'strategy') ? _this.strategyFlows : _this.deltaFlows;
-            flows.forEach(function(flow) {
-                var name = flow.get("materials")[0].name;
-                var div = document.createElement("div");
-                if (flowTable.innerHTML.indexOf(name) === -1) {
-                    div.innerHTML = name;
-                    flowTable.appendChild(div);
-                }
-            });
-        }
+            //var modDisplay = _this.modDisplaySelect.value,
+                //flows = (modDisplay == 'statusquo') ? _this.flows : (modDisplay == 'strategy') ? _this.strategyFlows : _this.deltaFlows;
+            //flows.forEach(function(flow) {
+                //var name = flow.get("materials")[0].name;
+               // var div = document.createElement("div");
+               // if (flowTable.innerHTML.indexOf(name) === -1) {
+                   // div.innerHTML = name;
+                  //  flowTable.appendChild(div);
+                //}
+           // });
+       // }
 
         function drawSankey(){
             var modDisplay = _this.modDisplaySelect.value,
                 flows = (modDisplay == 'statusquo') ? _this.flows : (modDisplay == 'strategy') ? _this.strategyFlows : _this.deltaFlows;
             // override value and color
             flows.forEach(function(flow){
-                var amount = flow._amount;
+                //var amount = flow._amount;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
-                flow.set('amount', amount)
-                var materials = flow.get('materials');
-                materials.forEach(function(material){
-                    material.amount = material._amount;
-                })
-                flow.set('materials', materials);
+                //flow.set('amount', amount)
+               // var materials = flow.get('materials');
+               // materials.forEach(function(material){
+                   // material.amount = material._amount;
+               // })
+               // flow.set('materials', materials);
             });
             _this.flowSankeyView = new FlowSankeyView({
                 el: el,
@@ -477,14 +477,14 @@ var FlowsView = BaseView.extend(
                             }
                         })
                     } else {
-                        listFlows();
+                        //listFlows();
                         drawSankey();
                     }
                 }
             })
         }
         else {
-            listFlows();
+            //listFlows();
             drawSankey();
         }
         this.displayLevel = displayLevel;
