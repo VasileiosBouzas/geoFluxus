@@ -245,25 +245,23 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             clean = classifs.filter(flowchain_id=OuterRef('flowchain'))
             queryset = queryset.annotate(clean=Subquery(clean.values('clean')))
 
-            values = queryset.values_list('mixed', 'clean')
 
             for func, v in sub_filter.items():
                 # Area filter
                 if func.endswith('__areas'):
                     func, v = build_area_filter(func, v, keyflow)
 
-                # Year filter
-                if func == 'year':
-                    # Ignore flow year
-                    if v == 'all': continue
-                    v = int(v[1:])
-
                 # Search in parent flowchain
                 if func in flowchain_lookups:
+                    # Year filter
+                    if func == 'year':
+                        # Ignore flow year
+                        if v == 'all': continue
+                        v = int(v[1:])
                     filter_function = Q(**{('flowchain__' + func): v})
-
-                # Search elsewhere
-                filter_function = Q(**{(func): v})
+                else:
+                    # Search elsewhere
+                    filter_function = Q(**{(func): v})
 
                 filter_functions.append(filter_function)
 
