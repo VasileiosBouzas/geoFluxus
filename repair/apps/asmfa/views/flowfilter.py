@@ -112,9 +112,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             queryset = self.filter_chain(queryset, filter_chains, keyflow)
 
         # Filter by MATERIALS
-        material_ids = (None if material_filter is None
+        material_ids = ([] if material_filter is None
                         else material_filter.get('unaltered', []))
-        if material_ids is not None:
+        if len(material_ids) > 0:
             queryset = queryset.filter(flowchain__materials__in=
                                        Material.objects.filter(id__in=list(material_ids)))
 
