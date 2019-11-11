@@ -24,7 +24,7 @@ from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.models import (
     Flow, AdministrativeLocation,
     Material, Flow, Actor, ActivityGroup, Activity,
-    Process, FlowChain, Classification
+    Process, FlowChain, Classification, Product, Composite
 )
 from repair.apps.changes.models import Strategy
 from repair.apps.studyarea.models import Area
@@ -96,8 +96,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         # Divide filters
         filter_chains = params.get('filters', None)
         material_filter = params.get('materials', None)
-        # product_filter = params.get('products', None)
-        # composite_filter = params.get('composite', None)
+        product_filter = params.get('products', None)
+        composite_filter = params.get('composite', None)
 
         # Check the aggregation level for nodes
         l_a = params.get('aggregation_level', {})
@@ -118,29 +118,23 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             queryset = queryset.filter(flowchain__materials__in=
                                        Material.objects.filter(id__in=list(material_ids)))
 
-        # # Filter by PRODUCTS
-        # product_ids = (None if product_filter is None
-        #                 else product_filter.get('unaltered', []))
-        # if product_ids is not None:
-        #     queryset = queryset.filter(flowchain__products__in=
-        #                                Product.objects.filter(id__in=list(product_ids)))
-        #
-        # # Filter by COMPOSITES
-        # composite_ids = (None if composite_filter is None
-        #                  else composite_filter.get('unaltered', []))
-        # if composite_ids is not None:
-        #     queryset = queryset.filter(flowchain__composites__in=
-        #                                Composite.objects.filter(id__in=list(composite_ids)))
+        # Filter by PRODUCTS
+        product_ids = ([] if product_filter is None
+                        else product_filter.get('unaltered', []))
+        if len(product_ids) > 0:
+            queryset = queryset.filter(flowchain__products__in=
+                                       Product.objects.filter(id__in=list(product_ids)))
+
+        # Filter by COMPOSITES
+        composite_ids = (None if composite_filter is None
+                         else composite_filter.get('unaltered', []))
+        if composite_ids is not None:
+            queryset = queryset.filter(flowchain__composites__in=
+                                       Composite.objects.filter(id__in=list(composite_ids)))
 
         # Serialize data
         data = self.serialize(queryset, origin_model=origin_level, destination_model=destination_level)
         return Response(data)
-
-
-    # def _filter(self, lookup_args, query_params=None, SerializerClass=None):
-    #     queryset = super()._filter(lookup_args, query_params=query_params,
-    #                                SerializerClass=SerializerClass)
-    #     return queryset
 
 
     def list(self, request, **kwargs):
