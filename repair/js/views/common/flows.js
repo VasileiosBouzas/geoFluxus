@@ -96,6 +96,7 @@ var FlowsView = BaseView.extend(
         if(!filter) return filterParams;
 
         var flowType = filter.get('flow_type') || 'both',
+            year = filter.get('year').toLowerCase(),
             route = filter.get('route').toLowerCase(),
             collector = filter.get('collector').toLowerCase(),
             hazardous = filter.get('hazardous').toLowerCase(),
@@ -157,6 +158,7 @@ var FlowsView = BaseView.extend(
             //var is_waste = (flowType == 'waste') ? true : false;
             //typeFilterFunctions['waste'] = is_waste;
         //}
+        typeFilterFunctions['year'] = year;
         if (route != 'both') {
             var is_route = (route == 'yes') ? true : false;
             typeFilterFunctions['route'] = is_route;
@@ -507,8 +509,7 @@ var FlowsView = BaseView.extend(
             //is_stock = flow.get('stock'),
             //process = flow.get('process_id');
         queryParams['origin__' + filterSuffix] = flow.get('origin').id;
-        if (!is_stock)
-            queryParams['destination__' + filterSuffix] = flow.get('destination').id;
+        queryParams['destination__' + filterSuffix] = flow.get('destination').id;
         //queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
         //queryParams['stock'] = (is_stock) ? 'True': 'False';
         //if (process)
@@ -573,15 +574,15 @@ var FlowsView = BaseView.extend(
                                 d.color = destination.color;
                             }
                             // remember original amounts to be able to swap amount with delta and back
-                            f._amount = f.get('amount');
-                            var materials = f.get('materials');
-                            f.get('materials').forEach(function(material){
+                            //f._amount = f.get('amount');
+                            //var materials = f.get('materials');
+                            //f.get('materials').forEach(function(material){
                                 // ToDo: change filter API response
                                 // workaround: show statusquo if amount is null
-                                if (material.amount == null) material.amount = material.statusquo_amount;
-                                material._amount = material.amount;
-                            })
-                            f.set('materials', materials);
+                                //if (material.amount == null) material.amount = material.statusquo_amount;
+                               // material._amount = material.amount;
+                            //})
+                            //f.set('materials', materials);
                         })
                         addFlows(flows);
                         _this.flowMem[flow.id] = flows;

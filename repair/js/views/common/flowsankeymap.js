@@ -624,7 +624,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         source: source,
                         target: target,
                         waste: flow.get('waste'),
-                        amount: flow.get('amount'),
+                        amount: 1000,
                         fractions: {},
                         is_stock: is_stock
                     }

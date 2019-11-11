@@ -260,7 +260,6 @@ var FlowSankeyView = BaseView.extend(
            // }
             var source = mapNode(origin),
                 target = mapNode(destination);
-            console.log(source, target);
             //var crepr = compositionRepr(flow),
                 //amount = flow.get('amount'),
                 //value = (norm === 'log')? normalize(amount): Math.round(amount);

@@ -24,7 +24,7 @@ from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.models import (
     Flow, AdministrativeLocation,
     Material, Flow, Actor, ActivityGroup, Activity,
-    Process, FlowChain
+    Process, FlowChain, Classification
 )
 from repair.apps.changes.models import Strategy
 from repair.apps.studyarea.models import Area
@@ -230,17 +230,38 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     def filter_chain(queryset, filters, keyflow):
         for sub_filter in filters:
             filter_link = sub_filter.pop('link', 'and')
-            filter_link = sub_filter.pop('hazardous', None) # TO ADD LATER
-            filter_link = sub_filter.pop('clean', None) # TO ADD LATER
-            filter_link = sub_filter.pop('mixed', None) # TO ADD LATER
-            filter_link = sub_filter.pop('collector', None) # TO ADD LATER
-            filter_link = sub_filter.pop('route', None) # TO ADD LATER
+            sub_filter.pop('hazardous', None) # TO ADD LATER
             filter_functions = []
+
+            # Fields to check in parent flowchain
+            flowchain_lookups = ['year', 'route', 'collector']
+
+            # Annonate classification
+            classifs = Classification.objects.filter(flowchain__keyflow_id=keyflow)
+            # Mixed
+            mixed = classifs.filter(flowchain_id=OuterRef('flowchain'))
+            queryset = queryset.annotate(mixed=Subquery(mixed.values('mixed')))
+            # Clean
+            clean = classifs.filter(flowchain_id=OuterRef('flowchain'))
+            queryset = queryset.annotate(clean=Subquery(clean.values('clean')))
+
             for func, v in sub_filter.items():
+                # Area filter
                 if func.endswith('__areas'):
                     func, v = build_area_filter(func, v, keyflow)
-                filter_function = Q(**{(func): v})
+
+                # Year filter
+                if func == 'year':
+                    # Ignore flow year
+                    if v == 'all': continue
+                    v = int(v[1:])
+
+                # Search in parent flowchain
+                if func in flowchain_lookups:
+                    filter_function = Q(**{('flowchain__' + func): v})
+
                 filter_functions.append(filter_function)
+
             if filter_link == 'and':
                 link_func = np.bitwise_and
             else:
