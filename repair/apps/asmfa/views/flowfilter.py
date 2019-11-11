@@ -243,7 +243,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
             # Filter by WASTES
             waste_ids = sub_filter.pop('waste_id__in', [])
-            if len(process_ids) > 0:
+            if len(waste_ids) > 0:
                 queryset = queryset.filter(flowchain__waste__in=
                                            Waste.objects.filter(id__in=list(waste_ids)))
 

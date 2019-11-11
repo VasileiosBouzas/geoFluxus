@@ -237,16 +237,16 @@ var FlowSankeyView = BaseView.extend(
            // return gettext('Process') + ': ' + (flow.get('process') || '-');
        // }
 
-        //var amounts = flows.pluck('amount'),
-            //minAmount = Math.min(...amounts),
-            //maxAmount = Math.max(...amounts),
-            //max = 10000,
-            //normFactor = max / maxAmount;
+        var amounts = flows.pluck('amount'),
+            minAmount = Math.min(...amounts),
+            maxAmount = Math.max(...amounts),
+            max = 10000,
+            normFactor = max / maxAmount;
 
         flows.forEach(function(flow){
-            //var value = flow.get('amount');
+            var value = flow.get('amount');
             // skip flows with zero amount
-            //if (value == 0) return;
+            if (value == 0) return;
             var origin = flow.get('origin'),
                 destination = flow.get('destination');
                 //isStock = flow.get('stock');
@@ -269,7 +269,7 @@ var FlowSankeyView = BaseView.extend(
             links.push({
                 id: flow.id,
                 originalData: flow,
-                value: 1000,
+                value: value,
                 //units: gettext('t/year'),
                 source: source,
                 target: target,

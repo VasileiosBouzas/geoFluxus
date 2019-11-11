@@ -241,7 +241,7 @@ var FlowsView = BaseView.extend(
             idx++;
 
             // remember original amounts to be able to swap amount with delta and back
-            //flow._amount = flow.get('amount');
+            flow._amount = flow.get('amount');
             //var materials = flow.get('materials');
             //flow.get('materials').forEach(function(material){
                 //material._amount =  material.amount;
@@ -431,9 +431,9 @@ var FlowsView = BaseView.extend(
                 flows = (modDisplay == 'statusquo') ? _this.flows : (modDisplay == 'strategy') ? _this.strategyFlows : _this.deltaFlows;
             // override value and color
             flows.forEach(function(flow){
-                //var amount = flow._amount;
+                var amount = flow._amount;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
-                //flow.set('amount', amount)
+                flow.set('amount', amount)
                // var materials = flow.get('materials');
                // materials.forEach(function(material){
                    // material.amount = material._amount;
