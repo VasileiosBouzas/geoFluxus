@@ -24,7 +24,7 @@ from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.models import (
     Flow, AdministrativeLocation,
     Material, Flow, Actor, ActivityGroup, Activity,
-    Process, FlowChain, Classification, Product, Composite
+    Process, FlowChain, Classification, Product, Composite, Waste
 )
 from repair.apps.changes.models import Strategy
 from repair.apps.studyarea.models import Area
@@ -110,6 +110,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         keyflow = kwargs['keyflow_pk']
         if filter_chains:
             queryset = self.filter_chain(queryset, filter_chains, keyflow)
+
+        # Filter by PROCESSES
+
 
         # Filter by MATERIALS
         material_ids = ([] if material_filter is None
@@ -225,6 +228,18 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         for sub_filter in filters:
             filter_link = sub_filter.pop('link', 'and')
             filter_functions = []
+
+            # Filter by PROCESSES
+            process_ids = sub_filter.pop('process_id__in', [])
+            if len(process_ids) > 0:
+                queryset = queryset.filter(flowchain__process__in=
+                                           Process.objects.filter(id__in=list(process_ids)))
+
+            # Filter by WASTES
+            waste_ids = sub_filter.pop('waste_id__in', [])
+            if len(process_ids) > 0:
+                queryset = queryset.filter(flowchain__waste__in=
+                                           Waste.objects.filter(id__in=list(waste_ids)))
 
             # Fields to check in parent flowchain
             flowchain_lookups = ['year',
