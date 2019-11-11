@@ -111,7 +111,7 @@ var FlowsView = BaseView.extend(
         flowType = flowType.toLowerCase();
         direction = direction.toLowerCase();
 
-        // material options for stocks and flows
+        // options for stocks and flows
         filterParams.materials = {}
         filterParams.products = {}
         filterParams.composites = {}
@@ -119,32 +119,18 @@ var FlowsView = BaseView.extend(
         var material = filter.get('material');
         // material -> filter/aggregate by this material and its direct children
         if (material != null) {
-            var childMaterials = this.materials.filterBy({ parent: material }),
-                materialIds = childMaterials.pluck('id');
-            // the selected material should be included as well
             filterParams.materials.unaltered = [material];
-            filterParams.materials.ids = materialIds;
         }
 
-        //var product = filter.get('product');
-        // material -> filter/aggregate by this material and its direct children
-        //if (product != null) {
-            //var childProducts = this.products.filterBy({ parent: product }),
-                //productIds = childProducts.pluck('id');
-            // the selected material should be included as well
-            //filterParams.products.unaltered = [product];
-            //filterParams.products.ids = productIds;
-        //}
+        var product = filter.get('product');
+        if (product != null) {
+            filterParams.products.unaltered = [product];
+        }
 
-        //var composite = filter.get('composite');
-        // material -> filter/aggregate by this material and its direct children
-        //if (composite != null) {
-            //var childComposites = this.composites.filterBy({ parent: composite }),
-               // compositeIds = childComposites.pluck('id');
-            // the selected material should be included as well
-            //filterParams.composites.unaltered = [composite];
-            //filterParams.composites.ids = compositeIds;
-        //}
+        var composite = filter.get('composite');
+        if (composite != null) {
+            filterParams.composites.unaltered = [composite];
+        }
 
         var nodeIds = filter.get('node_ids');
         if (nodeIds) nodeIds = nodeIds.split(',');
