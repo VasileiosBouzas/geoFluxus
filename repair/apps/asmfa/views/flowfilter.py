@@ -188,7 +188,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         # workaround Django ORM bug
         queryset = queryset.order_by()
 
-        groups = queryset.values(origin_filter, destination_filter).distinct()
+        groups = queryset.values(origin_filter,
+                                 destination_filter,
+                                 ).distinct()
 
         def get_code_field(model):
             if model == Actor:
@@ -215,9 +217,13 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             if dest_item:
                 dest_item['level'] = destination_level
 
+            total_amount = list(
+                grouped.aggregate(Sum('amount')).values())[0]
+
             flow_item = OrderedDict((
                 ('origin', origin_item),
                 ('destination', dest_item),
+                ('amount', total_amount)
             ))
             data.append(flow_item)
         return data
@@ -246,7 +252,10 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                                  'route',
                                  'collector']
 
-            # Annonate classification
+            # Annotate amount
+            queryset = queryset.annotate(amount=F('flowchain__amount'))
+
+            # Annotate classification
             classifs = Classification.objects.filter(flowchain__keyflow_id=keyflow)
             subq = classifs.filter(flowchain_id=OuterRef('flowchain'))
             # Mixed
