@@ -102,6 +102,7 @@ var FlowsView = BaseView.extend(
             hazardous = filter.get('hazardous').toLowerCase(),
             clean = filter.get('clean').toLowerCase(),
             mixed = filter.get('mixed').toLowerCase(),
+            direct = filter.get('direct').toLowerCase(),
             //avoidable = filter.get('avoidable').toLowerCase(),
             nodeLevel = filter.get('filter_level') || 'activitygroup',
             direction = filter.get('direction') || 'both';
@@ -178,6 +179,10 @@ var FlowsView = BaseView.extend(
         if (mixed != 'both') {
             var is_mixed = (mixed == 'yes') ? true : false;
             typeFilterFunctions['mixed'] = is_mixed;
+        }
+        if (direct != 'both') {
+            var is_direct = (direct == 'yes') ? true : false;
+            typeFilterFunctions['direct'] = is_direct;
         }
         //if (avoidable != 'both') {
             //var is_avoidable = (avoidable == 'yes') ? true : false;

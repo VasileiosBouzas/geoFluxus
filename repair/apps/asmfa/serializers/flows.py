@@ -180,7 +180,7 @@ class ClassificationSerializer(NestedHyperlinkedModelSerializer):
     class Meta:
         model = Classification
         fields = ('url', 'id', 'keyflow', 'flowchain',
-                  'clean', 'mixed', 'product', 'composition')
+                  'clean', 'mixed', 'direct_use', 'product', 'composition')
 
 
 class ExtraDescriptionSerializer(NestedHyperlinkedModelSerializer):

@@ -174,6 +174,7 @@ var FilterFlowsView = BaseView.extend(
         this.collectorSelect = this.el.querySelector('select[name="collector"]');
         this.cleanSelect = this.el.querySelector('select[name="clean"]');
         this.mixedSelect = this.el.querySelector('select[name="mixed"]');
+        this.directSelect = this.el.querySelector('select[name="direct"]');
         //this.avoidableSelect = this.el.querySelector('select[name="avoidable"]');
         $(this.groupSelect).selectpicker();
         $(this.activitySelect).selectpicker();
@@ -673,6 +674,7 @@ var FilterFlowsView = BaseView.extend(
         filter.set('collector', this.collectorSelect.value);
         filter.set('clean', this.cleanSelect.value);
         filter.set('mixed', this.mixedSelect.value);
+        filter.set('direct', this.directSelect.value);
         //filter.set('avoidable', this.avoidableSelect.value);
         //filter.set('anonymize', this.anonymousSelect.checked);
 
@@ -766,6 +768,7 @@ var FilterFlowsView = BaseView.extend(
         this.collectorSelect.value = filter.get('collector').toLowerCase();
         this.cleanSelect.value = filter.get('clean').toLowerCase();
         this.mixedSelect.value = filter.get('mixed').toLowerCase();
+        this.directSelect.value = filter.get('direct').toLowerCase();
         //this.avoidableSelect.value = filter.get('avoidable').toLowerCase();
         //this.anonymousSelect.checked = filter.get('anonymize');
 

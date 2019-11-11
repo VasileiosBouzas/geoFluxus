@@ -73,5 +73,6 @@ class FlowFilter(GDSEModel):
     collector = EnumIntegerField(enum=TriState, default=TriState.BOTH)
     clean = EnumIntegerField(enum=TriState, default=TriState.BOTH)
     mixed = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    direct = EnumIntegerField(enum=TriState, default=TriState.BOTH)
     year = EnumIntegerField(enum=Year, default=Year.all)
 

@@ -25,6 +25,7 @@ class FlowFilterSerializer(serializers.ModelSerializer):
     collector = EnumField(enum=TriState, required=False)
     clean = EnumField(enum=TriState, required=False)
     mixed = EnumField(enum=TriState, required=False)
+    direct = EnumField(enum=TriState, required=False)
     year = EnumField(enum=Year, required= False)
 
     class Meta:
@@ -49,4 +50,5 @@ class FlowFilterSerializer(serializers.ModelSerializer):
                   'collector',
                   'clean',
                   'mixed',
+                  'direct',
                   'year')

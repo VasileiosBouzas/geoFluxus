@@ -88,8 +88,9 @@ class CompositeInChain(GDSEModel):
 # Classification
 class Classification(GDSEModel):
     flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
-    clean = models.BooleanField(default=False)
-    mixed = models.BooleanField(default=False)
+    clean = models.BooleanField(null=True)
+    mixed = models.BooleanField(null=True)
+    direct_use = models.BooleanField(null=True)
 
 
 # Extra description

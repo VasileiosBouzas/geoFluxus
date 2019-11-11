@@ -233,15 +233,18 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
             # Annonate classification
             classifs = Classification.objects.filter(flowchain__keyflow_id=keyflow)
+            subq = classifs.filter(flowchain_id=OuterRef('flowchain'))
             # Mixed
-            mixed = classifs.filter(flowchain_id=OuterRef('flowchain'))
             queryset = queryset.annotate(
-                mixed=Subquery(mixed.values('mixed'))
+                mixed=Subquery(subq.values('mixed'))
             )
             # Clean
-            clean = classifs.filter(flowchain_id=OuterRef('flowchain'))
             queryset = queryset.annotate(
-                clean=Subquery(clean.values('clean'))
+                clean=Subquery(subq.values('clean'))
+            )
+            # Direct use
+            queryset = queryset.annotate(
+                direct=Subquery(subq.values('direct_use'))
             )
 
             for func, v in sub_filter.items():
