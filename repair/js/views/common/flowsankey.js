@@ -255,14 +255,14 @@ var FlowSankeyView = BaseView.extend(
                console.log('Warning: self referencing cycle at node ' + origin.name);
                return;
             }
-           // function normalize(v){
-                //return Math.log2(1 + v * normFactor);
-           // }
+            function normalize(v){
+                return Math.log2(1 + v * normFactor);
+            }
             var source = mapNode(origin),
                 target = mapNode(destination);
             //var crepr = compositionRepr(flow),
-                //amount = flow.get('amount'),
-                //value = (norm === 'log')? normalize(amount): Math.round(amount);
+            var amount = flow.get('amount'),
+                value = (norm === 'log')? normalize(amount): Math.round(amount);
 
             //if (_this.forceSignum && amount >= 0)
                // amount = '+' + amount.toLocaleString(this.language);
@@ -270,7 +270,7 @@ var FlowSankeyView = BaseView.extend(
                 id: flow.id,
                 originalData: flow,
                 value: value,
-                //units: gettext('t/year'),
+                units: gettext('t/year'),
                 source: source,
                 target: target,
                 color: (flow.color) ? flow.color: source.color,
