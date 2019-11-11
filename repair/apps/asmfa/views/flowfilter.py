@@ -58,7 +58,6 @@ class FilterFlowChainViewSet(PostGetViewMixin, RevisionMixin,
 
 
 def build_area_filter(function_name, values, keyflow_id):
-    'START'
     actors = Actor.objects.filter(
         activity__activitygroup__keyflow__id = keyflow_id)
     areas = Area.objects.filter(id__in = values).aggregate(area=Union('geom'))
@@ -235,6 +234,21 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         for sub_filter in filters:
             filter_link = sub_filter.pop('link', 'and')
             filter_functions = []
+
+            # Retrieve chain nodes
+            chains = FlowChain.objects.filter(keyflow__id=keyflow)
+            # Production nodes (origin)
+            subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
+                                   Q(origin_role='Ontdoener'))
+            chains = chains.annotate(pro_activity=Subquery(subq.values('origin__activity'))).distinct()\
+                           .annotate(pro_activitygroup=Subquery(subq.values('origin__activity__activitygroup'))).distinct()
+            # Collection nodes (origin or destination)
+            # Check only origin to avoid duplicates
+            # subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) & \
+            #                        Q(origin_role='Ontdoener'))
+            # chains = chains.annotate(pro_activity=Subquery(subq.values('origin__activity'))) \
+            #                .annotate(pro_activitygroup=Subquery(subq.values('origin__activity__activitygroup')))
+
 
             # Filter by PROCESSES
             process_ids = sub_filter.pop('process_id__in', [])
