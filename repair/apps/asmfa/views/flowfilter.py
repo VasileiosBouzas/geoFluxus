@@ -230,39 +230,45 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     def filter_chain(queryset, filters, keyflow):
         for sub_filter in filters:
             filter_link = sub_filter.pop('link', 'and')
-            sub_filter.pop('hazardous', None) # TO ADD LATER
             filter_functions = []
 
             # Fields to check in parent flowchain
-            flowchain_lookups = ['year', 'route', 'collector']
+            flowchain_lookups = ['year',
+                                 'route',
+                                 'collector']
 
             # Annonate classification
             classifs = Classification.objects.filter(flowchain__keyflow_id=keyflow)
             # Mixed
             mixed = classifs.filter(flowchain_id=OuterRef('flowchain'))
-            queryset = queryset.annotate(mixed=Subquery(mixed.values('mixed')))
+            queryset = queryset.annotate(
+                mixed=Subquery(mixed.values('mixed'))
+            )
             # Clean
             clean = classifs.filter(flowchain_id=OuterRef('flowchain'))
-            queryset = queryset.annotate(clean=Subquery(clean.values('clean')))
-
+            queryset = queryset.annotate(
+                clean=Subquery(clean.values('clean'))
+            )
 
             for func, v in sub_filter.items():
                 # Area filter
                 if func.endswith('__areas'):
                     func, v = build_area_filter(func, v, keyflow)
-
                 # Search in parent flowchain
-                if func in flowchain_lookups:
+                elif func in flowchain_lookups:
                     # Year filter
                     if func == 'year':
                         # Ignore flow year
                         if v == 'all': continue
                         v = int(v[1:])
                     filter_function = Q(**{('flowchain__' + func): v})
+                elif func == 'hazardous':
+                    filter_function = Q(**{('flowchain__waste__' + func): v})
                 else:
                     # Search elsewhere
                     filter_function = Q(**{(func): v})
 
+                # Append to filter functions after processing
                 filter_functions.append(filter_function)
 
             if filter_link == 'and':
