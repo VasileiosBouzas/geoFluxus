@@ -58,6 +58,7 @@ class FilterFlowChainViewSet(PostGetViewMixin, RevisionMixin,
 
 
 def build_area_filter(function_name, values, keyflow_id):
+    'START'
     actors = Actor.objects.filter(
         activity__activitygroup__keyflow__id = keyflow_id)
     areas = Area.objects.filter(id__in = values).aggregate(area=Union('geom'))
