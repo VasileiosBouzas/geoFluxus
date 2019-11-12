@@ -235,20 +235,51 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             filter_link = sub_filter.pop('link', 'and')
             filter_functions = []
 
-            # Retrieve chain nodes
-            chains = FlowChain.objects.filter(keyflow__id=keyflow)
+            # Filter flowchains by keyflow
+            # Retrieve only flowchain ids
+            chains = FlowChain.objects.filter(keyflow__id=keyflow).only('id')
+
             # Production nodes (origin)
             subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
                                    Q(origin_role='Ontdoener'))
-            chains = chains.annotate(pro_activity=Subquery(subq.values('origin__activity'))).distinct()\
-                           .annotate(pro_activitygroup=Subquery(subq.values('origin__activity__activitygroup'))).distinct()
+            chains = chains.annotate(pro_geom=
+                                     Subquery(subq.values('origin__administrative_location__geom')))\
+                           .annotate(pro_activity=
+                                     Subquery(subq.values('origin__activity')))\
+                           .annotate(pro_activitygroup=
+                                     Subquery(subq.values('origin__activity__activitygroup')))
+
             # Collection nodes (origin or destination)
             # Check only origin to avoid duplicates
-            # subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) & \
-            #                        Q(origin_role='Ontdoener'))
-            # chains = chains.annotate(pro_activity=Subquery(subq.values('origin__activity'))) \
-            #                .annotate(pro_activitygroup=Subquery(subq.values('origin__activity__activitygroup')))
+            subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
+                                   Q(origin_role='Ontvanger'))
+            chains = chains.annotate(col_geom=
+                                     Subquery(subq.values('origin__administrative_location__geom')))\
+                           .annotate(col_activity=
+                                     Subquery(subq.values('origin__activity')))\
+                           .annotate(col_activitygroup=
+                                     Subquery(subq.values('origin__activity__activitygroup')))
 
+            # Treatment nodes (destination)
+            subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
+                                   Q(destination_role='Verwerker'))
+            chains = chains.annotate(treat_geom=
+                                     Subquery(subq.values('destination__administrative_location__geom')))\
+                           .annotate(treat_activity=
+                                     Subquery(subq.values('destination__activity'))) \
+                           .annotate(treat_activitygroup=
+                                     Subquery(subq.values('destination__activity__activitygroup')))
+
+            values = chains.values('id',
+                                   'pro_geom',
+                                   'pro_activity',
+                                   'pro_activitygroup',
+                                   'col_geom',
+                                   'col_activity',
+                                   'col_activitygroup',
+                                   'treat_geom',
+                                   'treat_activity',
+                                   'treat_activitygroup')
 
             # Filter by PROCESSES
             process_ids = sub_filter.pop('process_id__in', [])
