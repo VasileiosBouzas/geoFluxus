@@ -137,8 +137,8 @@ var FlowsView = BaseView.extend(
         var nodeIds = filter.get('node_ids');
         if (nodeIds) nodeIds = nodeIds.split(',');
 
-        var levelFilterMidSec = (nodeLevel == 'activitygroup') ? 'activitygroup':
-            (nodeLevel == 'activity') ? 'activity': '';
+        var levelFilterMidSec = (nodeLevel == 'activitygroup') ? '__activity__activitygroup':
+            (nodeLevel == 'activity') ? '__activity': '';
 
         var flowFilters = filterParams['filters'] = [];
 
