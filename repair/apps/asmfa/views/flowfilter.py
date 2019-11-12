@@ -321,6 +321,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 # Area filter
                 if func.endswith('__areas'):
                     func, v = build_area_filter(func, v, keyflow)
+                    filter_function = Q(**{(func): v})
                 # Search in parent flowchain
                 elif func in flowchain_lookups:
                     # Year filter
