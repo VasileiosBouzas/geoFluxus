@@ -105,11 +105,13 @@ var FlowsView = BaseView.extend(
             direct = filter.get('direct').toLowerCase(),
             //avoidable = filter.get('avoidable').toLowerCase(),
             nodeLevel = filter.get('filter_level') || 'activitygroup',
-            direction = filter.get('direction') || 'both';
+            direction = filter.get('direction') || 'both'
+            role = filter.get('role') || 'all';
 
         nodeLevel = nodeLevel.toLowerCase();
         flowType = flowType.toLowerCase();
         direction = direction.toLowerCase();
+        role = role.toLowerCase();
 
         // options for stocks and flows
         filterParams.materials = {}
@@ -135,8 +137,8 @@ var FlowsView = BaseView.extend(
         var nodeIds = filter.get('node_ids');
         if (nodeIds) nodeIds = nodeIds.split(',');
 
-        var levelFilterMidSec = (nodeLevel == 'activitygroup') ? 'activity__activitygroup__':
-            (nodeLevel == 'activity') ? 'activity__': '';
+        var levelFilterMidSec = (nodeLevel == 'activitygroup') ? 'activitygroup':
+            (nodeLevel == 'activity') ? 'activity': '';
 
         var flowFilters = filterParams['filters'] = [];
 
@@ -189,31 +191,29 @@ var FlowsView = BaseView.extend(
         }
 
         // filter origins/destinations by ids
+        var chainFilters = {};
         if (nodeIds && nodeIds.length > 0) {
-            var id_filter = { link: 'or' };
-            if (direction == 'to' || direction == 'both'){
-                id_filter['destination__'+ levelFilterMidSec + 'id__in'] = nodeIds;
-            }
-            if (direction == 'from' || direction == 'both') {
-                id_filter['origin__'+ levelFilterMidSec + 'id__in'] = nodeIds;
-            }
-            flowFilters.push(id_filter);
+            chainFilters[levelFilterMidSec] = nodeIds;
         }
-
-        var areas = filter.get('areas');
 
         // filter origins/destinations by areas
-        if (areas && areas.length > 0){
-            var area_filter = { link: 'or' }
-            if (direction == 'to' || direction == 'both'){
-                area_filter['destination__areas'] = areas;
-            }
-            if (direction == 'from' || direction == 'both'){
-                area_filter['origin__areas'] = areas;
-            }
-            flowFilters.push(area_filter);
+        var areas = filter.get('areas');
+        if (areas && areas.length > 0) {
+            chainFilters['areas'] = areas;
         }
 
+        // filter by role
+        if (role) {
+            chainFilters['role'] = role;
+        }
+
+        // Add chain filter
+        if (Object.keys(chainFilters).length > 0) {
+            chainFilters['link'] = 'chain';
+            flowFilters.push(chainFilters);
+        }
+
+        console.log(flowFilters);
         return filterParams;
     },
 

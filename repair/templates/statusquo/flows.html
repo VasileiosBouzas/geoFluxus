@@ -307,9 +307,11 @@
           <div class="col-md-2">
             <label>{% trans "Role" %}</label>
             <select name="role" class="form-control">
+              <option value='all'> {% trans "All" %} </option>
               <option value='production'> {% trans "Production" %} </option>
               <option value='collection'> {% trans "Collection" %} </option>
               <option value='treatment'> {% trans "Treatment" %} </option>
+              <option value='any'> {% trans "Any" %} </option>
             </select>
           </div>
           <div class="col-md-2">

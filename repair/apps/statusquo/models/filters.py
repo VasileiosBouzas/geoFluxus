@@ -15,9 +15,11 @@ class Direction(Enum):
     TO = 3
 
 class Role(Enum):
-    PRODUCTION = 1
-    COLLECTION = 2
-    TREATMENT = 3
+    ALL = 1
+    PRODUCTION = 2
+    COLLECTION = 3
+    TREATMENT = 4
+    ANY = 5
 
 class Year(Enum):
     all = 1
@@ -64,7 +66,7 @@ class FlowFilter(GDSEModel):
                                    null=True)
     areas = models.ManyToManyField(Area, blank=True)
 
-    role = EnumIntegerField(enum=Role, default=Role.PRODUCTION)
+    role = EnumIntegerField(enum=Role, default=Role.ALL)
     waste_ids = models.TextField(
         validators=[validate_comma_separated_integer_list],
         blank=True, null=True

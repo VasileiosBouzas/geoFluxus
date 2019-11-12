@@ -57,17 +57,6 @@ class FilterFlowChainViewSet(PostGetViewMixin, RevisionMixin,
     queryset = FlowChain.objects.all()
 
 
-def build_area_filter(function_name, values, keyflow_id):
-    actors = Actor.objects.filter(
-        activity__activitygroup__keyflow__id = keyflow_id)
-    areas = Area.objects.filter(id__in = values).aggregate(area=Union('geom'))
-    actors = actors.filter(
-        administrative_location__geom__intersects=areas['area'])
-    rest_func = 'origin__id__in' if function_name == 'origin__areas' \
-        else 'destination__id__in'
-    return rest_func, actors.values_list('id')
-
-
 # Flow Filters
 class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         CasestudyViewSetMixin,
@@ -231,99 +220,77 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
     @staticmethod
     def filter_chain(queryset, filters, keyflow):
+        # Annotate amount
+        queryset = queryset.annotate(amount=F('flowchain__amount'))
+
+        # Annotate classification
+        classifs = Classification.objects.filter(flowchain__keyflow_id=keyflow)
+        subq = classifs.filter(flowchain_id=OuterRef('flowchain'))
+        # Mixed
+        queryset = queryset.annotate(
+            mixed=Subquery(subq.values('mixed'))
+        )
+        # Clean
+        queryset = queryset.annotate(
+            clean=Subquery(subq.values('clean'))
+        )
+        # Direct use
+        queryset = queryset.annotate(
+            direct=Subquery(subq.values('direct_use'))
+        )
+        
         for sub_filter in filters:
             filter_link = sub_filter.pop('link', 'and')
             filter_functions = []
 
-            # Filter flowchains by keyflow
-            # Retrieve only flowchain ids
-            chains = FlowChain.objects.filter(keyflow__id=keyflow).only('id')
-
-            # Production nodes (origin)
-            subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
-                                   Q(origin_role='Ontdoener'))
-            chains = chains.annotate(pro_geom=
-                                     Subquery(subq.values('origin__administrative_location__geom')))\
-                           .annotate(pro_activity=
-                                     Subquery(subq.values('origin__activity')))\
-                           .annotate(pro_activitygroup=
-                                     Subquery(subq.values('origin__activity__activitygroup')))
-
-            # Collection nodes (origin or destination)
-            # Check only origin to avoid duplicates
-            subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
-                                   Q(origin_role='Ontvanger'))
-            chains = chains.annotate(col_geom=
-                                     Subquery(subq.values('origin__administrative_location__geom')))\
-                           .annotate(col_activity=
-                                     Subquery(subq.values('origin__activity')))\
-                           .annotate(col_activitygroup=
-                                     Subquery(subq.values('origin__activity__activitygroup')))
-
-            # Treatment nodes (destination)
-            subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
-                                   Q(destination_role='Verwerker'))
-            chains = chains.annotate(treat_geom=
-                                     Subquery(subq.values('destination__administrative_location__geom')))\
-                           .annotate(treat_activity=
-                                     Subquery(subq.values('destination__activity'))) \
-                           .annotate(treat_activitygroup=
-                                     Subquery(subq.values('destination__activity__activitygroup')))
-
-            values = chains.values('id',
-                                   'pro_geom',
-                                   'pro_activity',
-                                   'pro_activitygroup',
-                                   'col_geom',
-                                   'col_activity',
-                                   'col_activitygroup',
-                                   'treat_geom',
-                                   'treat_activity',
-                                   'treat_activitygroup')
-
-            # Filter by PROCESSES
-            process_ids = sub_filter.pop('process_id__in', [])
-            if len(process_ids) > 0:
-                queryset = queryset.filter(flowchain__process__in=
-                                           Process.objects.filter(id__in=list(process_ids)))
-
-            # Filter by WASTES
-            waste_ids = sub_filter.pop('waste_id__in', [])
-            if len(waste_ids) > 0:
-                queryset = queryset.filter(flowchain__waste__in=
-                                           Waste.objects.filter(id__in=list(waste_ids)))
+            # # Filter flowchains by keyflow
+            # # Retrieve only flowchain ids
+            # chains = FlowChain.objects.filter(keyflow__id=keyflow).only('id')
+            #
+            # # Production nodes (origin)
+            # subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
+            #                        Q(origin_role='Ontdoener'))
+            # chains = chains.annotate(pro_geom=
+            #                          Subquery(subq.values('origin__administrative_location__geom')),
+            #                          pro_activity=
+            #                          Subquery(subq.values('origin__activity')),
+            #                          pro_activitygroup=
+            #                          Subquery(subq.values('origin__activity__activitygroup'))
+            #                          )
+            #
+            # # Collection nodes (origin or destination)
+            # # Check only origin to avoid duplicates
+            # subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
+            #                        Q(origin_role='Ontvanger'))
+            # chains = chains.annotate(col_geom=
+            #                          Subquery(subq.values('origin__administrative_location__geom')),
+            #                          col_activity=
+            #                          Subquery(subq.values('origin__activity')),
+            #                          col_activitygroup=
+            #                          Subquery(subq.values('origin__activity__activitygroup'))
+            #                          )
+            #
+            # # Treatment nodes (destination)
+            # subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
+            #                        Q(destination_role='Verwerker'))
+            # chains = chains.annotate(treat_geom=
+            #                          Subquery(subq.values('destination__administrative_location__geom')),
+            #                          treat_activity=
+            #                          Subquery(subq.values('destination__activity')),
+            #                          treat_activitygroup=
+            #                          Subquery(subq.values('destination__activity__activitygroup'))
+            #                          )
+            if (filter_link == 'chain'):
+                pass
 
             # Fields to check in parent flowchain
             flowchain_lookups = ['year',
                                  'route',
                                  'collector']
 
-            # Annotate amount
-            queryset = queryset.annotate(amount=F('flowchain__amount'))
-
-            # Annotate classification
-            classifs = Classification.objects.filter(flowchain__keyflow_id=keyflow)
-            subq = classifs.filter(flowchain_id=OuterRef('flowchain'))
-            # Mixed
-            queryset = queryset.annotate(
-                mixed=Subquery(subq.values('mixed'))
-            )
-            # Clean
-            queryset = queryset.annotate(
-                clean=Subquery(subq.values('clean'))
-            )
-            # Direct use
-            queryset = queryset.annotate(
-                direct=Subquery(subq.values('direct_use'))
-            )
-
             for func, v in sub_filter.items():
-                # Area filter
-                if func.endswith('__areas'):
-                    func, v = build_area_filter(func, v, keyflow)
-                    filter_function = Q(**{(func): v})
                 # Search in parent flowchain
-                elif func in flowchain_lookups:
+                if func in flowchain_lookups:
                     # Year filter
                     if func == 'year':
                         # Ignore flow year
