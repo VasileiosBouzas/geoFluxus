@@ -61,69 +61,91 @@ def build_chain_filter(filter, queryset, keyflow):
 
     # Retrieve areas
     values = filter.pop('areas', []) # retrieve areas
-    if len(values) > 0:
+    if len(values) > 0: # avoid intersecting all multipolygons!!!
         areas = Area.objects.filter(id__in = values).aggregate(area=Union('geom'))
 
     # Retrieve activities or activitygroups
-    act, ids = None, None
+    acts, ids = [], []
     if len(filter) > 0:
-        act, ids = filter.popitem()
+        acts, ids = filter.popitem()
 
-    funcs = []
+    intersects, is_ins = [], []
     # Production nodes (origin)
     if (role != 'collection' and role != 'treatment'):
-        subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
-                               Q(origin_role='Ontdoener'))
-        if areas:
+        subq = queryset.filter(flowchain_id=OuterRef('pk'),
+                               origin_role='Ontdoener')
+        if len(values) > 0:
             chains = chains.annotate(pro_geom=
                                      Subquery(subq.values('origin__administrative_location__geom'))
                                      )
-            funcs.append('pro_geom__intersects')
-        if act is not None:
+            intersects.append('pro_geom__intersects')
+        if len(acts) > 0:
             chains = chains.annotate(pro_act=
-                                     Subquery(subq.values('origin' + act))
+                                     Subquery(subq.values('origin' + acts))
                                      )
-            funcs.append('pro_act__in')
+            is_ins.append('pro_act__in')
 
     # Collection nodes (origin or destination)
     # Check only origin to avoid duplicates
     if (role != 'production' and role != 'treatment'):
-        subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
-                               Q(origin_role='Ontvanger'))
-        if areas:
+        subq = queryset.filter(flowchain_id=OuterRef('pk'),
+                               origin_role='Ontvanger')
+        if len(values) > 0:
             chains = chains.annotate(col_geom=
                                      Subquery(subq.values('origin__administrative_location__geom'))
                                      )
-            funcs.append('col_geom__intersects')
-        if act is not None:
+            intersects.append('col_geom__intersects')
+        if len(acts) > 0:
             chains = chains.annotate(col_act=
-                                     Subquery(subq.values('origin' + act))
+                                     Subquery(subq.values('origin' + acts))
                                      )
-            funcs.append('col_act__in')
+            is_ins.append('col_act__in')
 
     # Treatment nodes (destination)
     if (role != 'production' and role != 'collection'):
-        subq = queryset.filter(Q(flowchain_id=OuterRef('pk')) &\
-                               Q(destination_role='Verwerker'))
-        if areas:
+        subq = queryset.filter(flowchain_id=OuterRef('pk'),
+                               destination_role='Verwerker')
+        if len(values) > 0:
             chains = chains.annotate(treat_geom=
                                      Subquery(subq.values('destination__administrative_location__geom'))
                                      )
-            funcs.append('treat_geom__intersects')
-        if act is not None:
+            intersects.append('treat_geom__intersects')
+        if len(acts) > 0:
             chains = chains.annotate(treat_act=
-                                     Subquery(subq.values('destination' + act))
+                                     Subquery(subq.values('destination' + acts))
                                      )
-            funcs.append('treat_act__in')
+            is_ins.append('treat_act__in')
 
-    functions = []
-    for func in funcs:
-        if 'geom' in func:
-            functions.append(Q(**{func : areas['area']}))
-        elif 'act' in func:
-            functions.append(Q(**{func: ids}))
-        else:
-            print('Something is wrong...')
+    filter_functions = []
+    # Both area and activity/group check
+    if len(intersects) > 0 and len(is_ins) > 0:
+        for intersect, is_in in zip(intersects, is_ins):
+            filter_functions.append(Q(**{intersect : areas['area'],
+                                         is_in : ids}))
+    # Only area
+    elif len(intersects) > 0:
+        for intersect in intersects:
+            filter_functions.append(Q(**{intersect : areas['area']}))
+    # Only activity/group
+    else:
+        for is_in in is_ins:
+            filter_functions.append(Q(**{is_in : ids}))
+
+    # Apply filters to CHAINS
+    if role == 'all':
+        # ALL nodes should satisfy the criteria
+        print("ALL")
+        chains = chains.filter(np.bitwise_and.reduce(filter_functions))
+    elif role == 'any':
+        print("ANY")
+        # ANY node should satisfy the criteria
+        chains = chains.filter(np.bitwise_or.reduce(filter_functions))
+    else:
+        print("ONE")
+        # REQUESTED node should satisfy the criteria
+        chains = chains.filter(filter_functions[0])
+
+    print(chains.values('id'))
 
 
 # Flowchain filters
