@@ -213,7 +213,6 @@ var FlowsView = BaseView.extend(
             flowFilters.push(chainFilters);
         }
 
-        console.log(flowFilters);
         return filterParams;
     },
 

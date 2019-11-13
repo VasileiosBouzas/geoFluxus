@@ -132,6 +132,7 @@ def build_chain_filter(filter, queryset, keyflow):
             filter_functions.append(Q(**{is_in : ids}))
 
     # Apply filters to CHAINS
+    # SOLVE BUG!!!
     if role == 'all':
         # ALL nodes should satisfy the criteria
         print("ALL")
@@ -145,7 +146,8 @@ def build_chain_filter(filter, queryset, keyflow):
         # REQUESTED node should satisfy the criteria
         chains = chains.filter(filter_functions[0])
 
-    print(chains.values('id'))
+    chains = list(chains.values_list('id', flat=True))
+    return queryset.filter(flowchain_id__in=chains)
 
 
 # Flowchain filters
@@ -349,7 +351,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             filter_functions = []
 
             if (filter_link == 'chain'):
-                build_chain_filter(sub_filter, queryset, keyflow)
+                queryset = build_chain_filter(sub_filter, queryset, keyflow)
                 continue
 
             for func, v in sub_filter.items():
