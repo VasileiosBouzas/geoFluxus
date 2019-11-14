@@ -218,9 +218,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                                        Product.objects.filter(id__in=list(product_ids)))
 
         # Filter by COMPOSITES
-        composite_ids = (None if composite_filter is None
+        composite_ids = ([] if composite_filter is None
                          else composite_filter.get('unaltered', []))
-        if composite_ids is not None:
+        if len(composite_ids) > 0:
             queryset = queryset.filter(flowchain__composites__in=
                                        Composite.objects.filter(id__in=list(composite_ids)))
 

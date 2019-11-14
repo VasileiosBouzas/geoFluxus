@@ -262,7 +262,7 @@ var FlowSankeyView = BaseView.extend(
                 target = mapNode(destination);
             //var crepr = compositionRepr(flow),
             var amount = flow.get('amount'),
-                value = (norm === 'log')? normalize(amount): Math.round(amount);
+                value = (norm === 'log')? normalize(amount): amount;
 
             //if (_this.forceSignum && amount >= 0)
                // amount = '+' + amount.toLocaleString(this.language);
