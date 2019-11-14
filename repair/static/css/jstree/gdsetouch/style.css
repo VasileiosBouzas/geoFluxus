@@ -367,7 +367,7 @@ filter: gray;
   color: black;
 }
 .jstree-gdsetouch.jstree-checkbox-no-clicked > .jstree-wholerow-ul .jstree-wholerow-clicked {
-  background: #aad400;
+  background: #3958a4;
   color: white;
 }
 .jstree-gdsetouch.jstree-checkbox-no-clicked > .jstree-wholerow-ul .jstree-wholerow-clicked.jstree-wholerow-hovered {
@@ -392,7 +392,7 @@ filter: gray;
   background: #efefef;
 }
 .jstree-gdsetouch .jstree-wholerow-clicked {
-  background: #aad400;
+  background: #3958a4;
   /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@color1', endColorstr='@color2',GradientType=0 );*/
 }
 .jstree-gdsetouch .jstree-node {
@@ -879,7 +879,7 @@ filter: gray;
   margin-right: 0;
 }
 /*.jstree-gdsetouch-large .jstree-wholerow-clicked {
-  background: #aad400;
+  background: #3958a4;
 }*/
 #jstree-dnd.jstree-gdsetouch-large {
   line-height: 32px;
@@ -1047,7 +1047,7 @@ filter: gray;
     background: #efefef;
   }
   .jstree-gdsetouch-responsive .jstree-wholerow-clicked {
-    background: #aad400;
+    background: #3958a4;
   }
   .jstree-gdsetouch-responsive .jstree-children .jstree-open + .jstree-open {
     box-shadow: none;

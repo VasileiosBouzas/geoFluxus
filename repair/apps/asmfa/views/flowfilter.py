@@ -189,7 +189,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         filter_chains = params.get('filters', None)
         material_filter = params.get('materials', None)
         product_filter = params.get('products', None)
-        composite_filter = params.get('composite', None)
+        composite_filter = params.get('composites', None)
 
         # Check the aggregation level for nodes
         l_a = params.get('aggregation_level', {})

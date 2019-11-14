@@ -512,7 +512,7 @@ var FilterFlowsView = BaseView.extend(
             label: function(model, option){
                 var compCount = model.get('flow_count'),
                     childCount = flowsInChildren[model.id] || 0,
-                    label = model.get('name') + '(' + compCount + ' / ' + childCount + ')';
+                    label = model.get('name') + ' (' + compCount + ')';
                 return label;
             }
         });
@@ -560,7 +560,7 @@ var FilterFlowsView = BaseView.extend(
             label: function(model, option){
                 var compCount = model.get('flow_count'),
                     childCount = flowsInChildren[model.id] || 0,
-                    label = model.get('name') + '(' + compCount + ' / ' + childCount + ')';
+                    label = model.get('name') + ' (' + compCount + ')';
                 return label;
             }
         });
@@ -608,7 +608,7 @@ var FilterFlowsView = BaseView.extend(
             label: function(model, option){
                 var compCount = model.get('flow_count'),
                     childCount = flowsInChildren[model.id] || 0,
-                    label = model.get('name') + '(' + compCount + ' / ' + childCount + ')';
+                    label = model.get('name') + ' (' + compCount + ')';
                 return label;
             }
         });

@@ -244,10 +244,11 @@ class MaterialListSerializer(MaterialSerializer):
 
 
 class AllProductSerializer(serializers.ModelSerializer):
+    flow_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Product
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class AllProductListSerializer(AllProductSerializer):
@@ -263,20 +264,21 @@ class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Product
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class ProductListSerializer(ProductSerializer):
     class Meta(MaterialSerializer.Meta):
         fields = ('id', 'name',
-                  'keyflow')
+                  'keyflow', 'flow_count')
 
 
 class AllCompositeSerializer(serializers.ModelSerializer):
+    flow_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Composite
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class AllCompositeListSerializer(AllCompositeSerializer):
@@ -292,10 +294,10 @@ class CompositeSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Composite
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class CompositeListSerializer(CompositeSerializer):
     class Meta(MaterialSerializer.Meta):
         fields = ('id', 'name',
-                  'keyflow')
+                  'keyflow', 'flow_count')

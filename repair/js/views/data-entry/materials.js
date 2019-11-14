@@ -132,7 +132,7 @@ var MaterialsView = BaseView.extend(
 
         $(this.materialTree).treeview({
             data: tree, showTags: true,
-            selectedBackColor: '#aad400',
+            selectedBackColor: '#3958a4',
             expandIcon: 'glyphicon glyphicon-triangle-right',
             collapseIcon: 'glyphicon glyphicon-triangle-bottom',
             onNodeSelected: this.nodeSelected,

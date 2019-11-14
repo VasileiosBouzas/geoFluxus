@@ -25,7 +25,7 @@
 /*    float: right;
     width: auto;
     margin-top: 10px;
-    background-color: #aad400;
+    background-color: #3958a4;
     border-width: 0px;*/
 }
 
@@ -52,7 +52,7 @@ tr.dsbld td{
 
 #actors-table th, #products-table th, #publications-table th{
     color: white !IMPORTANT;
-    background-color:  #aad400 !IMPORTANT;
+    background-color:  #3958A4 !IMPORTANT;
 }
 
 /*tablesorter does a bad job with placing pager by default*/
