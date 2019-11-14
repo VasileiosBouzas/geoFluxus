@@ -495,7 +495,7 @@ var FlowsView = BaseView.extend(
         // put filtering by clicked flow origin/destination into query params
         if (this.nodeLevel === 'activitygroup')
             filterSuffix += '__activitygroup';
-        //var queryParams = {},
+        var queryParams = {};
             //is_stock = flow.get('stock'),
             //process = flow.get('process_id');
         queryParams['origin__' + filterSuffix] = flow.get('origin').id;
@@ -532,9 +532,9 @@ var FlowsView = BaseView.extend(
         function addFlows(flows){
             // override value and color
             flows.forEach(function(flow){
-                var amount = 1000;
+                var amount = flow._amount;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
-                //flow.set('amount', amount)
+                flow.set('amount', amount)
                 //var materials = flow.get('materials');
                 //flow.get('materials').forEach(function(material){
                     //material.amount = material._amount;
@@ -564,7 +564,7 @@ var FlowsView = BaseView.extend(
                                 d.color = destination.color;
                             }
                             // remember original amounts to be able to swap amount with delta and back
-                            //f._amount = f.get('amount');
+                            f._amount = f.get('amount');
                             //var materials = f.get('materials');
                             //f.get('materials').forEach(function(material){
                                 // ToDo: change filter API response
