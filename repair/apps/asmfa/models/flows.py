@@ -28,7 +28,7 @@ class FlowChain(GDSEModel):
     # Flow properties
     keyflow = models.ForeignKey(KeyflowInCasestudy, on_delete=models.CASCADE)
     description = models.TextField(max_length=510, blank=True, null=True)
-    amount = models.DecimalField(decimal_places=3, max_digits=3, default=0)
+    amount = models.FloatField(default=0)
     materials = models.ManyToManyField(Material,
                                        through='MaterialInChain')
     products = models.ManyToManyField(Product,
@@ -88,8 +88,9 @@ class CompositeInChain(GDSEModel):
 # Classification
 class Classification(GDSEModel):
     flowchain = models.ForeignKey(FlowChain, on_delete=models.CASCADE)
-    clean = models.BooleanField(default=False)
-    mixed = models.BooleanField(default=False)
+    clean = models.BooleanField(null=True)
+    mixed = models.BooleanField(null=True)
+    direct_use = models.BooleanField(null=True)
 
 
 # Extra description

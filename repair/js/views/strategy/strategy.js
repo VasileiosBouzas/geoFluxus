@@ -467,7 +467,7 @@ var StrategyView = BaseView.extend(
             zIndex: 999
         });
         this.editorMap.addLayer('implementation-area', {
-            stroke: '#aad400',
+            stroke: '#3958A4',
             fill: 'rgba(170, 212, 0, 0)',
             strokeWidth: 1,
             zIndex: 998

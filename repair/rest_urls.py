@@ -28,7 +28,7 @@ from repair.apps.changes.views import (
 )
 
 from repair.apps.asmfa.views import (
-    FlowViewSet,
+    # FlowViewSet,
     FlowChainViewSet,
     FilterFlowChainViewSet,
     ActivityGroupViewSet,
@@ -148,7 +148,7 @@ kf_router = NestedSimpleRouter(cs_router, r'keyflows', lookup='keyflow')
 kf_router.register(r'wastes', WasteViewSet)
 kf_router.register(r'stocks', StockViewSet)
 kf_router.register(r'flowchains', FlowChainViewSet)
-kf_router.register(r'flows', FlowViewSet)
+kf_router.register(r'flows', FilterFlowViewSet)
 kf_router.register(r'materials', MaterialViewSet)
 kf_router.register(r'products', ProductViewSet)
 kf_router.register(r'composites', CompositeViewSet)

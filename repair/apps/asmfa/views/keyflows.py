@@ -1,6 +1,6 @@
 # API View
 from reversion.views import RevisionMixin
-from django.db.models import Q, Subquery, Count, Case, When, IntegerField
+from django.db.models import Q, Subquery, Count, Case, When, IntegerField, Value, OuterRef
 from rest_framework import serializers, exceptions
 from rest_framework_datatables import pagination
 from django.utils.translation import ugettext_lazy as _
@@ -19,6 +19,7 @@ from repair.apps.asmfa.models import (
     Material,
     Waste,
     Flow,
+    FlowChain,
     Product,
     Composite
 )
@@ -186,24 +187,12 @@ class MaterialViewSet(CasestudyViewSetMixin, AllMaterialViewSet):
     def get_queryset(self):
         keyflow_id = self.kwargs['keyflow_pk']
 
-        materials = Material.objects.\
-            select_related("keyflow__casestudy").defer(
-                "keyflow__note", "keyflow__casestudy__geom",
-                "keyflow__casestudy__focusarea")
-        materials = materials.filter(
-            Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
+        materials = Material.objects.filter(Q(keyflow__isnull=True) | \
+                                            Q(keyflow=keyflow_id)).order_by('id')
 
-        # calc flow_count
-        # flows = Flow.objects.filter(
-        #     Q(oactor__activity__activitygroup__keyflow__id=keyflow_id) |
-        #     Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
-        # )
-        # materials = materials.annotate(
-        #     flow_count=Count(Case(
-        #         When(flowchain__in=flows, then=1),
-        #         output_field=IntegerField(),
-        #     ))
-        # )
+        # Count chains for each material
+        # Most chains contain 2 flows
+        materials = materials.annotate(flow_count=Count('flowchain')*2)
         return materials
 
     def checkMethod(self, request, **kwargs):
@@ -251,24 +240,12 @@ class ProductViewSet(CasestudyViewSetMixin, AllProductViewSet):
     def get_queryset(self):
         keyflow_id = self.kwargs['keyflow_pk']
 
-        products = Product.objects.\
-            select_related("keyflow__casestudy").defer(
-                "keyflow__note", "keyflow__casestudy__geom",
-                "keyflow__casestudy__focusarea")
-        products = products.filter(
-            Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
+        products = Product.objects.filter(Q(flowchain__keyflow__isnull=True) | \
+                                          Q(flowchain__keyflow=keyflow_id)).order_by('id')
 
-        # calc flow_count
-        # flows = Flow.objects.filter(
-        #     Q(origin__actor__activity__activitygroup__keyflow__id=keyflow_id) |
-        #     Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
-        # )
-        # materials = materials.annotate(
-        #     flow_count=Count(Case(
-        #         When(flowchain__in=flows, then=1),
-        #         output_field=IntegerField(),
-        #     ))
-        # )
+        # Count chains for each product
+        # Most product contain 2 flows
+        products = products.annotate(flow_count=Count('flowchain') * 2)
         return products
 
     def checkMethod(self, request, **kwargs):
@@ -316,25 +293,13 @@ class CompositeViewSet(CasestudyViewSetMixin, AllCompositeViewSet):
     def get_queryset(self):
         keyflow_id = self.kwargs['keyflow_pk']
 
-        products = Composite.objects.\
-            select_related("keyflow__casestudy").defer(
-                "keyflow__note", "keyflow__casestudy__geom",
-                "keyflow__casestudy__focusarea")
-        products = products.filter(
-            Q(keyflow__isnull=True) | Q(keyflow=keyflow_id)).order_by('id')
+        composites = Composite.objects.filter(Q(flowchain__keyflow__isnull=True) | \
+                                              Q(flowchain__keyflow=keyflow_id)).order_by('id')
 
-        # calc flow_count
-        # flows = Flow.objects.filter(
-        #     Q(origin__actor__activity__activitygroup__keyflow__id=keyflow_id) |
-        #     Q(destination__actor__activity__activitygroup__keyflow__id=keyflow_id)
-        # )
-        # materials = materials.annotate(
-        #     flow_count=Count(Case(
-        #         When(flowchain__in=flows, then=1),
-        #         output_field=IntegerField(),
-        #     ))
-        # )
-        return products
+        # Count chains for each composite
+        # Most composite contain 2 flows
+        composites = composites.annotate(flow_count=Count('flowchain') * 2)
+        return composites
 
     def checkMethod(self, request, **kwargs):
         model = self.serializer_class.Meta.model

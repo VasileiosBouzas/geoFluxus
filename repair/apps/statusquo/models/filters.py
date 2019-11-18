@@ -4,7 +4,7 @@ from enum import Enum
 from enumfields import EnumIntegerField
 
 from repair.apps.login.models import GDSEModel
-from repair.apps.asmfa.models import Material, KeyflowInCasestudy
+from repair.apps.asmfa.models import Material, Product, Composite, KeyflowInCasestudy
 from repair.apps.statusquo.models.indicators import NodeLevel, FlowType, TriState
 from repair.apps.studyarea.models import Area, AdminLevels
 
@@ -15,9 +15,11 @@ class Direction(Enum):
     TO = 3
 
 class Role(Enum):
-    PRODUCTION = 1
-    COLLECTION = 2
-    TREATMENT = 3
+    ALL = 1
+    PRODUCTION = 2
+    COLLECTION = 3
+    TREATMENT = 4
+    ANY = 5
 
 class Year(Enum):
     all = 1
@@ -44,6 +46,12 @@ class FlowFilter(GDSEModel):
     material = models.ForeignKey(Material,
                                  on_delete=models.SET_NULL,
                                  null=True)
+    product = models.ForeignKey(Product,
+                                on_delete=models.SET_NULL,
+                                null=True)
+    composite = models.ForeignKey(Composite,
+                                  on_delete=models.SET_NULL,
+                                  null=True)
     direction = EnumIntegerField(
         enum=Direction, default=Direction.BOTH)
     flow_type = EnumIntegerField(
@@ -58,7 +66,7 @@ class FlowFilter(GDSEModel):
                                    null=True)
     areas = models.ManyToManyField(Area, blank=True)
 
-    role = EnumIntegerField(enum=Role, default=Role.PRODUCTION)
+    role = EnumIntegerField(enum=Role, default=Role.ALL)
     waste_ids = models.TextField(
         validators=[validate_comma_separated_integer_list],
         blank=True, null=True
@@ -67,5 +75,6 @@ class FlowFilter(GDSEModel):
     collector = EnumIntegerField(enum=TriState, default=TriState.BOTH)
     clean = EnumIntegerField(enum=TriState, default=TriState.BOTH)
     mixed = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    direct = EnumIntegerField(enum=TriState, default=TriState.BOTH)
     year = EnumIntegerField(enum=Year, default=Year.all)
 

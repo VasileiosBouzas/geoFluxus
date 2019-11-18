@@ -212,11 +212,12 @@ class WasteListSerializer(WasteSerializer):
 
 
 class AllMaterialSerializer(serializers.ModelSerializer):
+    flow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Material
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class AllMaterialListSerializer(AllMaterialSerializer):
@@ -232,20 +233,22 @@ class MaterialSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Material
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class MaterialListSerializer(MaterialSerializer):
+
     class Meta(MaterialSerializer.Meta):
         fields = ('id', 'name',
-                  'keyflow')
+                  'keyflow', 'flow_count')
 
 
 class AllProductSerializer(serializers.ModelSerializer):
+    flow_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Product
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class AllProductListSerializer(AllProductSerializer):
@@ -261,20 +264,21 @@ class ProductSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Product
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class ProductListSerializer(ProductSerializer):
     class Meta(MaterialSerializer.Meta):
         fields = ('id', 'name',
-                  'keyflow')
+                  'keyflow', 'flow_count')
 
 
 class AllCompositeSerializer(serializers.ModelSerializer):
+    flow_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Composite
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class AllCompositeListSerializer(AllCompositeSerializer):
@@ -290,10 +294,10 @@ class CompositeSerializer(KeyflowInCasestudyDetailCreateMixin,
     class Meta:
         model = Composite
         fields = ('url', 'id',
-                  'name', 'keyflow')
+                  'name', 'keyflow', 'flow_count')
 
 
 class CompositeListSerializer(CompositeSerializer):
     class Meta(MaterialSerializer.Meta):
         fields = ('id', 'name',
-                  'keyflow')
+                  'keyflow', 'flow_count')

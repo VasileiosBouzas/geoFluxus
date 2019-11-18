@@ -624,7 +624,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         source: source,
                         target: target,
                         waste: flow.get('waste'),
-                        amount: flow.get('amount'),
+                        amount: 1000,
                         fractions: {},
                         is_stock: is_stock
                     }
@@ -703,7 +703,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
                 var wasteLabel = (pFlow.waste) ? gettext('Waste') : gettext('Product'),
                     processLabel = gettext('Process') + ': ' + (pFlow.process || '-'),
-                    totalAmount = Math.round(pFlow.amount),
+                    totalAmount = pFlow.amount,
                     flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel+ '<br>' + processLabel ;
 
                 if(splitByComposition){

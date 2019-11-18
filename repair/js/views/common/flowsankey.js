@@ -197,48 +197,48 @@ var FlowSankeyView = BaseView.extend(
             return idx;
         }
 
-        function addStock(){
-            idx += 1;
-            var color = 'darkgray';
-            nodes.push({name: 'Stock', color: color, alignToSource: {x: 80, y: 0} });
-            return idx;
-        }
+        //function addStock(){
+            //idx += 1;
+            //var color = 'darkgray';
+            //nodes.push({name: 'Stock', color: color, alignToSource: {x: 80, y: 0} });
+            //return idx;
+        //}
 
-        function compositionRepr(flow){
-            var text = '',
-                i = 0,
-                fractions = flow.get('materials'),
-                totalAmount = flow.get('amount');
-            fractions.forEach(function(material){
-                var amount = (material.value != null) ? material.value: material.amount;
-                if (amount == 0) return;
-                if (_this.forceSignum && amount >= 0)
-                    text += '+';
-                if (_this.showRelativeComposition){
-                    fraction = amount / totalAmount,
-                    value = Math.round(fraction * 100000) / 1000;
-                    text += _this.format(value) + '%';
-                } else {
-                    text += _this.format(amount) + ' ' + gettext('t/year');
-                }
-                text += ' ' + material.name
-                if (material.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
-                if (i < fractions.length - 1) text += '<br>';
-                i++;
-            })
-            return text || ('no composition defined');
-        }
+        //function compositionRepr(flow){
+            //var text = '',
+                //i = 0,
+                //fractions = flow.get('materials'),
+                //totalAmount = flow.get('amount');
+            //fractions.forEach(function(material){
+                //var amount = (material.value != null) ? material.value: material.amount;
+                //if (amount == 0) return;
+                //if (_this.forceSignum && amount >= 0)
+                    //text += '+';
+                //if (_this.showRelativeComposition){
+                    //fraction = amount / totalAmount,
+                    //value = Math.round(fraction * 100000) / 1000;
+                    //text += _this.format(value) + '%';
+                //} else {
+                    //text += _this.format(amount) + ' ' + gettext('t/year');
+                //}
+                //text += ' ' + material.name
+                //if (material.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
+               // if (i < fractions.length - 1) text += '<br>';
+                //i++;
+            //})
+           // return text || ('no composition defined');
+        //}
 
-        function typeRepr(flow){
-            return flow.get('waste') ? 'Waste': 'Product';
-        }
+        //function typeRepr(flow){
+            //return flow.get('waste') ? 'Waste': 'Product';
+        //}
 
-        function processRepr(flow){
-            return gettext('Process') + ': ' + (flow.get('process') || '-');
-        }
+        //function processRepr(flow){
+           // return gettext('Process') + ': ' + (flow.get('process') || '-');
+       // }
 
         var amounts = flows.pluck('amount'),
-            //minAmount = Math.min(...amounts),
+            minAmount = Math.min(...amounts),
             maxAmount = Math.max(...amounts),
             max = 10000,
             normFactor = max / maxAmount;
@@ -248,36 +248,35 @@ var FlowSankeyView = BaseView.extend(
             // skip flows with zero amount
             if (value == 0) return;
             var origin = flow.get('origin'),
-                destination = flow.get('destination'),
-                isStock = flow.get('stock');
-            if (isStock && !_this.renderStocks) return;
-            if (!isStock && origin.id == destination.id) {
-                console.log('Warning: self referencing cycle at node ' + origin.name);
-                return;
+                destination = flow.get('destination');
+                //isStock = flow.get('stock');
+            //if (isStock && !_this.renderStocks) return;
+            if (origin.id == destination.id) {
+               console.log('Warning: self referencing cycle at node ' + origin.name);
+               return;
             }
             function normalize(v){
                 return Math.log2(1 + v * normFactor);
             }
             var source = mapNode(origin),
-                target = (!isStock) ? mapNode(destination) : addStock();
-            var crepr = compositionRepr(flow),
-                amount = flow.get('amount'),
-                value = (norm === 'log')? normalize(amount): Math.round(amount);
+                target = mapNode(destination);
+            //var crepr = compositionRepr(flow),
+            var amount = flow.get('amount'),
+                value = (norm === 'log')? normalize(amount): amount;
 
-            if (_this.forceSignum && amount >= 0)
-                amount = '+' + amount.toLocaleString(this.language);
+            //if (_this.forceSignum && amount >= 0)
+               // amount = '+' + amount.toLocaleString(this.language);
             links.push({
                 id: flow.id,
                 originalData: flow,
-                amount: amount,
-                value: Math.abs(value),
+                value: value,
                 units: gettext('t/year'),
                 source: source,
                 target: target,
                 color: (flow.color) ? flow.color: source.color,
-                isStock: isStock,
-                text: processRepr(flow) + '<br><br><u>' + typeRepr(flow) + '</u><br>' + crepr,
-                composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
+                //isStock: isStock,
+                //text: processRepr(flow) + '<br><br><u>' + typeRepr(flow) + '</u><br>' + crepr,
+                //composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
             });
         })
 

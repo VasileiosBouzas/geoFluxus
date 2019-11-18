@@ -77,7 +77,7 @@ var EditActorView = BaseView.extend(
             },
             background: {
                 style: {
-                    stroke: '#aad400',
+                    stroke: '#3958A4',
                     fill: 'rgba(170, 212, 0, 0.1)',
                     strokeWidth: 1,
                     zIndex: 0

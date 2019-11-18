@@ -35,7 +35,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.keyflowId = options.keyflowId;
         this.strategy = options.strategy;
 
-        this.spatialItemColor = '#aad400';
+        this.spatialItemColor = '#3958A4';
         this.indicators = new GDSECollection([], {
             apiTag: 'flowIndicators',
             apiIds: [this.caseStudy.id, this.keyflowId],
@@ -645,7 +645,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             region = this.caseStudy.get('geometry');
 
         var options = {
-            stroke: '#aad400',
+            stroke: '#3958A4',
             fill: 'rgba(170, 212, 0, 0.1)',
             strokeWidth: 1,
             zIndex: 1

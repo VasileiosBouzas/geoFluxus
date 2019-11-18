@@ -36,6 +36,8 @@ var FlowsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
         this.materials = options.materials;
+        //this.products = options.products;
+        //this.composites = options.composites;
         this.strategy = options.strategy;
         this.filter = options.filter;
         this.caseStudy = options.caseStudy;
@@ -94,45 +96,81 @@ var FlowsView = BaseView.extend(
         if(!filter) return filterParams;
 
         var flowType = filter.get('flow_type') || 'both',
+            year = filter.get('year').toLowerCase(),
+            route = filter.get('route').toLowerCase(),
+            collector = filter.get('collector').toLowerCase(),
             hazardous = filter.get('hazardous').toLowerCase(),
+            clean = filter.get('clean').toLowerCase(),
+            mixed = filter.get('mixed').toLowerCase(),
+            direct = filter.get('direct').toLowerCase(),
             //avoidable = filter.get('avoidable').toLowerCase(),
             nodeLevel = filter.get('filter_level') || 'activitygroup',
-            direction = filter.get('direction') || 'both';
+            direction = filter.get('direction') || 'both'
+            role = filter.get('role') || 'all';
 
         nodeLevel = nodeLevel.toLowerCase();
         flowType = flowType.toLowerCase();
         direction = direction.toLowerCase();
+        role = role.toLowerCase();
 
-        // material options for stocks and flows
-        filterParams.materials = {
-            aggregate: filter.get('aggregate_materials')
-        }
+        // options for stocks and flows
+        filterParams.materials = {}
+        filterParams.products = {}
+        filterParams.composites = {}
 
         var material = filter.get('material');
         // material -> filter/aggregate by this material and its direct children
         if (material != null) {
-            var childMaterials = this.materials.filterBy({ parent: material }),
-                materialIds = childMaterials.pluck('id');
-            // the selected material should be included as well
             filterParams.materials.unaltered = [material];
-            filterParams.materials.ids = materialIds;
         }
+
+        var product = filter.get('product');
+        if (product != null) {
+            filterParams.products.unaltered = [product];
+        }
+
+        var composite = filter.get('composite');
+        if (composite != null) {
+            filterParams.composites.unaltered = [composite];
+        }
+
         var nodeIds = filter.get('node_ids');
         if (nodeIds) nodeIds = nodeIds.split(',');
 
-        var levelFilterMidSec = (nodeLevel == 'activitygroup') ? 'activity__activitygroup__':
-            (nodeLevel == 'activity') ? 'activity__': '';
+        var levelFilterMidSec = (nodeLevel == 'activitygroup') ? '__activity__activitygroup':
+            (nodeLevel == 'activity') ? '__activity': '';
 
         var flowFilters = filterParams['filters'] = [];
 
         var typeFilterFunctions = {};
-        if (flowType != 'both') {
-            var is_waste = (flowType == 'waste') ? true : false;
-            typeFilterFunctions['waste'] = is_waste;
+        //if (flowType != 'both') {
+            //var is_waste = (flowType == 'waste') ? true : false;
+            //typeFilterFunctions['waste'] = is_waste;
+        //}
+        typeFilterFunctions['year'] = year;
+        if (route != 'both') {
+            var is_route = (route == 'yes') ? true : false;
+            typeFilterFunctions['route'] = is_route;
+        }
+        if (collector != 'both') {
+            var is_collector = (collector == 'yes') ? true : false;
+            typeFilterFunctions['collector'] = is_collector;
         }
         if (hazardous != 'both') {
             var is_hazardous = (hazardous == 'yes') ? true : false;
             typeFilterFunctions['hazardous'] = is_hazardous;
+        }
+        if (clean != 'both') {
+            var is_clean = (clean == 'yes') ? true : false;
+            typeFilterFunctions['clean'] = is_clean;
+        }
+        if (mixed != 'both') {
+            var is_mixed = (mixed == 'yes') ? true : false;
+            typeFilterFunctions['mixed'] = is_mixed;
+        }
+        if (direct != 'both') {
+            var is_direct = (direct == 'yes') ? true : false;
+            typeFilterFunctions['direct'] = is_direct;
         }
         //if (avoidable != 'both') {
             //var is_avoidable = (avoidable == 'yes') ? true : false;
@@ -142,6 +180,10 @@ var FlowsView = BaseView.extend(
         if (processIds) {
             typeFilterFunctions['process_id__in'] = processIds.split(',');
         }
+        var wasteIds = filter.get('waste_ids');
+        if (wasteIds) {
+            typeFilterFunctions['waste_id__in'] = wasteIds.split(',');
+        }
 
         if (Object.keys(typeFilterFunctions).length > 0) {
             typeFilterFunctions['link'] = 'and';
@@ -149,30 +191,28 @@ var FlowsView = BaseView.extend(
         }
 
         // filter origins/destinations by ids
+        var chainFilters = {};
         if (nodeIds && nodeIds.length > 0) {
-            var id_filter = { link: 'or' };
-            if (direction == 'to' || direction == 'both'){
-                id_filter['destination__'+ levelFilterMidSec + 'id__in'] = nodeIds;
-            }
-            if (direction == 'from' || direction == 'both') {
-                id_filter['origin__'+ levelFilterMidSec + 'id__in'] = nodeIds;
-            }
-            flowFilters.push(id_filter);
+            chainFilters[levelFilterMidSec] = nodeIds;
         }
-
-        var areas = filter.get('areas');
 
         // filter origins/destinations by areas
-        if (areas && areas.length > 0){
-            var area_filter = { link: 'or' }
-            if (direction == 'to' || direction == 'both'){
-                area_filter['destination__areas'] = areas;
-            }
-            if (direction == 'from' || direction == 'both'){
-                area_filter['origin__areas'] = areas;
-            }
-            flowFilters.push(area_filter);
+        var areas = filter.get('areas');
+        if (areas && areas.length > 0) {
+            chainFilters['areas'] = areas;
         }
+
+        // filter by role
+        if (role) {
+            chainFilters['role'] = role;
+        }
+
+        // Add chain filter
+        if (Object.keys(chainFilters).length > 0) {
+            chainFilters['link'] = 'chain';
+            flowFilters.push(chainFilters);
+        }
+
         return filterParams;
     },
 
@@ -201,11 +241,11 @@ var FlowsView = BaseView.extend(
 
             // remember original amounts to be able to swap amount with delta and back
             flow._amount = flow.get('amount');
-            var materials = flow.get('materials');
-            flow.get('materials').forEach(function(material){
-                material._amount =  material.amount;
-            })
-            flow.set('materials', materials);
+            //var materials = flow.get('materials');
+            //flow.get('materials').forEach(function(material){
+                //material._amount =  material.amount;
+            //})
+            //flow.set('materials', materials);
 
             origin.color = utils.colorByName(origin.name);
             if (!flow.get('stock'))
@@ -370,20 +410,20 @@ var FlowsView = BaseView.extend(
             showDelta = this.modDisplaySelect.value === 'delta',
             _this = this;
 
-        function listFlows() {
-            var flowTable = _this.el.querySelector('#flow_table');
+       // function listFlows() {
+            //var flowTable = _this.el.querySelector('#flow_table');
             // flowTable.innerHTML = '<strong>FLOW MATERIALS</strong>';
-            var modDisplay = _this.modDisplaySelect.value,
-                flows = (modDisplay == 'statusquo') ? _this.flows : (modDisplay == 'strategy') ? _this.strategyFlows : _this.deltaFlows;
-            flows.forEach(function(flow) {
-                var name = flow.get("materials")[0].name;
-                var div = document.createElement("div");
-                if (flowTable.innerHTML.indexOf(name) === -1) {
-                    div.innerHTML = name;
-                    flowTable.appendChild(div);
-                }
-            });
-        }
+            //var modDisplay = _this.modDisplaySelect.value,
+                //flows = (modDisplay == 'statusquo') ? _this.flows : (modDisplay == 'strategy') ? _this.strategyFlows : _this.deltaFlows;
+            //flows.forEach(function(flow) {
+                //var name = flow.get("materials")[0].name;
+               // var div = document.createElement("div");
+               // if (flowTable.innerHTML.indexOf(name) === -1) {
+                   // div.innerHTML = name;
+                  //  flowTable.appendChild(div);
+                //}
+           // });
+       // }
 
         function drawSankey(){
             var modDisplay = _this.modDisplaySelect.value,
@@ -393,11 +433,11 @@ var FlowsView = BaseView.extend(
                 var amount = flow._amount;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
                 flow.set('amount', amount)
-                var materials = flow.get('materials');
-                materials.forEach(function(material){
-                    material.amount = material._amount;
-                })
-                flow.set('materials', materials);
+               // var materials = flow.get('materials');
+               // materials.forEach(function(material){
+                   // material.amount = material._amount;
+               // })
+               // flow.set('materials', materials);
             });
             _this.flowSankeyView = new FlowSankeyView({
                 el: el,
@@ -429,14 +469,14 @@ var FlowsView = BaseView.extend(
                             }
                         })
                     } else {
-                        listFlows();
+                        //listFlows();
                         drawSankey();
                     }
                 }
             })
         }
         else {
-            listFlows();
+            //listFlows();
             drawSankey();
         }
         this.displayLevel = displayLevel;
@@ -455,18 +495,17 @@ var FlowsView = BaseView.extend(
         // put filtering by clicked flow origin/destination into query params
         if (this.nodeLevel === 'activitygroup')
             filterSuffix += '__activitygroup';
-        var queryParams = {},
-            is_stock = flow.get('stock'),
-            process = flow.get('process_id');
+        var queryParams = {};
+            //is_stock = flow.get('stock'),
+            //process = flow.get('process_id');
         queryParams['origin__' + filterSuffix] = flow.get('origin').id;
-        if (!is_stock)
-            queryParams['destination__' + filterSuffix] = flow.get('destination').id;
-        queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
-        queryParams['stock'] = (is_stock) ? 'True': 'False';
-        if (process)
-            queryParams['process'] = process;
-        else
-            queryParams['process__isnull'] = true;
+        queryParams['destination__' + filterSuffix] = flow.get('destination').id;
+        //queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
+        //queryParams['stock'] = (is_stock) ? 'True': 'False';
+        //if (process)
+           // queryParams['process'] = process;
+        //else
+           // queryParams['process__isnull'] = true;
 
         if (this.strategy && this.modDisplaySelect.value != 'statusquo')
             queryParams['strategy'] = this.strategy.id;
@@ -478,8 +517,7 @@ var FlowsView = BaseView.extend(
                 color: origin.color,
                 name: origin.name,
                 id: origin.id
-            };
-        if (!is_stock)
+            },
             destination_group = {
                 color: destination.color,
                 name: destination.name,
@@ -497,11 +535,11 @@ var FlowsView = BaseView.extend(
                 var amount = flow._amount;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
                 flow.set('amount', amount)
-                var materials = flow.get('materials');
-                flow.get('materials').forEach(function(material){
-                    material.amount = material._amount;
-                })
-                flow.set('materials', materials);
+                //var materials = flow.get('materials');
+                //flow.get('materials').forEach(function(material){
+                    //material.amount = material._amount;
+                //})
+                //flow.set('materials', materials);
             });
             _this.flowMapView.addFlows(flows);
         }
@@ -527,14 +565,14 @@ var FlowsView = BaseView.extend(
                             }
                             // remember original amounts to be able to swap amount with delta and back
                             f._amount = f.get('amount');
-                            var materials = f.get('materials');
-                            f.get('materials').forEach(function(material){
+                            //var materials = f.get('materials');
+                            //f.get('materials').forEach(function(material){
                                 // ToDo: change filter API response
                                 // workaround: show statusquo if amount is null
-                                if (material.amount == null) material.amount = material.statusquo_amount;
-                                material._amount = material.amount;
-                            })
-                            f.set('materials', materials);
+                                //if (material.amount == null) material.amount = material.statusquo_amount;
+                               // material._amount = material.amount;
+                            //})
+                            //f.set('materials', materials);
                         })
                         addFlows(flows);
                         _this.flowMem[flow.id] = flows;
