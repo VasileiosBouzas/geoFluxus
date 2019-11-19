@@ -134,15 +134,12 @@ def build_chain_filter(filter, queryset, keyflow):
     # Apply filters to CHAINS
     # SOLVE BUG!!!
     if role == 'all':
-        # ALL nodes should satisfy the criteria
-        print("ALL")
+        # ALL nodes should satisfy the criteri
         chains = chains.filter(np.bitwise_and.reduce(filter_functions))
     elif role == 'any':
-        print("ANY")
         # ANY node should satisfy the criteria
         chains = chains.filter(np.bitwise_or.reduce(filter_functions))
     else:
-        print("ONE")
         # REQUESTED node should satisfy the criteria
         chains = chains.filter(filter_functions[0])
 
@@ -186,6 +183,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 params[key] = value
 
         # Divide filters
+        chain = params.get('chain', None)
         filter_chains = params.get('filters', None)
         material_filter = params.get('materials', None)
         product_filter = params.get('products', None)
@@ -198,8 +196,12 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         destination_level = inv_map[l_a['destination']] \
             if 'destination' in l_a else Actor
 
-        # Filter by KEYFLOW & FILTERS
+        # Filter by CHAIN
         keyflow = kwargs['keyflow_pk']
+        if chain:
+            queryset = build_chain_filter(chain, queryset, keyflow)
+
+        # Filter by FILTERS
         if filter_chains:
             queryset = self.filter_chain(queryset, filter_chains, keyflow)
 
@@ -277,6 +279,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         # workaround Django ORM bug
         queryset = queryset.order_by()
 
+        # Annotate amount
+        queryset = queryset.annotate(amount=F('flowchain__amount'))
+
         groups = queryset.values(origin_filter,
                                  destination_filter,
                                  ).distinct()
@@ -320,9 +325,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
     @staticmethod
     def filter_chain(queryset, filters, keyflow):
-        # Annotate amount
-        queryset = queryset.annotate(amount=F('flowchain__amount'))
-
         # Annotate classification
         classifs = Classification.objects.filter(flowchain__keyflow_id=keyflow)
         subq = classifs.filter(flowchain_id=OuterRef('flowchain'))
@@ -350,18 +352,11 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             filter_link = sub_filter.pop('link', 'and')
             filter_functions = []
 
-            if (filter_link == 'chain'):
-                queryset = build_chain_filter(sub_filter, queryset, keyflow)
-                continue
-
             for func, v in sub_filter.items():
                 # Search in parent flowchain
                 if func in flowchain_lookups:
                     # Year filter
-                    if func == 'year':
-                        # Ignore flow year
-                        if v == 'all': continue
-                        v = int(v[1:])
+                    if func == 'year': v = int(v[1:])
                     filter_function = Q(**{('flowchain__' + func): v})
                 elif func == 'hazardous':
                     filter_function = Q(**{('flowchain__waste__' + func): v})

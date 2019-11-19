@@ -147,7 +147,9 @@ var FlowsView = BaseView.extend(
             //var is_waste = (flowType == 'waste') ? true : false;
             //typeFilterFunctions['waste'] = is_waste;
         //}
-        typeFilterFunctions['year'] = year;
+        if (year != 'all') {
+            typeFilterFunctions['year'] = year;
+        }
         if (route != 'both') {
             var is_route = (route == 'yes') ? true : false;
             typeFilterFunctions['route'] = is_route;
@@ -191,7 +193,7 @@ var FlowsView = BaseView.extend(
         }
 
         // filter origins/destinations by ids
-        var chainFilters = {};
+        var chainFilters = filterParams['chain'] = {};
         if (nodeIds && nodeIds.length > 0) {
             chainFilters[levelFilterMidSec] = nodeIds;
         }
@@ -205,12 +207,6 @@ var FlowsView = BaseView.extend(
         // filter by role
         if (role) {
             chainFilters['role'] = role;
-        }
-
-        // Add chain filter
-        if (Object.keys(chainFilters).length > 0) {
-            chainFilters['link'] = 'chain';
-            flowFilters.push(chainFilters);
         }
 
         return filterParams;
@@ -491,6 +487,8 @@ var FlowsView = BaseView.extend(
         // there might be multiple flows in between the same actors,
         // force to aggregate them to one flow
         bodyParams['aggregation_level'] = { origin:"actor", destination:"actor" }
+
+        bodyParams['chain']['role'] = 'any';
 
         // put filtering by clicked flow origin/destination into query params
         if (this.nodeLevel === 'activitygroup')
