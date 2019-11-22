@@ -47,6 +47,30 @@ LEVEL_KEYWORD = {
 }
 
 
+def merge(queryset):
+    # producer flows
+    pros = queryset.filter(origin_role='Ontdoener')\
+                   .order_by('flowchain')\
+                   .values('flowchain',
+                           'origin_id',
+                           'origin_role',
+                           'origin__activity__activitygroup')
+
+    # treatment flows
+    treats = queryset.filter(destination_role='Verwerker')\
+                     .order_by('flowchain')\
+                     .values('flowchain',
+                             'destination_id',
+                             'destination_role',
+                             'destination__activity__activitygroup')
+
+    subq = treats.filter(flowchain=OuterRef('flowchain'))
+    queryset = pros.annotate(destination_id=Subquery(subq.values('destination_id')))\
+                   .annotate(destination_role=Subquery(subq.values('destination_role')))\
+                   .annotate(destination__activity__activitygroup=Subquery(subq.values('destination__activity__activitygroup')))
+    return queryset
+
+
 def build_chain_filter(filter, queryset, keyflow):
     # Role is meaningless without nodes or areas
     if len(filter) == 1:
@@ -54,7 +78,7 @@ def build_chain_filter(filter, queryset, keyflow):
 
     # Filter flowchains by keyflow
     # Retrieve only flowchain ids
-    chains = FlowChain.objects.filter(keyflow__id=keyflow).only('id')
+    chains = FlowChain.objects.filter(keyflow__id=keyflow).values('id')
 
     # Retrieve role
     role = filter.pop('role') # retrieve role
@@ -173,6 +197,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         # filter by query params
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=self.get_serializer_class())
+
+        # remove collection node
+        queryset = merge(queryset)
 
         # filter by flow params
         params = {}

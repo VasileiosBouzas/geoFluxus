@@ -657,9 +657,9 @@ var FlowsView = BaseView.extend(
         this.flowMapView.rerender();
     },
 
-    deleteLinks: function(data, transformedData) {
-        var sourceLinks = data.sourceLinks,
-            targetLinks = data.targetLinks;
+    deleteLinks: function(selected, data) {
+        var sourceLinks = selected.sourceLinks,
+            targetLinks = selected.targetLinks;
 
         // retrieve links to delete
         var to_delete = [];
@@ -672,19 +672,19 @@ var FlowsView = BaseView.extend(
 
         // delete links
         to_delete.forEach(function(id) {
-            var n = transformedData.links.length;
+            var n = data.links.length;
             for (i = 0; i < n; i++){
-                var link = transformedData.links[i];
+                var link = data.links[i];
                 var id = link.id;
                 if (to_delete.includes(id)) {
-                    transformedData.links.splice(i, 1);
+                    data.links.splice(i, 1);
                     break;
                 }
             }
         })
 
         // update nodes
-        transformedData.nodes.forEach(function(node){
+        data.nodes.forEach(function(node){
             to_delete.forEach(function(id) {
                 // search in sourceLinks
                 var n = node.sourceLinks.length;
@@ -710,12 +710,12 @@ var FlowsView = BaseView.extend(
         })
     },
 
-    deleteNodes: function(transformedData) {
+    deleteNodes: function(data) {
         // retrieve orphan nodes to delete
         var to_delete = [];
-        var n = transformedData.nodes.length;
+        var n = data.nodes.length;
         for (i = 0; i < n; i++) {
-            var node = transformedData.nodes[i];
+            var node = data.nodes[i];
             var sourceLinks = node.sourceLinks,
                 targetLinks = node.targetLinks;
             if (sourceLinks.length === 0 &&
@@ -726,12 +726,12 @@ var FlowsView = BaseView.extend(
 
         // delete orphan nodes
         to_delete.forEach(function(id) {
-            var n = transformedData.nodes.length;
+            var n = data.nodes.length;
             for (i = 0; i < n; i++){
-                var node = transformedData.nodes[i];
+                var node = data.nodes[i];
                 var id = node.id;
                 if (to_delete.includes(id)) {
-                    transformedData.nodes.splice(i, 1);
+                    data.nodes.splice(i, 1);
                     break;
                 }
             }
@@ -739,20 +739,31 @@ var FlowsView = BaseView.extend(
     },
 
     nodeSelected: function(e){
-        var data = e.detail,
+        // selected node
+        var selected = e.detail,
             _this = this;
 
         // retrieve sankey data
-        transformedData = _this.flowSankeyView.transformedData;
+        var sourceLinks = selected.sourceLinks,
+            targetLinks = selected.targetLinks,
+            transformedData = _this.flowSankeyView.transformedData;
 
-        // delete sankey links & update
-        _this.deleteLinks(data, transformedData);
+        // check if middleNode
+        var middle = (sourceLinks.length != 0 &&
+                      targetLinks.length != 0) ? true : false;
 
-        // delete orphan nodes
-        _this.deleteNodes(transformedData);
+        if (!middle) {
+            // delete sankey links & update
+            _this.deleteLinks(selected, transformedData);
 
-        // redraw sankey
-        _this.flowSankeyView.render(transformedData);
+            // delete orphan nodes
+            _this.deleteNodes(transformedData);
+
+            // redraw sankey
+            _this.flowSankeyView.render(transformedData);
+        } else {
+
+        }
     },
 
     nodeDeselected: function(e){
