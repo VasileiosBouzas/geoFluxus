@@ -30,6 +30,8 @@ var FlowsView = BaseView.extend(
         FlowsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'linkSelected');
         _.bindAll(this, 'linkDeselected');
+        _.bindAll(this, 'nodeSelected');
+        _.bindAll(this, 'nodeDeselected');
         _.bindAll(this, 'deselectAll');
 
         this.template = options.template;
@@ -68,6 +70,8 @@ var FlowsView = BaseView.extend(
         this.sankeyWrapper = this.el.querySelector('.sankey-wrapper');
         this.sankeyWrapper.addEventListener('linkSelected', this.linkSelected);
         this.sankeyWrapper.addEventListener('linkDeselected', this.linkDeselected);
+        this.sankeyWrapper.addEventListener('nodeSelected', this.nodeSelected);
+        this.sankeyWrapper.addEventListener('nodeDeselected', this.nodeDeselected);
         this.sankeyWrapper.addEventListener('allDeselected', this.deselectAll);
 
         var deltaEl = this.el.querySelector('div[name="modifications"]');
@@ -651,6 +655,108 @@ var FlowsView = BaseView.extend(
     deselectAll: function(){
         this.flowMapView.clear();
         this.flowMapView.rerender();
+    },
+
+    deleteLinks: function(data, transformedData) {
+        var sourceLinks = data.sourceLinks,
+            targetLinks = data.targetLinks;
+
+        // retrieve links to delete
+        var to_delete = [];
+        sourceLinks.forEach(function(l){
+            to_delete.push(l.id);
+        })
+        targetLinks.forEach(function(l){
+            to_delete.push(l.id);
+        })
+
+        // delete links
+        to_delete.forEach(function(id) {
+            var n = transformedData.links.length;
+            for (i = 0; i < n; i++){
+                var link = transformedData.links[i];
+                var id = link.id;
+                if (to_delete.includes(id)) {
+                    transformedData.links.splice(i, 1);
+                    break;
+                }
+            }
+        })
+
+        // update nodes
+        transformedData.nodes.forEach(function(node){
+            to_delete.forEach(function(id) {
+                // search in sourceLinks
+                var n = node.sourceLinks.length;
+                for (i = 0; i < n; i++){
+                    var link = node.sourceLinks[i];
+                    var id = link.id;
+                    if (to_delete.includes(id)) {
+                        node.sourceLinks.splice(i, 1);
+                        break;
+                    }
+                }
+                // search in targetLinks
+                var n = node.targetLinks.length;
+                for (i = 0; i < n; i++){
+                    var link = node.targetLinks[i];
+                    var id = link.id;
+                    if (to_delete.includes(id)) {
+                        node.targetLinks.splice(i, 1);
+                        break;
+                    }
+                }
+            })
+        })
+    },
+
+    deleteNodes: function(transformedData) {
+        // retrieve orphan nodes to delete
+        var to_delete = [];
+        var n = transformedData.nodes.length;
+        for (i = 0; i < n; i++) {
+            var node = transformedData.nodes[i];
+            var sourceLinks = node.sourceLinks,
+                targetLinks = node.targetLinks;
+            if (sourceLinks.length === 0 &&
+                targetLinks.length === 0) {
+                to_delete.push(node.id);
+            }
+        }
+
+        // delete orphan nodes
+        to_delete.forEach(function(id) {
+            var n = transformedData.nodes.length;
+            for (i = 0; i < n; i++){
+                var node = transformedData.nodes[i];
+                var id = node.id;
+                if (to_delete.includes(id)) {
+                    transformedData.nodes.splice(i, 1);
+                    break;
+                }
+            }
+        })
+    },
+
+    nodeSelected: function(e){
+        var data = e.detail,
+            _this = this;
+
+        // retrieve sankey data
+        transformedData = _this.flowSankeyView.transformedData;
+
+        // delete sankey links & update
+        _this.deleteLinks(data, transformedData);
+
+        // delete orphan nodes
+        _this.deleteNodes(transformedData);
+
+        // redraw sankey
+        _this.flowSankeyView.render(transformedData);
+    },
+
+    nodeDeselected: function(e){
+        console.log('Node deselected...');
     }
 
 });
