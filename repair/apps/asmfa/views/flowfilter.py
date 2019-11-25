@@ -50,24 +50,21 @@ LEVEL_KEYWORD = {
 def merge(queryset):
     # producer flows
     pros = queryset.filter(origin_role='Ontdoener')\
-                   .order_by('flowchain')\
                    .values('flowchain',
-                           'origin_id',
-                           'origin_role',
-                           'origin__activity__activitygroup')
+                           'origin')
 
     # treatment flows
     treats = queryset.filter(destination_role='Verwerker')\
-                     .order_by('flowchain')\
-                     .values('flowchain',
-                             'destination_id',
-                             'destination_role',
-                             'destination__activity__activitygroup')
+                     .values('destination')
 
     subq = treats.filter(flowchain=OuterRef('flowchain'))
-    queryset = pros.annotate(destination_id=Subquery(subq.values('destination_id')))\
-                   .annotate(destination_role=Subquery(subq.values('destination_role')))\
-                   .annotate(destination__activity__activitygroup=Subquery(subq.values('destination__activity__activitygroup')))
+    queryset = pros.annotate(destination__id=
+                             Subquery(subq.values('destination__id')),
+                             destination__activity__id=
+                             Subquery(subq.values('destination__activity__id')),
+                             destination__activity__activitygroup__id=
+                             Subquery(subq.values('destination__activity__activitygroup__id')))
+
     return queryset
 
 
@@ -198,9 +195,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=self.get_serializer_class())
 
-        # remove collection node
-        queryset = merge(queryset)
-
         # filter by flow params
         params = {}
         for key, value in request.data.items():
@@ -210,6 +204,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 params[key] = value
 
         # Divide filters
+        middle = params.get('middle', False);
         chain = params.get('chain', None)
         filter_chains = params.get('filters', None)
         material_filter = params.get('materials', None)
@@ -227,6 +222,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         keyflow = kwargs['keyflow_pk']
         if chain:
             queryset = build_chain_filter(chain, queryset, keyflow)
+
+        # remove collection node
+        if middle: queryset = merge(queryset)
 
         # Filter by FILTERS
         if filter_chains:
@@ -294,8 +292,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         aggregates flows between nodes on actor level to the levels determined
         by origin_model and destination_model
         '''
-        origin_filter = 'origin' + FILTER_SUFFIX[origin_model]
-        destination_filter = 'destination' + FILTER_SUFFIX[destination_model]
+        origin_filter = 'origin' + FILTER_SUFFIX[origin_model] + '__id'
+        destination_filter = 'destination' + FILTER_SUFFIX[destination_model] + '__id'
         origin_level = LEVEL_KEYWORD[origin_model]
         destination_level = LEVEL_KEYWORD[destination_model]
         data = []

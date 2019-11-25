@@ -51,4 +51,5 @@ class FlowFilterSerializer(serializers.ModelSerializer):
                   'clean',
                   'mixed',
                   'direct',
-                  'year')
+                  'year',
+                  'middle')

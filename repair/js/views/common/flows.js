@@ -109,8 +109,9 @@ var FlowsView = BaseView.extend(
             direct = filter.get('direct').toLowerCase(),
             //avoidable = filter.get('avoidable').toLowerCase(),
             nodeLevel = filter.get('filter_level') || 'activitygroup',
-            direction = filter.get('direction') || 'both'
-            role = filter.get('role') || 'all';
+            direction = filter.get('direction') || 'both',
+            role = filter.get('role') || 'all',
+            middle = filter.get('middle') || false;
 
         nodeLevel = nodeLevel.toLowerCase();
         flowType = flowType.toLowerCase();
@@ -212,6 +213,9 @@ var FlowsView = BaseView.extend(
         if (role) {
             chainFilters['role'] = role;
         }
+
+        // ignore middle node
+        var middleFilter = filterParams['middle'] = middle;
 
         return filterParams;
     },
@@ -502,8 +506,8 @@ var FlowsView = BaseView.extend(
         // retrieve actor-actor flows for certain activity/group
         // for both origin and destination
         actFilter = {};
-        actFilter['origin__' + filterSuffix] = flow.get('origin').id;
-        actFilter['destination__' + filterSuffix] = flow.get('destination').id;
+        actFilter['origin__' + filterSuffix + '__id'] = flow.get('origin').id;
+        actFilter['destination__' + filterSuffix + '__id'] = flow.get('destination').id;
         actFilter['link'] = 'and';
         bodyParams['filters'].push(actFilter);
         //queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';

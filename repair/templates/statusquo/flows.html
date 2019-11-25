@@ -424,6 +424,9 @@
         <option value="activity">{% trans "Activity" %}</option>
         <option value="actor">{% trans "Actor" %} </option>
       </select>
+      <div class="col-md-2">
+        <input name="middle" type="checkbox"/>&nbsp;{% trans "Ignore middle" %}
+      </div>
       <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply the filters to activities and actors and flows and render the sankey diagram." %}" style="margin-left: 20px; float: left;">{% trans "Apply Filters and Render" %}</button>
       <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Render Filter Settings" style="float: left;" data-html="true" tabindex="0"
         data-content="{% blocktrans %}
@@ -438,8 +441,8 @@
 
 <div id="flows-render-content"></div>
 
-<div class="area-filter modal fade" role="dialog">
 </div>
+<div class="area-filter modal fade" role="dialog">
 </script>
 
 <!--flow assessment workshop mode-->
