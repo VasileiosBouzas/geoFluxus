@@ -268,6 +268,7 @@ var FlowSankeyView = BaseView.extend(
             //var crepr = compositionRepr(flow),
             var amount = flow.get('amount'),
                 value = (norm === 'log')? normalize(amount): amount;
+            var description = flow.get('description');
 
             //if (_this.forceSignum && amount >= 0)
                // amount = '+' + amount.toLocaleString(this.language);

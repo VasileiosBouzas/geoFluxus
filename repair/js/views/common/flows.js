@@ -245,6 +245,7 @@ var FlowsView = BaseView.extend(
 
             // remember original amounts to be able to swap amount with delta and back
             flow._amount = flow.get('amount');
+            flow.description = flow.get('description');
             //var materials = flow.get('materials');
             //flow.get('materials').forEach(function(material){
                 //material._amount =  material.amount;
@@ -435,8 +436,10 @@ var FlowsView = BaseView.extend(
             // override value and color
             flows.forEach(function(flow){
                 var amount = flow._amount;
+                var description = flow.description;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
-                flow.set('amount', amount)
+                flow.set('amount', amount);
+                flow.set('description', description);
                // var materials = flow.get('materials');
                // materials.forEach(function(material){
                    // material.amount = material._amount;
@@ -543,8 +546,10 @@ var FlowsView = BaseView.extend(
             // override value and color
             flows.forEach(function(flow){
                 var amount = flow._amount;
+                var description = flow.description;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
-                flow.set('amount', amount)
+                flow.set('amount', amount);
+                flow.set('description', description);
                 //var materials = flow.get('materials');
                 //flow.get('materials').forEach(function(material){
                     //material.amount = material._amount;
@@ -575,6 +580,7 @@ var FlowsView = BaseView.extend(
                             }
                             // remember original amounts to be able to swap amount with delta and back
                             f._amount = f.get('amount');
+                            f.description = f.get('description');
                             //var materials = f.get('materials');
                             //f.get('materials').forEach(function(material){
                                 // ToDo: change filter API response

@@ -682,7 +682,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         color: flow.color,
                         fractions: flow.get('materials'),
                         waste: flow.get('waste'),
-                        process: flow.get('process')
+                        process: flow.get('process'),
+                        description: flow.get('description')
                     });
                 }
                 i += 1;
@@ -699,12 +700,19 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             function transformFlow(pFlow){
                 var source = pFlow.source,
                     target = pFlow.target,
-                    fractions = pFlow.fractions;
+                    fractions = pFlow.fractions,
+                    description = pFlow.description;
 
-                var wasteLabel = (pFlow.waste) ? gettext('Waste') : gettext('Product'),
-                    processLabel = gettext('Process') + ': ' + (pFlow.process || '-'),
+                var descText = '<br><b>Description:</b> ';
+                description.forEach(function(d) {
+                    descText += d + ', ';
+                })
+                descText = descText.substring(0, descText.length - 2);
+
+                var //wasteLabel = (pFlow.waste) ? gettext('Waste') : gettext('Product'),
+                    //processLabel = gettext('Process') + ': ' + (pFlow.process || '-'),
                     totalAmount = pFlow.amount,
-                    flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel+ '<br>' + processLabel ;
+                    flowLabel = source.name + '&#10132; '  + target.name + '<br>' + descText;
 
                 if(splitByComposition){
                     var cl = [];

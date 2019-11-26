@@ -158,7 +158,7 @@ class Sankey{
         tipLinks.html(function(d) {
             var title = d.source.name + " -> " + d.target.name,
                 value = _this.format(d.amount || d.value) + " " + (d.units || "");
-            return "<h1>" + title + "</h1>" + "<br>" + value + "<br><br>" + d.text;
+            return "<h1>" + title + "</h1>" + "<br>" + value + "<br><br>";
         });
 
         tipNodes.html(function(d) {

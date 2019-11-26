@@ -305,7 +305,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         queryset = queryset.order_by()
 
         # Annotate amount
-        queryset = queryset.annotate(amount=F('flowchain__amount'))
+        queryset = queryset.annotate(amount=F('flowchain__amount'),
+                                     description=F('flowchain__description'))
 
         groups = queryset.values(origin_filter,
                                  destination_filter,
@@ -338,11 +339,13 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
             total_amount = list(
                 grouped.aggregate(Sum('amount')).values())[0]
+            description = list(grouped.values_list('description', flat=True).distinct())
 
             flow_item = OrderedDict((
                 ('origin', origin_item),
                 ('destination', dest_item),
-                ('amount', total_amount)
+                ('amount', total_amount),
+                ('description', description)
             ))
             data.append(flow_item)
         return data
