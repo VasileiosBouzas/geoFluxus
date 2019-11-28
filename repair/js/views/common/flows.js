@@ -104,9 +104,6 @@ var FlowsView = BaseView.extend(
             route = filter.get('route').toLowerCase(),
             collector = filter.get('collector').toLowerCase(),
             hazardous = filter.get('hazardous').toLowerCase(),
-            clean = filter.get('clean').toLowerCase(),
-            mixed = filter.get('mixed').toLowerCase(),
-            direct = filter.get('direct').toLowerCase(),
             //avoidable = filter.get('avoidable').toLowerCase(),
             nodeLevel = filter.get('filter_level') || 'activitygroup',
             direction = filter.get('direction') || 'both',
@@ -167,22 +164,52 @@ var FlowsView = BaseView.extend(
             var is_hazardous = (hazardous == 'yes') ? true : false;
             typeFilterFunctions['hazardous'] = is_hazardous;
         }
-        if (clean != 'both') {
-            var is_clean = (clean == 'yes') ? true : false;
-            typeFilterFunctions['clean'] = is_clean;
-        }
-        if (mixed != 'both') {
-            var is_mixed = (mixed == 'yes') ? true : false;
-            typeFilterFunctions['mixed'] = is_mixed;
-        }
-        if (direct != 'both') {
-            var is_direct = (direct == 'yes') ? true : false;
-            typeFilterFunctions['direct'] = is_direct;
-        }
         //if (avoidable != 'both') {
             //var is_avoidable = (avoidable == 'yes') ? true : false;
             //typeFilterFunctions['avoidable'] = is_avoidable
         //}
+        var clean = filter.get('clean');
+        if (clean) {
+            var options = [];
+            clean.split(',').forEach(function(option){
+                if (option == 'unknown') {
+                    options.push(null);
+                } else {
+                    var is_clean = (option == 'yes') ? true : false;
+                    options.push(is_clean);
+                }
+            })
+            typeFilterFunctions['clean'] = options;
+        }
+
+        var mixed = filter.get('mixed');
+        if (mixed) {
+            var options = [];
+            mixed.split(',').forEach(function(option){
+                if (option == 'unknown') {
+                    options.push(null);
+                } else {
+                    var is_mixed = (option == 'yes') ? true : false;
+                    options.push(is_mixed);
+                }
+            })
+            typeFilterFunctions['mixed'] = options;
+        }
+
+        var direct = filter.get('direct');
+        if (direct) {
+            var options = [];
+            direct.split(',').forEach(function(option){
+                if (option == 'unknown') {
+                    options.push(null);
+                } else {
+                    var is_direct = (option == 'yes') ? true : false;
+                    options.push(is_direct);
+                }
+            })
+            typeFilterFunctions['direct'] = options;
+        }
+
         var processIds = filter.get('process_ids');
         if (processIds) {
             typeFilterFunctions['process_id__in'] = processIds.split(',');

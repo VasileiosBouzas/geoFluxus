@@ -73,9 +73,9 @@ class FlowFilter(GDSEModel):
     )
     route = EnumIntegerField(enum=TriState, default=TriState.BOTH)
     collector = EnumIntegerField(enum=TriState, default=TriState.BOTH)
-    clean = EnumIntegerField(enum=TriState, default=TriState.BOTH)
-    mixed = EnumIntegerField(enum=TriState, default=TriState.BOTH)
-    direct = EnumIntegerField(enum=TriState, default=TriState.BOTH)
+    clean = models.TextField(null=True)
+    mixed = models.TextField(null=True)
+    direct = models.TextField(null=True)
     year = EnumIntegerField(enum=Year, default=Year.all)
     middle = models.BooleanField(default=False)
 

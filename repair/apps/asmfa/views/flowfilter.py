@@ -380,6 +380,37 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             filter_link = sub_filter.pop('link', 'and')
             filter_functions = []
 
+            funcs = []
+            clean = sub_filter.pop('clean', None)
+            if clean is not None:
+                for option in clean:
+                    funcs.append(Q(**{'clean' : option}))
+                if len(funcs) == 1:
+                    queryset = queryset.filter(funcs[0])
+                else:
+                    queryset = queryset.filter(np.bitwise_or.reduce(funcs))
+
+            funcs = []
+            mixed = sub_filter.pop('mixed', None)
+            if mixed is not None:
+                for option in mixed:
+                    funcs.append(Q(**{'mixed': option}))
+                if len(funcs) == 1:
+                    queryset = queryset.filter(funcs[0])
+                else:
+                    queryset = queryset.filter(np.bitwise_or.reduce(funcs))
+
+            funcs = []
+            direct = sub_filter.pop('direct', None)
+            if direct is not None:
+                for option in direct:
+                    funcs.append(Q(**{'direct': option}))
+                if len(funcs) == 1:
+                    queryset = queryset.filter(funcs[0])
+                else:
+                    queryset = queryset.filter(np.bitwise_or.reduce(funcs))
+
+
             for func, v in sub_filter.items():
                 # Search in parent flowchain
                 if func in flowchain_lookups:

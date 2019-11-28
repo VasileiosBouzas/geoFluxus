@@ -371,35 +371,39 @@
             </select>
           </div>
           <div class="col-md-2">
-            <div class="row">
               <label>{% trans "Hazardous" %}</label>
               <select name="hazardous" class="form-control">
                 <option value='both'> {% trans "ignore" %} </option>
                 <option value='no'> {% trans "not hazardous" %} </option>
                 <option value='yes'> {% trans "hazardous" %} </option>
               </select>
-            </div>
           </div>
           <div class="col-md-2">
             <label>{% trans "Clean" %}</label>
-            <select name="clean" class="form-control">
-              <option value='both'> {% trans "ignore" %} </option>
+            <select name="clean-select" class="form-control" multiple style="resize: vertical;">
+              <option value='-1'> {% trans "ignore" %} </option>
+              <option data-divider="true"></option>
+              <option value='unknown'> {% trans "unknown" %} </option>
               <option value='no'> {% trans "not clean" %} </option>
               <option value='yes'> {% trans "clean" %} </option>
             </select>
           </div>
           <div class="col-md-2">
             <label>{% trans "Mixed" %}</label>
-            <select name="mixed" class="form-control">
-              <option value='both'> {% trans "ignore" %} </option>
+            <select name="mixed-select" class="form-control" multiple style="resize: vertical;">
+              <option value='-1'> {% trans "ignore" %} </option>
+              <option data-divider="true"></option>
+              <option value='unknown'> {% trans "unknown" %} </option>
               <option value='no'> {% trans "not mixed" %} </option>
               <option value='yes'> {% trans "mixed" %} </option>
             </select>
           </div>
           <div class="col-md-2">
             <label>{% trans "Direct use" %}</label>
-            <select name="direct" class="form-control">
-              <option value='both'> {% trans "ignore" %} </option>
+            <select name="direct-select" class="form-control" multiple style="resize: vertical;">
+              <option value='-1'> {% trans "ignore" %} </option>
+              <option data-divider="true"></option>
+              <option value='unknown'> {% trans "unknown" %} </option>
               <option value='no'> {% trans "not direct" %} </option>
               <option value='yes'> {% trans "direct" %} </option>
             </select>
