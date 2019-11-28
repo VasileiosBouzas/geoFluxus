@@ -228,7 +228,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
         # Filter by FILTERS
         if filter_chains:
-            queryset = self.filter_chain(queryset, filter_chains, keyflow)
+            queryset = self.filter_chain(self, queryset, filter_chains, keyflow)
 
         # Filter by MATERIALS
         material_ids = ([] if material_filter is None
@@ -352,7 +352,20 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
 
     @staticmethod
-    def filter_chain(queryset, filters, keyflow):
+    def filter_classif(queryset, filter):
+        funcs = []
+        lookup, options = filter
+        for option in options:
+            funcs.append(Q(**{lookup : option}))
+        if len(funcs) == 1:
+            queryset = queryset.filter(funcs[0])
+        else:
+            queryset = queryset.filter(np.bitwise_or.reduce(funcs))
+        return queryset
+
+
+    @staticmethod
+    def filter_chain(self, queryset, filters, keyflow):
         # Annotate classification
         classifs = Classification.objects.filter(flowchain__keyflow_id=keyflow)
         subq = classifs.filter(flowchain_id=OuterRef('flowchain'))
@@ -375,41 +388,20 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                              'collector',
                              'process_id__in',
                              'waste_id__in']
+
+        classif_lookups = ['clean',
+                           'mixed',
+                           'direct']
         
         for sub_filter in filters:
             filter_link = sub_filter.pop('link', 'and')
             filter_functions = []
 
-            funcs = []
-            clean = sub_filter.pop('clean', None)
-            if clean is not None:
-                for option in clean:
-                    funcs.append(Q(**{'clean' : option}))
-                if len(funcs) == 1:
-                    queryset = queryset.filter(funcs[0])
-                else:
-                    queryset = queryset.filter(np.bitwise_or.reduce(funcs))
-
-            funcs = []
-            mixed = sub_filter.pop('mixed', None)
-            if mixed is not None:
-                for option in mixed:
-                    funcs.append(Q(**{'mixed': option}))
-                if len(funcs) == 1:
-                    queryset = queryset.filter(funcs[0])
-                else:
-                    queryset = queryset.filter(np.bitwise_or.reduce(funcs))
-
-            funcs = []
-            direct = sub_filter.pop('direct', None)
-            if direct is not None:
-                for option in direct:
-                    funcs.append(Q(**{'direct': option}))
-                if len(funcs) == 1:
-                    queryset = queryset.filter(funcs[0])
-                else:
-                    queryset = queryset.filter(np.bitwise_or.reduce(funcs))
-
+            for lookup in classif_lookups:
+                options = sub_filter.pop(lookup, None)
+                if options is not None:
+                    filter = (lookup, options)
+                    queryset = self.filter_classif(queryset, filter)
 
             for func, v in sub_filter.items():
                 # Search in parent flowchain
