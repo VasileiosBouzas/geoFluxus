@@ -30,6 +30,8 @@ var FlowsView = BaseView.extend(
         FlowsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'linkSelected');
         _.bindAll(this, 'linkDeselected');
+        _.bindAll(this, 'nodeSelected');
+        _.bindAll(this, 'nodeDeselected');
         _.bindAll(this, 'deselectAll');
 
         this.template = options.template;
@@ -68,6 +70,8 @@ var FlowsView = BaseView.extend(
         this.sankeyWrapper = this.el.querySelector('.sankey-wrapper');
         this.sankeyWrapper.addEventListener('linkSelected', this.linkSelected);
         this.sankeyWrapper.addEventListener('linkDeselected', this.linkDeselected);
+        this.sankeyWrapper.addEventListener('nodeSelected', this.nodeSelected);
+        this.sankeyWrapper.addEventListener('nodeDeselected', this.nodeDeselected);
         this.sankeyWrapper.addEventListener('allDeselected', this.deselectAll);
 
         var deltaEl = this.el.querySelector('div[name="modifications"]');
@@ -100,13 +104,11 @@ var FlowsView = BaseView.extend(
             route = filter.get('route').toLowerCase(),
             collector = filter.get('collector').toLowerCase(),
             hazardous = filter.get('hazardous').toLowerCase(),
-            clean = filter.get('clean').toLowerCase(),
-            mixed = filter.get('mixed').toLowerCase(),
-            direct = filter.get('direct').toLowerCase(),
             //avoidable = filter.get('avoidable').toLowerCase(),
             nodeLevel = filter.get('filter_level') || 'activitygroup',
-            direction = filter.get('direction') || 'both'
-            role = filter.get('role') || 'all';
+            direction = filter.get('direction') || 'both',
+            role = filter.get('role') || 'all',
+            middle = filter.get('middle') || false;
 
         nodeLevel = nodeLevel.toLowerCase();
         flowType = flowType.toLowerCase();
@@ -162,22 +164,52 @@ var FlowsView = BaseView.extend(
             var is_hazardous = (hazardous == 'yes') ? true : false;
             typeFilterFunctions['hazardous'] = is_hazardous;
         }
-        if (clean != 'both') {
-            var is_clean = (clean == 'yes') ? true : false;
-            typeFilterFunctions['clean'] = is_clean;
-        }
-        if (mixed != 'both') {
-            var is_mixed = (mixed == 'yes') ? true : false;
-            typeFilterFunctions['mixed'] = is_mixed;
-        }
-        if (direct != 'both') {
-            var is_direct = (direct == 'yes') ? true : false;
-            typeFilterFunctions['direct'] = is_direct;
-        }
         //if (avoidable != 'both') {
             //var is_avoidable = (avoidable == 'yes') ? true : false;
             //typeFilterFunctions['avoidable'] = is_avoidable
         //}
+        var clean = filter.get('clean');
+        if (clean) {
+            var options = [];
+            clean.split(',').forEach(function(option){
+                if (option == 'unknown') {
+                    options.push(null);
+                } else {
+                    var is_clean = (option == 'yes') ? true : false;
+                    options.push(is_clean);
+                }
+            })
+            typeFilterFunctions['clean'] = options;
+        }
+
+        var mixed = filter.get('mixed');
+        if (mixed) {
+            var options = [];
+            mixed.split(',').forEach(function(option){
+                if (option == 'unknown') {
+                    options.push(null);
+                } else {
+                    var is_mixed = (option == 'yes') ? true : false;
+                    options.push(is_mixed);
+                }
+            })
+            typeFilterFunctions['mixed'] = options;
+        }
+
+        var direct = filter.get('direct');
+        if (direct) {
+            var options = [];
+            direct.split(',').forEach(function(option){
+                if (option == 'unknown') {
+                    options.push(null);
+                } else {
+                    var is_direct = (option == 'yes') ? true : false;
+                    options.push(is_direct);
+                }
+            })
+            typeFilterFunctions['direct'] = options;
+        }
+
         var processIds = filter.get('process_ids');
         if (processIds) {
             typeFilterFunctions['process_id__in'] = processIds.split(',');
@@ -209,6 +241,9 @@ var FlowsView = BaseView.extend(
             chainFilters['role'] = role;
         }
 
+        // ignore middle node
+        var middleFilter = filterParams['middle'] = middle;
+
         return filterParams;
     },
 
@@ -237,6 +272,7 @@ var FlowsView = BaseView.extend(
 
             // remember original amounts to be able to swap amount with delta and back
             flow._amount = flow.get('amount');
+            flow.description = flow.get('description');
             //var materials = flow.get('materials');
             //flow.get('materials').forEach(function(material){
                 //material._amount =  material.amount;
@@ -427,8 +463,10 @@ var FlowsView = BaseView.extend(
             // override value and color
             flows.forEach(function(flow){
                 var amount = flow._amount;
+                var description = flow.description;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
-                flow.set('amount', amount)
+                flow.set('amount', amount);
+                flow.set('description', description);
                // var materials = flow.get('materials');
                // materials.forEach(function(material){
                    // material.amount = material._amount;
@@ -498,8 +536,8 @@ var FlowsView = BaseView.extend(
         // retrieve actor-actor flows for certain activity/group
         // for both origin and destination
         actFilter = {};
-        actFilter['origin__' + filterSuffix] = flow.get('origin').id;
-        actFilter['destination__' + filterSuffix] = flow.get('destination').id;
+        actFilter['origin__' + filterSuffix + '__id'] = flow.get('origin').id;
+        actFilter['destination__' + filterSuffix + '__id'] = flow.get('destination').id;
         actFilter['link'] = 'and';
         bodyParams['filters'].push(actFilter);
         //queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
@@ -535,8 +573,10 @@ var FlowsView = BaseView.extend(
             // override value and color
             flows.forEach(function(flow){
                 var amount = flow._amount;
+                var description = flow.description;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
-                flow.set('amount', amount)
+                flow.set('amount', amount);
+                flow.set('description', description);
                 //var materials = flow.get('materials');
                 //flow.get('materials').forEach(function(material){
                     //material.amount = material._amount;
@@ -567,6 +607,7 @@ var FlowsView = BaseView.extend(
                             }
                             // remember original amounts to be able to swap amount with delta and back
                             f._amount = f.get('amount');
+                            f.description = f.get('description');
                             //var materials = f.get('materials');
                             //f.get('materials').forEach(function(material){
                                 // ToDo: change filter API response
@@ -651,6 +692,119 @@ var FlowsView = BaseView.extend(
     deselectAll: function(){
         this.flowMapView.clear();
         this.flowMapView.rerender();
+    },
+
+    deleteLinks: function(selected, data) {
+        var sourceLinks = selected.sourceLinks,
+            targetLinks = selected.targetLinks;
+
+        // retrieve links to delete
+        var to_delete = [];
+        sourceLinks.forEach(function(l){
+            to_delete.push(l.id);
+        })
+        targetLinks.forEach(function(l){
+            to_delete.push(l.id);
+        })
+
+        // delete links
+        to_delete.forEach(function(id) {
+            var n = data.links.length;
+            for (i = 0; i < n; i++){
+                var link = data.links[i];
+                var id = link.id;
+                if (to_delete.includes(id)) {
+                    data.links.splice(i, 1);
+                    break;
+                }
+            }
+        })
+
+        // update nodes
+        data.nodes.forEach(function(node){
+            to_delete.forEach(function(id) {
+                // search in sourceLinks
+                var n = node.sourceLinks.length;
+                for (i = 0; i < n; i++){
+                    var link = node.sourceLinks[i];
+                    var id = link.id;
+                    if (to_delete.includes(id)) {
+                        node.sourceLinks.splice(i, 1);
+                        break;
+                    }
+                }
+                // search in targetLinks
+                var n = node.targetLinks.length;
+                for (i = 0; i < n; i++){
+                    var link = node.targetLinks[i];
+                    var id = link.id;
+                    if (to_delete.includes(id)) {
+                        node.targetLinks.splice(i, 1);
+                        break;
+                    }
+                }
+            })
+        })
+    },
+
+    deleteNodes: function(data) {
+        // retrieve orphan nodes to delete
+        var to_delete = [];
+        var n = data.nodes.length;
+        for (i = 0; i < n; i++) {
+            var node = data.nodes[i];
+            var sourceLinks = node.sourceLinks,
+                targetLinks = node.targetLinks;
+            if (sourceLinks.length === 0 &&
+                targetLinks.length === 0) {
+                to_delete.push(node.id);
+            }
+        }
+
+        // delete orphan nodes
+        to_delete.forEach(function(id) {
+            var n = data.nodes.length;
+            for (i = 0; i < n; i++){
+                var node = data.nodes[i];
+                var id = node.id;
+                if (to_delete.includes(id)) {
+                    data.nodes.splice(i, 1);
+                    break;
+                }
+            }
+        })
+    },
+
+    nodeSelected: function(e){
+        // selected node
+        var selected = e.detail,
+            _this = this;
+
+        // retrieve sankey data
+        var sourceLinks = selected.sourceLinks,
+            targetLinks = selected.targetLinks,
+            transformedData = _this.flowSankeyView.transformedData;
+
+        // check if middleNode
+        var middle = (sourceLinks.length != 0 &&
+                      targetLinks.length != 0) ? true : false;
+
+        if (!middle) {
+            // delete sankey links & update
+            _this.deleteLinks(selected, transformedData);
+
+            // delete orphan nodes
+            _this.deleteNodes(transformedData);
+
+            // redraw sankey
+            _this.flowSankeyView.render(transformedData);
+        } else {
+
+        }
+    },
+
+    nodeDeselected: function(e){
+        console.log('Node deselected...');
     }
 
 });

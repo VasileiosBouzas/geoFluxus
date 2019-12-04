@@ -158,6 +158,7 @@ var FilterFlowsView = BaseView.extend(
         });
         this.displayLevelSelect = this.el.querySelector('select[name="display-level-select"]');
         this.nodeLevelSelect = this.el.querySelector('select[name="node-level-select"]');
+        this.middleSelect = this.el.querySelector('input[name=middle]');
         //this.anonymousSelect = this.el.querySelector('input[name="anonymous"]');
         this.showFlowOnlyCheck = this.el.querySelector('input[name="show-flow-only"]');
         this.groupSelect = this.el.querySelector('select[name="group"]');
@@ -172,13 +173,16 @@ var FilterFlowsView = BaseView.extend(
         this.hazardousSelect = this.el.querySelector('select[name="hazardous"]');
         this.routeSelect = this.el.querySelector('select[name="route"]');
         this.collectorSelect = this.el.querySelector('select[name="collector"]');
-        this.cleanSelect = this.el.querySelector('select[name="clean"]');
-        this.mixedSelect = this.el.querySelector('select[name="mixed"]');
-        this.directSelect = this.el.querySelector('select[name="direct"]');
+        this.cleanSelect = this.el.querySelector('select[name="clean-select"]');
+        this.mixedSelect = this.el.querySelector('select[name="mixed-select"]');
+        this.directSelect = this.el.querySelector('select[name="direct-select"]');
         //this.avoidableSelect = this.el.querySelector('select[name="avoidable"]');
         $(this.groupSelect).selectpicker();
         $(this.activitySelect).selectpicker();
         $(this.actorSelect).selectpicker();
+        $(this.cleanSelect).selectpicker();
+        $(this.mixedSelect).selectpicker();
+        $(this.directSelect).selectpicker();
         $(this.processSelect).selectpicker();
         $(this.wasteSelect).selectpicker();
         this.resetNodeSelects();
@@ -479,6 +483,9 @@ var FilterFlowsView = BaseView.extend(
 
         $(this.actorSelect).on('changed.bs.select', multiCheck);
 
+        $(this.cleanSelect).on('changed.bs.select', multiCheck);
+        $(this.mixedSelect).on('changed.bs.select', multiCheck);
+        $(this.directSelect).on('changed.bs.select', multiCheck);
         $(this.processSelect).on('changed.bs.select', multiCheck);
         $(this.wasteSelect).on('changed.bs.select', multiCheck);
     },
@@ -642,6 +649,43 @@ var FilterFlowsView = BaseView.extend(
         filter.set('direction', direction);
         //filter.set('aggregate_materials', this.aggregateCheck.checked)
 
+        var clean = null;
+        if (this.cleanSelect.value != "-1") {
+            var values = [];
+            var options = this.cleanSelect.selectedOptions;
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                values.push(option.value);
+            }
+            clean = values.join(',');
+        }
+        filter.set('clean', clean);
+
+        var mixed = null;
+        if (this.mixedSelect.value != "-1") {
+            var values = [];
+            var options = this.mixedSelect.selectedOptions;
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                values.push(option.value);
+            }
+            mixed = values.join(',');
+        }
+        filter.set('mixed', mixed);
+
+        var direct = null;
+        console.log(this.directSelect);
+        if (this.directSelect.value != "-1") {
+            var values = [];
+            var options = this.directSelect.selectedOptions;
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                values.push(option.value);
+            }
+            direct = values.join(',');
+        }
+        filter.set('direct', direct);
+
         var process_ids = null;
         if (this.processSelect.value != "-1"){
             var values = [];
@@ -672,11 +716,9 @@ var FilterFlowsView = BaseView.extend(
         filter.set('hazardous', this.hazardousSelect.value);
         filter.set('route', this.routeSelect.value);
         filter.set('collector', this.collectorSelect.value);
-        filter.set('clean', this.cleanSelect.value);
-        filter.set('mixed', this.mixedSelect.value);
-        filter.set('direct', this.directSelect.value);
         //filter.set('avoidable', this.avoidableSelect.value);
         //filter.set('anonymize', this.anonymousSelect.checked);
+        filter.set('middle', this.middleSelect.checked);
 
         var areas = [];
         this.selectedAreas.forEach(function(area){
@@ -746,6 +788,33 @@ var FilterFlowsView = BaseView.extend(
         this.roleSelect.value = filter.get('role').toLowerCase();
         //this.aggregateCheck.checked = filter.get('aggregate_materials');
 
+        var clean = filter.get('clean');
+        if (clean == null) {
+            this.cleanSelect.value = -1;
+        }
+        else {
+            $(this.cleanSelect).selectpicker('val', clean.split(','))
+        }
+        $(this.cleanSelect).selectpicker('refresh');
+
+        var mixed = filter.get('mixed');
+        if (mixed == null) {
+            this.mixedSelect.value = -1;
+        }
+        else {
+            $(this.mixedSelect).selectpicker('val', mixed.split(','))
+        }
+        $(this.mixedSelect).selectpicker('refresh');
+
+        var direct = filter.get('direct');
+        if (direct == null) {
+            this.directSelect.value = -1;
+        }
+        else {
+            $(this.directSelect).selectpicker('val', direct.split(','))
+        }
+        $(this.directSelect).selectpicker('refresh');
+
         var process_ids = filter.get('process_ids');
         if (process_ids == null)
             this.processSelect.value = -1;
@@ -766,11 +835,9 @@ var FilterFlowsView = BaseView.extend(
         this.hazardousSelect.value = filter.get('hazardous').toLowerCase();
         this.routeSelect.value = filter.get('route').toLowerCase();
         this.collectorSelect.value = filter.get('collector').toLowerCase();
-        this.cleanSelect.value = filter.get('clean').toLowerCase();
-        this.mixedSelect.value = filter.get('mixed').toLowerCase();
-        this.directSelect.value = filter.get('direct').toLowerCase();
         //this.avoidableSelect.value = filter.get('avoidable').toLowerCase();
         //this.anonymousSelect.checked = filter.get('anonymize');
+        this.middleSelect.checked = filter.get('middle');
 
         // hierarchy-select plugin offers no functions to set (actually no functions at all) -> emulate clicking on row
         var material = filter.get('material'),

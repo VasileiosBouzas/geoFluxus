@@ -158,7 +158,7 @@ class Sankey{
         tipLinks.html(function(d) {
             var title = d.source.name + " -> " + d.target.name,
                 value = _this.format(d.amount || d.value) + " " + (d.units || "");
-            return "<h1>" + title + "</h1>" + "<br>" + value + "<br><br>" + d.text;
+            return "<h1>" + title + "</h1>" + "<br>" + value + "<br><br>";
         });
 
         tipNodes.html(function(d) {
@@ -307,6 +307,17 @@ class Sankey{
                 })
             .on('mouseover', function(d) { tipNodes.show(d, this); })
             .on('mouseout', function(d) { tipNodes.hide(d, this); })
+            .on("contextmenu", function(d) {
+                d3.event.preventDefault();
+                if (_this.selectable){
+                    var node = d3.select(this),
+                        selected = node.classed("selected");
+                    node.classed("selected", !selected);
+                    var etype = (selected) ? 'nodeDeselected': 'nodeSelected',
+                        event = new CustomEvent(etype, { detail: d });
+                    _this.el.dispatchEvent(event);
+                }
+            })
         .call(d3.behavior.drag()
             .origin(function(d) { return d; })
             .on("dragstart", function() {

@@ -47,6 +47,27 @@ LEVEL_KEYWORD = {
 }
 
 
+def merge(queryset):
+    # producer flows
+    pros = queryset.filter(origin_role='Ontdoener')\
+                   .values('flowchain',
+                           'origin')
+
+    # treatment flows
+    treats = queryset.filter(destination_role='Verwerker')\
+                     .values('destination')
+
+    subq = treats.filter(flowchain=OuterRef('flowchain'))
+    queryset = pros.annotate(destination__id=
+                             Subquery(subq.values('destination__id')),
+                             destination__activity__id=
+                             Subquery(subq.values('destination__activity__id')),
+                             destination__activity__activitygroup__id=
+                             Subquery(subq.values('destination__activity__activitygroup__id')))
+
+    return queryset
+
+
 def build_chain_filter(filter, queryset, keyflow):
     # Role is meaningless without nodes or areas
     if len(filter) == 1:
@@ -54,7 +75,7 @@ def build_chain_filter(filter, queryset, keyflow):
 
     # Filter flowchains by keyflow
     # Retrieve only flowchain ids
-    chains = FlowChain.objects.filter(keyflow__id=keyflow).only('id')
+    chains = FlowChain.objects.filter(keyflow__id=keyflow).values('id')
 
     # Retrieve role
     role = filter.pop('role') # retrieve role
@@ -183,6 +204,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 params[key] = value
 
         # Divide filters
+        middle = params.get('middle', False);
         chain = params.get('chain', None)
         filter_chains = params.get('filters', None)
         material_filter = params.get('materials', None)
@@ -201,9 +223,12 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         if chain:
             queryset = build_chain_filter(chain, queryset, keyflow)
 
+        # remove collection node
+        if middle: queryset = merge(queryset)
+
         # Filter by FILTERS
         if filter_chains:
-            queryset = self.filter_chain(queryset, filter_chains, keyflow)
+            queryset = self.filter_chain(self, queryset, filter_chains, keyflow)
 
         # Filter by MATERIALS
         material_ids = ([] if material_filter is None
@@ -267,8 +292,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         aggregates flows between nodes on actor level to the levels determined
         by origin_model and destination_model
         '''
-        origin_filter = 'origin' + FILTER_SUFFIX[origin_model]
-        destination_filter = 'destination' + FILTER_SUFFIX[destination_model]
+        origin_filter = 'origin' + FILTER_SUFFIX[origin_model] + '__id'
+        destination_filter = 'destination' + FILTER_SUFFIX[destination_model] + '__id'
         origin_level = LEVEL_KEYWORD[origin_model]
         destination_level = LEVEL_KEYWORD[destination_model]
         data = []
@@ -280,7 +305,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         queryset = queryset.order_by()
 
         # Annotate amount
-        queryset = queryset.annotate(amount=F('flowchain__amount'))
+        queryset = queryset.annotate(amount=F('flowchain__amount'),
+                                     description=F('flowchain__description'))
 
         groups = queryset.values(origin_filter,
                                  destination_filter,
@@ -313,18 +339,33 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
             total_amount = list(
                 grouped.aggregate(Sum('amount')).values())[0]
+            description = list(grouped.values_list('description', flat=True).distinct())
 
             flow_item = OrderedDict((
                 ('origin', origin_item),
                 ('destination', dest_item),
-                ('amount', total_amount)
+                ('amount', total_amount),
+                ('description', description)
             ))
             data.append(flow_item)
         return data
 
 
     @staticmethod
-    def filter_chain(queryset, filters, keyflow):
+    def filter_classif(queryset, filter):
+        funcs = []
+        lookup, options = filter
+        for option in options:
+            funcs.append(Q(**{lookup : option}))
+        if len(funcs) == 1:
+            queryset = queryset.filter(funcs[0])
+        else:
+            queryset = queryset.filter(np.bitwise_or.reduce(funcs))
+        return queryset
+
+
+    @staticmethod
+    def filter_chain(self, queryset, filters, keyflow):
         # Annotate classification
         classifs = Classification.objects.filter(flowchain__keyflow_id=keyflow)
         subq = classifs.filter(flowchain_id=OuterRef('flowchain'))
@@ -347,10 +388,20 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                              'collector',
                              'process_id__in',
                              'waste_id__in']
+
+        classif_lookups = ['clean',
+                           'mixed',
+                           'direct']
         
         for sub_filter in filters:
             filter_link = sub_filter.pop('link', 'and')
             filter_functions = []
+
+            for lookup in classif_lookups:
+                options = sub_filter.pop(lookup, None)
+                if options is not None:
+                    filter = (lookup, options)
+                    queryset = self.filter_classif(queryset, filter)
 
             for func, v in sub_filter.items():
                 # Search in parent flowchain

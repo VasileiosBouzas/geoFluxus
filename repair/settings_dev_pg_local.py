@@ -17,7 +17,7 @@ DATABASES = {
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASS,
-        'HOST': 'gdse.h2020repair.bk.tudelft.nl',
+        'HOST': 'localhost',
         'PORT': '5432',
         'OPTIONS': {
             'sslmode': 'require',
