@@ -17,9 +17,6 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PublicationInCasestudy',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('casestudy', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='login.CaseStudy')),
-                ('publication', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='publications_bootstrap.Publication')),
-            ],
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'))],
         ),
     ]
