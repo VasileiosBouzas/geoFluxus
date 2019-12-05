@@ -164,7 +164,7 @@ var FilterFlowsView = BaseView.extend(
         this.groupSelect = this.el.querySelector('select[name="group"]');
         this.activitySelect = this.el.querySelector('select[name="activity"]');
         this.actorSelect = this.el.querySelector('select[name="actor"]');
-        this.flowTypeSelect = this.el.querySelector('select[name="level"]');
+        //this.flowTypeSelect = this.el.querySelector('select[name="level"]');
         this.roleSelect = this.el.querySelector('select[name="role"]');
         //this.aggregateCheck = this.el.querySelector('input[name="aggregateMaterials"]');
         this.processSelect = this.el.querySelector('select[name="process-select"]');
@@ -645,8 +645,8 @@ var FilterFlowsView = BaseView.extend(
         filter.set('product', (product) ? product.id : null);
         var composite = this.selectedComposite;
         filter.set('composite', (composite) ? composite.id : null);
-        var direction = this.el.querySelector('input[name="direction"]:checked').value;
-        filter.set('direction', direction);
+        //var direction = this.el.querySelector('input[name="direction"]:checked').value;
+        //filter.set('direction', direction);
         //filter.set('aggregate_materials', this.aggregateCheck.checked)
 
         var clean = null;
@@ -674,7 +674,6 @@ var FilterFlowsView = BaseView.extend(
         filter.set('mixed', mixed);
 
         var direct = null;
-        console.log(this.directSelect);
         if (this.directSelect.value != "-1") {
             var values = [];
             var options = this.directSelect.selectedOptions;
@@ -710,7 +709,7 @@ var FilterFlowsView = BaseView.extend(
         }
         filter.set('waste_ids', waste_ids);
 
-        filter.set('flow_type', this.flowTypeSelect.value);
+        //filter.set('flow_type', this.flowTypeSelect.value);
         filter.set('role', this.roleSelect.value);
         filter.set('year', this.yearSelect.value);
         filter.set('hazardous', this.hazardousSelect.value);
@@ -781,10 +780,10 @@ var FilterFlowsView = BaseView.extend(
             else _this.changeAreaLevel();
         }
 
-        var direction = filter.get('direction'),
-            directionOption = document.querySelector('input[name="direction"][value="' + direction.toLowerCase() + '"]')
-        directionOption.checked = true;
-        this.flowTypeSelect.value = filter.get('flow_type').toLowerCase();
+//        var direction = filter.get('direction'),
+//            directionOption = document.querySelector('input[name="direction"][value="' + direction.toLowerCase() + '"]')
+//        directionOption.checked = true;
+        //this.flowTypeSelect.value = filter.get('flow_type').toLowerCase();
         this.roleSelect.value = filter.get('role').toLowerCase();
         //this.aggregateCheck.checked = filter.get('aggregate_materials');
 

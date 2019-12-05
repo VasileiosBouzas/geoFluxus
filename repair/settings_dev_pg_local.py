@@ -12,12 +12,11 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 DATABASES = {
     'default': {
-
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASS,
-        'HOST': 'localhost',
+        'HOST': 'gdse.h2020repair.bk.tudelft.nl',
         'PORT': '5432',
         'OPTIONS': {
             'sslmode': 'require',

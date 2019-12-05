@@ -99,20 +99,20 @@ var FlowsView = BaseView.extend(
 
         if(!filter) return filterParams;
 
-        var flowType = filter.get('flow_type') || 'both',
+        var // = filter.get('flow_type') || 'both',
             year = filter.get('year').toLowerCase(),
             route = filter.get('route').toLowerCase(),
             collector = filter.get('collector').toLowerCase(),
             hazardous = filter.get('hazardous').toLowerCase(),
             //avoidable = filter.get('avoidable').toLowerCase(),
             nodeLevel = filter.get('filter_level') || 'activitygroup',
-            direction = filter.get('direction') || 'both',
+            //direction = filter.get('direction') || 'both',
             role = filter.get('role') || 'all',
             middle = filter.get('middle') || false;
 
         nodeLevel = nodeLevel.toLowerCase();
-        flowType = flowType.toLowerCase();
-        direction = direction.toLowerCase();
+        //flowType = flowType.toLowerCase();
+        //direction = direction.toLowerCase();
         role = role.toLowerCase();
 
         // options for stocks and flows
