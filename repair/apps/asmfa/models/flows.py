@@ -91,7 +91,7 @@ class Classification(GDSEModel):
     clean = models.BooleanField(null=True)
     mixed = models.BooleanField(null=True)
     direct_use = models.BooleanField(null=True)
-
+    composite = models.BooleanField(null=True)
 
 # Extra description
 class ExtraDescription(GDSEModel):

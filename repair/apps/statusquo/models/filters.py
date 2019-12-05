@@ -76,6 +76,7 @@ class FlowFilter(GDSEModel):
     clean = models.TextField(null=True)
     mixed = models.TextField(null=True)
     direct = models.TextField(null=True)
+    composite = models.TextField(null=True)
     year = EnumIntegerField(enum=Year, default=Year.all)
     middle = models.BooleanField(default=False)
 
