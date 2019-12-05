@@ -207,7 +207,7 @@
     </div>
     <div id="filterCollapse" class="panel-collapse collapse sunken" style="padding: 0px 10px 10px 10px;">
       <div class="row" style="border-top: 1px solid lightgrey;">
-        <h4 style="float: left;"> {% trans 'Activities and Actors' %} </h4>
+        <h4 style="float: left;"> {% trans 'Activities & Areas' %} </h4>
         <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Activities and Actors Filter" data-html="true" tabindex="0"
           data-content='{% blocktrans %}
             Filter the activities and actors by the following criteria<br><br>
@@ -293,7 +293,7 @@
         </div>
       </div>
       <br class="row" style="border-top: 1px solid lightgrey;">
-        <h4 style="float: left;"> {% trans 'Flow Chains' %} </h4>
+        <h4 style="float: left;"> {% trans 'Flows' %} </h4>
         <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Flows Filter" data-html="true" tabindex="0"
           data-content="{% blocktrans %}
             Filter the flows in between the activities and actors by the following criteria<br><br>
@@ -404,6 +404,16 @@
               <option value='unknown'> {% trans "unknown" %} </option>
               <option value='no'> {% trans "not direct" %} </option>
               <option value='yes'> {% trans "direct" %} </option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label>{% trans "Composite" %}</label>
+            <select name="compo-select" class="form-control" multiple style="resize: vertical;">
+              <option value='-1'> {% trans "ignore" %} </option>
+              <option data-divider="true"></option>
+              <option value='unknown'> {% trans "unknown" %} </option>
+              <option value='no'> {% trans "product" %} </option>
+              <option value='yes'> {% trans "composite" %} </option>
             </select>
           </div>
         </div>
