@@ -176,6 +176,7 @@ var FilterFlowsView = BaseView.extend(
         this.cleanSelect = this.el.querySelector('select[name="clean-select"]');
         this.mixedSelect = this.el.querySelector('select[name="mixed-select"]');
         this.directSelect = this.el.querySelector('select[name="direct-select"]');
+        this.compoSelect = this.el.querySelector('select[name="compo-select"]');
         //this.avoidableSelect = this.el.querySelector('select[name="avoidable"]');
         $(this.groupSelect).selectpicker();
         $(this.activitySelect).selectpicker();
@@ -183,6 +184,7 @@ var FilterFlowsView = BaseView.extend(
         $(this.cleanSelect).selectpicker();
         $(this.mixedSelect).selectpicker();
         $(this.directSelect).selectpicker();
+        $(this.compoSelect).selectpicker();
         $(this.processSelect).selectpicker();
         $(this.wasteSelect).selectpicker();
         this.resetNodeSelects();
@@ -486,6 +488,7 @@ var FilterFlowsView = BaseView.extend(
         $(this.cleanSelect).on('changed.bs.select', multiCheck);
         $(this.mixedSelect).on('changed.bs.select', multiCheck);
         $(this.directSelect).on('changed.bs.select', multiCheck);
+        $(this.compoSelect).on('changed.bs.select', multiCheck);
         $(this.processSelect).on('changed.bs.select', multiCheck);
         $(this.wasteSelect).on('changed.bs.select', multiCheck);
     },
@@ -685,6 +688,18 @@ var FilterFlowsView = BaseView.extend(
         }
         filter.set('direct', direct);
 
+        var compo = null;
+        if (this.compoSelect.value != "-1") {
+            var values = [];
+            var options = this.compoSelect.selectedOptions;
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                values.push(option.value);
+            }
+            compo = values.join(',');
+        }
+        filter.set('compo', compo);
+
         var process_ids = null;
         if (this.processSelect.value != "-1"){
             var values = [];
@@ -813,6 +828,15 @@ var FilterFlowsView = BaseView.extend(
             $(this.directSelect).selectpicker('val', direct.split(','))
         }
         $(this.directSelect).selectpicker('refresh');
+
+        var compo = filter.get('compo');
+        if (compo == null) {
+            this.compoSelect.value = -1;
+        }
+        else {
+            $(this.compoSelect).selectpicker('val', compo.split(','))
+        }
+        $(this.compoSelect).selectpicker('refresh');
 
         var process_ids = filter.get('process_ids');
         if (process_ids == null)

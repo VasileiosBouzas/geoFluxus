@@ -210,6 +210,20 @@ var FlowsView = BaseView.extend(
             typeFilterFunctions['direct'] = options;
         }
 
+        var compo = filter.get('compo');
+        if (compo) {
+            var options = [];
+            compo.split(',').forEach(function(option){
+                if (option == 'unknown') {
+                    options.push(null);
+                } else {
+                    var is_compo = (option == 'yes') ? true : false;
+                    options.push(is_compo);
+                }
+            })
+            typeFilterFunctions['compo'] = options;
+        }
+
         var processIds = filter.get('process_ids');
         if (processIds) {
             typeFilterFunctions['process_id__in'] = processIds.split(',');

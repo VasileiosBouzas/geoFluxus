@@ -381,6 +381,10 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         queryset = queryset.annotate(
             direct=Subquery(subq.values('direct_use'))
         )
+        # Composite
+        queryset = queryset.annotate(
+            compo=Subquery(subq.values('composite'))
+        )
 
         # Fields to check in parent flowchain
         flowchain_lookups = ['year',
@@ -391,7 +395,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
         classif_lookups = ['clean',
                            'mixed',
-                           'direct']
+                           'direct',
+                           'compo']
         
         for sub_filter in filters:
             filter_link = sub_filter.pop('link', 'and')
