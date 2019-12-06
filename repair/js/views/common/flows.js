@@ -544,22 +544,8 @@ var FlowsView = BaseView.extend(
         if (this.nodeLevel === 'activitygroup')
             filterSuffix += '__activitygroup';
         var queryParams = {};
-            //is_stock = flow.get('stock'),
-            //process = flow.get('process_id');
-
-        // retrieve actor-actor flows for certain activity/group
-        // for both origin and destination
-        actFilter = {};
-        actFilter['origin__' + filterSuffix + '__id'] = flow.get('origin').id;
-        actFilter['destination__' + filterSuffix + '__id'] = flow.get('destination').id;
-        actFilter['link'] = 'and';
-        bodyParams['filters'].push(actFilter);
-        //queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
-        //queryParams['stock'] = (is_stock) ? 'True': 'False';
-        //if (process)
-           // queryParams['process'] = process;
-        //else
-           // queryParams['process__isnull'] = true;
+        queryParams['origin__' + filterSuffix] = flow.get('origin').id;
+        queryParams['destination__' + filterSuffix] = flow.get('destination').id;
 
         if (this.strategy && this.modDisplaySelect.value != 'statusquo')
             queryParams['strategy'] = this.strategy.id;
