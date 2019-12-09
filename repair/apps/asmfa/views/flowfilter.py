@@ -290,22 +290,11 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         aggregates flows between nodes on actor level to the levels determined
         by origin_model and destination_model
         '''
-        origin_filter = 'origin' + FILTER_SUFFIX[origin_model] + '__id'
-        destination_filter = 'destination' + FILTER_SUFFIX[destination_model] + '__id'
-        origin_level = LEVEL_KEYWORD[origin_model]
-        destination_level = LEVEL_KEYWORD[destination_model]
-        data = []
-        origins = origin_model.objects.filter(
-            id__in=list(queryset.values_list(origin_filter, flat=True)))
-        destinations = destination_model.objects.filter(
-            id__in=list(queryset.values_list(destination_filter, flat=True)))
-        # workaround Django ORM bug
-        queryset = queryset.order_by()
-
-        # Annotate amount
+        # Annotate
         queryset = queryset.annotate(amount=F('flowchain__amount'),
                                      description=F('flowchain__description'))
 
+        data = []
         if origin_model == Actor:
             for flow in queryset:
                 origin = flow.origin
@@ -328,6 +317,17 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 ))
                 data.append(flow_item)
             return data
+
+        origin_filter = 'origin' + FILTER_SUFFIX[origin_model] + '__id'
+        destination_filter = 'destination' + FILTER_SUFFIX[destination_model] + '__id'
+        origin_level = LEVEL_KEYWORD[origin_model]
+        destination_level = LEVEL_KEYWORD[destination_model]
+        origins = origin_model.objects.filter(
+            id__in=list(queryset.values_list(origin_filter, flat=True)))
+        destinations = destination_model.objects.filter(
+            id__in=list(queryset.values_list(destination_filter, flat=True)))
+        # workaround Django ORM bug
+        queryset = queryset.order_by()
 
         groups = queryset.values(origin_filter,
                                  destination_filter,

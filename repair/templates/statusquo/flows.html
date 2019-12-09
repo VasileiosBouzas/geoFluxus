@@ -169,20 +169,7 @@
           The color coding of the basic flows and activities and actors matches the sankey diagram.
           Tap a flow or actor on the map to display a tooltip with information about it.
           <br><br>
-          <b>Display Materials</b><br>
-          Initially the map displays the flows aggregated by its fractions from origin to destination.
-          By tapping <i>Display Materials</i> label or its checkbox the flows are disaggregated into their fractions.
-          This changes the color code of the flows. The new color codes are explained in the appearing legend.
-          You may select/deselect specific flows in the legend to display/hide them in the map.
-          <br><br>
-          <b>Cluster Locations</b><br>
-          The locations of actors and the flows in between can be clustered automatically depending on the zoom level.
-          The more you zoom out the bigger the cluster radius will get.
-          Only actors of the same activity/group will be clustered together.
-          <br><br>
-          <b>Animate Flows</b><br>
           To visualize the flow direction the <i>Animate Flows</i> checkbox has to be activated.
-
       {% endblocktrans %}">
     </a>
     <div id="flow-map" style="width: 100%; height: 600px;"></div>
@@ -206,17 +193,7 @@
         <h4 style="float: left;"> {% trans 'Activities & Areas' %} </h4>
         <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Activities and Actors Filter" data-html="true" tabindex="0"
           data-content='{% blocktrans %}
-            Filter the activities and actors by the following criteria<br><br>
-            <b>Filter Level</b> -
-            The level hierarchy goes from Activitygroup over Activities down to the individual Actors.
-            Depending on the selected level different selects of each level appear, from left to right with higher granularity.
-            Each selection on a specific level limits the number of available selections in the more granular selects to its right.<br>
-            When loading a filter the filter level will automatically be set to the lowest level where any selections where made (not "All").
-            <br><br>
-            <b>Anonymize actors</b> -
-            Actor names will be anonymized in the sankey diagram and map in workshop mode.
-            <br><br>
-            <b>Direction</b> - Limits the displayed flows to a set with flows going <i>to</i> the filtered activities and actors or originating <i>from</i> those (or both: <i>from/to</i>)
+            Filter the flows between activity groups, activities and actors
           {% endblocktrans %}'>
         </a>
         <div class="row" style="margin-top: 10px">
@@ -292,14 +269,7 @@
         <h4 style="float: left;"> {% trans 'Flows' %} </h4>
         <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Flows Filter" data-html="true" tabindex="0"
           data-content="{% blocktrans %}
-            Filter the flows in between the activities and actors by the following criteria<br><br>
-            <b>Flow Type</b> -
-            Limits the displayed flows to flows of <i>Products</i> or <i>Waste</i> or displays both (<i>Products and Waste</i>).<br><br>
-            <b>Material</b> -
-            Flows are composed of multiple fractions of different materials. Selecting a material limits the displayed flows
-            to a set of flows containing this material and its child materials.<br>
-            <b><i>Aggregate materials</i></b> - If this is checked all material fractions and their amounts are summed up to the top level materials (or to the selected material and its direct children).
-            If unchecked all fractions will be shown in detail.
+            Filter the flows in between activity groups, activities and actors
           {% endblocktrans %}">
         </a>
         <div class="row" style="margin-top: 10px">
@@ -436,9 +406,6 @@
         <option value="activity">{% trans "Activity" %}</option>
         <option value="actor">{% trans "Actor" %} </option>
       </select>
-      <div class="col-md-2">
-        <input name="middle" type="checkbox"/>&nbsp;{% trans "Ignore middle" %}
-      </div>
       <button id='apply-filters' class="btn btn-primary" title="{% trans "Apply the filters to activities and actors and flows and render the sankey diagram." %}" style="margin-left: 20px; float: left;">{% trans "Apply Filters and Render" %}</button>
       <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Render Filter Settings" style="float: left;" data-html="true" tabindex="0"
         data-content="{% blocktrans %}

@@ -328,7 +328,7 @@ var FlowSankeyView = BaseView.extend(
 
         var header = [gettext('origin'), gettext('origin_code'),
                       gettext('destination'), gettext('destination_code'),
-                      gettext('amount'), gettext('composition')],
+                      gettext('amount (t/year)')],
             rows = [],
             _this = this;
         rows.push(header.join('\t'));
@@ -336,16 +336,13 @@ var FlowSankeyView = BaseView.extend(
             var origin = link.source,
                 destination = link.target,
                 originName = origin.name,
-                destinationName = (!link.isStock) ? destination.name : gettext('Stock'),
-                amount = _this.format(link.amount) + ' ' + link.units,
-                composition = link.composition;
+                destinationName = destination.name,
+                amount = link.value.toFixed(3);
 
-            if (_this.forceSignum && amount >= 0)
-                amount = '-' + amount;
             var originCode = origin.code,
-                destinationCode = (destination) ? destination.code: '';
+                destinationCode = destination.code;
 
-            var row = [originName, originCode, destinationName, destinationCode, amount, composition];
+            var row = [originName, originCode, destinationName, destinationCode, amount];
             rows.push(row.join('\t'));
         });
         var text = rows.join('\r\n');
