@@ -314,8 +314,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                              'activity_nace': dest.activity.nace}
 
                 if (anonymous):
-                    origin_item['name'] = 'Anonymous';
-                    dest_item['name'] = 'Anonymous';
+                    origin_item['name'] = 'Anonymous'
+                    dest_item['name'] = 'Anonymous'
 
                 flow_item = OrderedDict((
                     ('origin', origin_item),
