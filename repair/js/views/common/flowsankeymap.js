@@ -582,7 +582,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
                 var name = node.name,
                     level = node.level;
-                    code = node.code || node.nace || node.activity__nace;
+                    code = node.code || node.nace || node.activity_nace;
 
                 if ((_this.anonymize) && (level === 'actor'))
                     name = gettext('Actor');

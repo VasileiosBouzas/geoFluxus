@@ -258,6 +258,10 @@ var FlowsView = BaseView.extend(
         // ignore middle node
         var middleFilter = filterParams['middle'] = middle;
 
+        // anonymize actors
+        var anonymize = document.getElementsByName('anonymous')[0];
+        filterParams['anonymous'] = (anonymize.checked) ? true : false;
+
         return filterParams;
     },
 

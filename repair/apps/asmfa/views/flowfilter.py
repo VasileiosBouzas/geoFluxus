@@ -205,6 +205,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         material_filter = params.get('materials', None)
         product_filter = params.get('products', None)
         composite_filter = params.get('composites', None)
+        anonymous = params.get('anonymous', False)
 
         # Check the aggregation level for nodes
         l_a = params.get('aggregation_level', {})
@@ -250,7 +251,10 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         # Serialize data
         ids = list(chains.values_list('id', flat=True))
         queryset = queryset.filter(flowchain_id__in=ids)
-        data = self.serialize(queryset, origin_model=origin_level, destination_model=destination_level)
+        data = self.serialize(queryset,
+                              anonymous,
+                              origin_model=origin_level,
+                              destination_model=destination_level)
         return Response(data)
 
 
@@ -284,7 +288,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         return node_dict
 
 
-    def serialize(self, queryset, origin_model=Actor, destination_model=Actor,):
+    def serialize(self, queryset, anonymous, origin_model=Actor, destination_model=Actor):
         '''
         serialize given queryset of flows to JSON,
         aggregates flows between nodes on actor level to the levels determined
@@ -308,6 +312,10 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                              'name': dest.name,
                              'geom': json.loads(dest.administrative_location.geom.geojson),
                              'activity_nace': dest.activity.nace}
+
+                if (anonymous):
+                    origin_item['name'] = 'Anonymous';
+                    dest_item['name'] = 'Anonymous';
 
                 flow_item = OrderedDict((
                     ('origin', origin_item),
