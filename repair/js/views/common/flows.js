@@ -260,7 +260,11 @@ var FlowsView = BaseView.extend(
 
         // anonymize actors
         var anonymize = document.getElementsByName('anonymous')[0];
-        filterParams['anonymous'] = (anonymize.checked) ? true : false;
+        if (anonymize !== undefined) {
+            filterParams['anonymous'] = (anonymize.checked) ? true : false;
+        } else {
+            filterParams['anonymous'] = true;
+        }
 
         return filterParams;
     },
